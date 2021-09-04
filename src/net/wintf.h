@@ -1,13 +1,12 @@
 #pragma once
 
-#include "wcore.h"
+#include "base/wbase.h"
 #include "wmac.h"
 #include "wip.h"
 
 struct WIntf {
 	friend struct WIntfList;
-
-	WIntf();
+	friend struct WNetInfo;
 
 protected:
 	int index_{-1};
