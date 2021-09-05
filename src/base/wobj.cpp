@@ -1,3 +1,9 @@
 #include "wobj.h"
 
-WObj::WObj() {}
+void WObj::load(JsonValue& json) {
+	(void)json;
+}
+
+void WObj::save(JsonValue& json) {
+	(void)json;
+}

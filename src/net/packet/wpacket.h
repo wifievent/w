@@ -16,7 +16,7 @@ struct WPacket {
 		Fail = -1, // read write
 		None = 0, // read
 		Ok = 1, // read write
-	} Result;
+	};
 
 public:
 	WPacket() { clear(); }

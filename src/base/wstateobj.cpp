@@ -1,10 +1,8 @@
 #include "wstateobj.h"
 
-WStateObj::WStateObj() {}
-
 bool WStateObj::open() {
 	if (state_ != Closed) {
-		GTRACE("state is not Closed(%d)", int(state_));
+		SET_ERR(wformat("state is not Closed(%d)", int(state_)));
 		return false;
 	}
 	err_.clear();
@@ -27,7 +25,7 @@ bool WStateObj::close() {
 		return true;
 
 	if (!active()) {
-		GTRACE("state is not Opened(%d)", int(state_));
+		SET_ERR(wformat("state is not Opened(%d)", int(state_)));
 		return false;
 	}
 
@@ -38,13 +36,11 @@ bool WStateObj::close() {
 }
 
 bool WStateObj::doOpen() {
-	err_ = "virtual function call";
-	GTRACE("%s", err_.data());
+	SET_ERR("virtual function call");
 	return false;
 }
 
 bool WStateObj::doClose() {
-	err_ = "virtual function call";
-	GTRACE("%s", err_.data());
+	SET_ERR("virtual function call");
 	return false;
 }

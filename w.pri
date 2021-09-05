@@ -1,5 +1,5 @@
 INCLUDEPATH *= $${PWD}/src
-LIBS *= -L$${PWD}/bin -lw
+LIBS *= -L$${PWD}/bin -lw -pthread
 
 #
 # define

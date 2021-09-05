@@ -10,7 +10,8 @@ struct WStateObj : WObj {
 		Closing // 3
 	};
 
-	WStateObj();
+	WStateObj() {}
+	~WStateObj() override {}
 
 	bool active() { return state_ == Opened; }
 	bool open();

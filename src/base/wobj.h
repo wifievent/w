@@ -5,7 +5,8 @@
 struct JsonValue; // TODO replace with jsoncpp
 
 struct WObj {
-	WObj();
+	WObj() {}
+	virtual ~WObj() {}
 
 	std::string err_;
 
