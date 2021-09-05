@@ -1,5 +1,16 @@
+#
+# include path
+#
 INCLUDEPATH *= $${PWD}/src
+
+#
+# link library
+#
 LIBS *= -L$${PWD}/bin -lw -pthread
+
+!CONFIG(W_BUILD) {
+	PRE_TARGETDEPS *= $${PWD}/bin/libw.a
+}
 
 #
 # define

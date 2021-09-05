@@ -2,6 +2,7 @@ CONFIG -= qt
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += c++11
+CONFIG += W_BUILD
 include($${PWD}/../w.pri)
 DESTDIR = $${PWD}/../bin
 
