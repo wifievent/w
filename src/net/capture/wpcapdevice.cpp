@@ -1,4 +1,5 @@
 #include "wpcapdevice.h"
+#include <thread>
 
 void WPcapDevice::load(JsonValue& json) {
 	(void)json;
@@ -45,6 +46,7 @@ bool WPcapDevice::doClose() {
 
 WPacket::Result WPcapDevice::read(WPacket* packet) {
 	WPacket::Result res = WPcapCapture::read(packet);
-	if (res == WPacket::None && waitTimeout_ != 0) usleep(waitTimeout_ * 1000);
+	if (res == WPacket::None && waitTimeout_ != 0)
+		std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeout_));
 	return res;
 }

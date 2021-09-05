@@ -1,4 +1,5 @@
 #include "wwritable.h"
+#include <thread>
 
 WPacket::Result WWritable::writeMtuSplit(WPacket* packet, size_t mtu) {
 	//qDebug() << packet->buf_.size_; // gilgil temp 2021.07.10
@@ -55,7 +56,7 @@ WPacket::Result WWritable::writeMtuSplit(WPacket* packet, size_t mtu) {
 		//qDebug() << "onceTcpDataSize =" << onceTcpDataSize; // gilgil temp 2021.07.10
 		tcpHdr->sum_ = htons(WTcpHdr::calcChecksum(ipHdr, tcpHdr));
 		write(packet->buf_);
-		usleep(1000); // gilgil temp 2021.07.10
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 		tcpHdr->seq_ = htonl(tcpHdr->seq() + onceTcpDataSize); // next seq
 		totalTcpDataSize -= onceTcpDataSize;
