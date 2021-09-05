@@ -6,7 +6,7 @@
 struct WNetInfo {
 private: // singleton
 	WNetInfo();
-	~WNetInfo() {}
+	virtual ~WNetInfo() {}
 
 	WIntfList intfList_;
 	WRtm rtm_;

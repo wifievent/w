@@ -1,6 +1,10 @@
 #include "wintflist.h"
 #include <pcap.h>
 
+#ifdef WOS_WIN
+#include "net/_win/wipadapterinfo.h"
+#endif
+
 WIntfList::WIntfList() {
 	//
 	// Initialize allDevs using pcap API.
@@ -40,13 +44,21 @@ WIntfList::WIntfList() {
 				intf.mask_ = ntohl(addr_in->sin_addr.s_addr);
 			}
 		}
-#endif // WOS_LINUX
+#endif
 #ifdef WOS_WIN
-		// TODO set (mac_, ip_, mask_) member variables
-#endif // WOS_WIN
+		PIP_ADAPTER_INFO adapter = WIpAdapterInfo::instance().findByAdapterName(dev->name);
+		if (adapter != nullptr) {
+			intf.desc_ = adapter->Description;
+			if (adapter->AddressLength == WMac::SIZE)
+				intf.mac_ = adapter->Address;
+			intf.ip_ = std::string(adapter->IpAddressList.IpAddress.String);
+			intf.mask_ = std::string(adapter->IpAddressList.IpMask.String);
+			intf.gateway_ = std::string(adapter->GatewayList.IpAddress.String);
+		}
+#endif
 #ifdef WOS_MAC
 		// TODO set (mac_, ip_, mask_) member variables
-#endif // WOS_MAC
+#endif
 		intf.ip_and_mask_ = intf.ip_ & intf.mask_;
 		// gateway_ is initialized later
 		push_back(intf);
@@ -64,17 +76,17 @@ WIntf* WIntfList::findByName(std::string name) {
 	}
 	return nullptr;
 }
-#endif // WOS_LINUX
+#endif
 
 #ifdef WOS_WIN
 WIntf* WIntfList::findByName(std::string name) {
 	for (WIntf& intf: *this) {
-		if (intf.name().find(name.data()) != -1)
+		if (intf.name().find(name.data()) != std::string::npos)
 			return &intf;
 	}
 	return nullptr;
 }
-#endif // WOS_WINv
+#endif
 
 #ifdef WOS_LINUX
 #include <net/if.h> // for ifreq
@@ -100,12 +112,12 @@ WMac WIntfList::getMac(char* intfName) {
 	WMac res(p);
 	return res;
 }
-#endif // WOS_LINUX
+#endif
 
 #ifdef WOS_WIN
 // TODO implenent getMac function
-#endif // WOS_WIN
+#endif
 
 #ifdef WOS_MAC
 // TODO implenent getMac function
-#endif // WOS_MAC
+#endif

@@ -60,3 +60,13 @@ SOURCES += \
 	../src/net/wnetinfo.cpp \
 	../src/net/wrtm.cpp \
 	../src/net/wrtmentry.cpp
+
+win32 {
+HEADERS += \
+	../src/net/_win/wipadapterinfo.h \
+	../src/net/_win/wipforwardtable.h
+
+SOURCES += \
+	../src/net/_win/wipadapterinfo.cpp \
+	../src/net/_win/wipforwardtable.cpp
+}

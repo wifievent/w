@@ -23,9 +23,5 @@ protected:
 	static bool checkD(char* buf, WRtmEntry* entry);
 	static bool decodeCidr(std::string cidr, uint32_t* dst, uint32_t* mask);
 	static uint32_t numberToMask(int number);
-#endif // WOS_LINUX
-
-#ifdef WOS_WIN
-	// TODO
-#endif // WOS_WIN
+#endif
 };

@@ -1,5 +1,6 @@
 #include "wrtm.h"
 
+#ifdef WOS_LINUX
 //
 // ip route show table 0 output
 //
@@ -34,6 +35,38 @@ WRtm::WRtm() {
 	}
 	pclose(p);
 }
+#endif
+
+#ifdef WOS_WIN
+#include <cassert>
+#include "net/_win/wipadapterinfo.h"
+#include "net/_win/wipforwardtable.h"
+
+WRtm::WRtm() {
+	PMIB_IPFORWARDTABLE table = WIpForwardTable::instance().ipForwardTable_;
+	for (int i = 0; i < int(table->dwNumEntries); i++) {
+		PMIB_IPFORWARDROW row = &table->table[i];
+		WRtmEntry entry;
+		IF_INDEX ifIndex = row->dwForwardIfIndex;
+		PIP_ADAPTER_INFO adapter = WIpAdapterInfo::instance().findByComboIndex(ifIndex);
+		if (adapter == nullptr) continue;
+		std::string adapterName = adapter->AdapterName;
+		assert(adapterName != "");
+		entry.intfName_ = adapterName;
+		entry.dst_ = ntohl(row->dwForwardDest);
+		entry.gateway_ = ntohl(row->dwForwardNextHop);
+		entry.mask_ = ntohl(row->dwForwardMask);
+		entry.metric_ = int(row->dwForwardMetric1);
+		// intf_ is initialized later
+		push_back(entry);
+	}
+}
+#endif
+
+#ifdef WOS_MAC
+WRtm::WRtm() {	// TODO
+}
+#endif
 
 WRtmEntry* WRtm::getBestEntry(WIp ip) {
 	WRtmEntry* res = nullptr;
@@ -156,8 +189,4 @@ uint32_t WRtm::numberToMask(int number) {
 	return res;
 }
 
-#endif // WOS_LINUX
-
-#ifdef WOS_WIN
-	// TODO
-#endif // WOS_WIN
+#endif

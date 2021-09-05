@@ -3,7 +3,7 @@
 #include "wiphdr.h"
 
 #pragma pack(push, 1)
-struct WUdpHdr final { // libnet_tcp_hdr // gilgil temp 2019.05.13
+struct WUdpHdr final {
 	uint16_t sport_;
 	uint16_t dport_;
 	uint16_t len_;

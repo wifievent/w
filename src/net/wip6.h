@@ -27,7 +27,7 @@ struct WIp6 final {
 	bool operator > (const WIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) > 0; }
 	bool operator <= (const WIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) <= 0; }
 	bool operator >= (const WIp6& r) const { return memcmp(ip6_, r.ip6_, SIZE) >= 0; }
-	bool operator == (const u_char* r) const { return memcmp(ip6_, r, SIZE) == 0; }
+	bool operator == (const unsigned char* r) const { return memcmp(ip6_, r, SIZE) == 0; }
 
 	void clear() {
 		memset(ip6_, 0, SIZE);
@@ -53,15 +53,16 @@ namespace std {
 	template<>
 	struct hash<WIp6> {
 		size_t operator() (const WIp6& r) const {
-#ifdef WOS_LINUX
-			return std::_Hash_impl::hash(&r, WIp6::SIZE);
-#endif // WOS_LINUX
-#ifndef WOS_LINUX
-			byte* p = pbyte(&r);
+#if defined(WOS_LINUX) || defined(WOS_WIN)
+			//return std::_Hash_impl::hash(&r, WIp6::SIZE);
+#endif
+#ifndef WOS_MAC
+			WIp6 rr = r;
+			unsigned char* p = reinterpret_cast<unsigned char*>(&rr);
 			size_t res = 0;
 			for(size_t i = 0; i < WIp6::SIZE; ++i) res = res * 31 + size_t(*p++);
 			return res;
-#endif // WOS_LINUX
+#endif
 		}
 	};
 }

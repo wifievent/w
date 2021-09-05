@@ -20,10 +20,10 @@ WIp6::WIp6(const std::string& r) {
 		}
 		memset(ip6_, 0, SIZE);
 	}
-#endif // WOS_LINUX
+#endif
 #ifdef WOS_WIN
-	(void)s;(void)p;
-#endif // WOS_WIN
+	(void)r;(void)p;
+#endif
 }
 
 WIp6::operator std::string() const {
@@ -35,8 +35,8 @@ WIp6::operator std::string() const {
 		return std::string();
 	}
 	return std::string(s);
-#endif // WOS_LINUX
+#endif
 #ifdef WOS_WIN
-	return QString(); // gilgil temp 2010.10.20
-#endif // WOS_WIN
+	return std::string(); // gilgil temp 2010.10.20
+#endif
 }

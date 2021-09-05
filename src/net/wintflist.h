@@ -6,8 +6,9 @@
 struct WIntfList : std::list<WIntf> {
 	friend struct WNetInfo;
 
-private: // singletin
+private: // singleton
 	WIntfList();
+	virtual ~WIntfList() { clear(); }
 
 public:
 	WIntf* findByName(std::string name);
