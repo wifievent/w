@@ -36,7 +36,7 @@ WPacket::Result WPcapCapture::read(WPacket* packet) {
 			if (e != nullptr && strlen(e) > 0) {
 				GTRACE("pcap_next_ex return -1 error=%s", e);
 			}
-			res = WPacket::Eof;
+			res = WPacket::Fail;
 			break;
 		}
 		case PCAP_ERROR_BREAK: { // if EOF was reached reading from an offline capture
