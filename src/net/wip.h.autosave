@@ -35,7 +35,7 @@ struct WIp final {
 		return prefix >= 0xE0 && prefix < 0xF0;
 	}
     void print(){
-        printf("%x\n",ip_);
+        
     }
 	static WIp nullIp() { return WIp(0); }
 
