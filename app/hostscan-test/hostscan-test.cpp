@@ -1,8 +1,10 @@
 #include "net/wscan.h"
+
 int main()
 {
     list<Scan::Guest> v;
     WNetInfo& wnetinfo = WNetInfo::instance();
+    WIntfList& intflist = wnetinfo.intfList();
     WRtm& rtm = wnetinfo.rtm();
     WRtmEntry* rtmentry = rtm.getBestEntry(WIp("8.8.8.8"));
 
@@ -14,9 +16,18 @@ int main()
     WPacket packet = WPacket();
 
     //dhcp
-    thread dhcp(Scan::dhcp,&device,v);
+    thread dhcp(Scan::dhcp,&device,&v);
+
     //full-scan
-    Scan::full_scan(&device,ip_,v);
+    Scan::full_scan(&device,ip_,&v);
+
+    //arp infection
+    thread infect(Scan::send_arp,&device,ip_,&v);
+
+    //arp recover
+    WIp want;
+    Scan::arp_recover(&device, want, ip_, intflist);
+
     dhcp.join();
 
     device.close();
