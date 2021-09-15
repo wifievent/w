@@ -1,4 +1,5 @@
 #include "wscan.h"
+
 void Scan::send_arp(WPcapDevice* device, uint32_t ip_,list<Guest>* v)
 {
     list<Guest>::iterator iter;
@@ -7,6 +8,9 @@ void Scan::send_arp(WPcapDevice* device, uint32_t ip_,list<Guest>* v)
 
     while(1)
     {
+        printf("\n<size>\n");
+        std::cout<<v->size()<<std::endl;
+
         for(iter = v->begin(); iter!=v->end();iter++)
         {
             printf("\n<sendarp>\n");
@@ -22,6 +26,20 @@ void Scan::send_arp(WPcapDevice* device, uint32_t ip_,list<Guest>* v)
             sleep(10);
         }
     }
+}
+
+void Scan::arp_recover(WPcapDevice* device,WIp ip,uint32_t ip_,WIntfList& intflist)
+{
+    WIntf* intf_t = intflist.findByIp(ip);//target interface
+    WIntf* intf_g = intflist.findByIp(ip_);//gateway interface
+
+    Etharp etharp = makeArppacket(intf_t->mac(),intf_g->mac(),intf_t->mac(),ip,ip_);
+    WPacket packet = WPacket();
+    packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
+    packet.buf_.size_ = sizeof(Etharp);
+
+    for(int i =0; i<3; i++)
+        device->write(packet.buf_);
 }
 
 void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Guest>* v)

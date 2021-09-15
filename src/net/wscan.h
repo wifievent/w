@@ -41,6 +41,7 @@ public:
     static void dhcp(WPcapDevice* device,list<Guest>* v);
     static void full_scan(WPcapDevice* device, uint32_t ip_,list<Guest>* v);
     static void send_arp(WPcapDevice* device,uint32_t ip_,list<Guest>* v);
+    static void arp_recover(WPcapDevice* device,WIp ip,uint32_t ip_,WIntfList& intflist);
     static Scan& instance(){
         static Scan scan;
         return scan;
