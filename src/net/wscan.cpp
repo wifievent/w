@@ -1,5 +1,12 @@
 #include "wscan.h"
 
+void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Guest> v){
+    thread thread1(Scan::scan,device,ip_);
+    thread thread2(Scan::acquire,device,v,ip_);
+    thread1.join();
+    thread2.join();
+}
+
 Scan::Etharp Scan::makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
     Etharp etharp;
     etharp.eth.dmac_ = dmac;
@@ -42,12 +49,6 @@ void Scan::scan(WPcapDevice* device, uint32_t ip_){
     }
 }
 
-void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Scan::Guest> v){
-    thread thread1(Scan::scan,device,ip_);
-    thread thread2(Scan::acquire,device,v,ip_);
-    thread2.join();
-}
-
 void Scan::acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_)
 {
     WPacket packet = WPacket();
@@ -61,9 +62,9 @@ void Scan::acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_)
             if(packet.ethHdr_->dmac_!=device->intf()->mac()||packet.arpHdr_->op()!=packet.arpHdr_->Reply)continue;
 
             int flag1 = 0, flag2 = 0, flag3 = 0;
-            (packet.arpHdr_->sip() & 0xFF000000) >> 24 == (ip_& 0xFF000000)>>24 ? flag1 = 1: flag1 = 0;
-            (packet.arpHdr_->sip() & 0x00FF0000) >> 16 == (ip_& 0x00FF0000) >> 16 ? flag2 = 1: flag2 = 0;
-            (packet.arpHdr_->sip() & 0x0000FF00) >> 8 == (ip_& 0x0000FF00) >> 8 ? flag3 = 1: flag3 = 0;
+            (packet.arpHdr_->sip() & 0xFF000000) >> 24 == (ip_& 0xFF000000)>>24 ? flag1 = 1 : 0;
+            (packet.arpHdr_->sip() & 0x00FF0000) >> 16 == (ip_& 0x00FF0000) >> 16 ? flag2 = 1 : 0;
+            (packet.arpHdr_->sip() & 0x0000FF00) >> 8 == (ip_& 0x0000FF00) >> 8 ? flag3 = 1 : 0;
 
             if(flag1&&flag2&&flag3)
             {
@@ -74,7 +75,6 @@ void Scan::acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_)
             }
         }
         end = time(NULL);
-        printf("%f",(double)(end-start));
         if(end-start>10)return;
     }
 }

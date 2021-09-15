@@ -15,10 +15,9 @@ int main()
 
     //dhcp
     thread dhcp(Scan::dhcp,&device,v);
-    dhcp.join();
     //full-scan
     Scan::full_scan(&device,ip_,v);
-
+    dhcp.join();
 
     device.close();
     return 0;
