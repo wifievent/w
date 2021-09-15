@@ -35,11 +35,12 @@ public:
         char* name;
     };
 
-    static Etharp makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
+    static Etharp makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     static void scan(WPcapDevice* device, uint32_t ip_);
-    static void acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_);
-    static void dhcp(WPcapDevice* device,list<Guest> v);
-    static void full_scan(WPcapDevice* device, uint32_t ip_,list<Scan::Guest> v);
+    static void acquire(WPcapDevice* device,list<Guest>* v,uint32_t ip_);
+    static void dhcp(WPcapDevice* device,list<Guest>* v);
+    static void full_scan(WPcapDevice* device, uint32_t ip_,list<Guest>* v);
+    static void send_arp(WPcapDevice* device,uint32_t ip_,list<Guest>* v);
     static Scan& instance(){
         static Scan scan;
         return scan;
