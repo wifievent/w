@@ -11,9 +11,10 @@
 #include "iostream"
 #include <stdio.h>
 #include <stdlib.h>
-#include <vector>
+#include <list>
 #include <string>
 #include <thread>
+#include <time.h>
 using namespace std;
 
 #pragma pack(push,1)
@@ -34,11 +35,11 @@ public:
         char* name;
     };
 
-    static Etharp sendpacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
+    static Etharp makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     static void scan(WPcapDevice* device, uint32_t ip_);
-    static void acquire(WPcapDevice* device,vector<Guest> v,uint32_t ip_);
-    static void dhcp(WPcapDevice* device,vector<Guest> v);
-
+    static void acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_);
+    static void dhcp(WPcapDevice* device,list<Guest> v);
+    static void full_scan(WPcapDevice* device, uint32_t ip_,list<Scan::Guest> v);
     static Scan& instance(){
         static Scan scan;
         return scan;

@@ -1,6 +1,6 @@
 #include "wscan.h"
 
-Scan::Etharp Scan::sendpacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
+Scan::Etharp Scan::makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
     Etharp etharp;
     etharp.eth.dmac_ = dmac;
     etharp.eth.smac_ = smac;
@@ -22,7 +22,7 @@ void Scan::scan(WPcapDevice* device, uint32_t ip_){
     char* gateway = (char*)malloc(sizeof(char)*4);
     WPacket packet = WPacket();
     packet.buf_.size_ = sizeof(Etharp);
-    Etharp etharp = sendpacket(WMac("FF:FF:FF:FF:FF:FF"),device->intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),device->intf()->ip());
+    Etharp etharp = makearppacket(WMac("FF:FF:FF:FF:FF:FF"),device->intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),device->intf()->ip());
 
     for(int l = 1; l<255; l++){
         if((ip_&0x000000FF)==(l&0x000000FF))continue;
@@ -42,9 +42,17 @@ void Scan::scan(WPcapDevice* device, uint32_t ip_){
     }
 }
 
-void Scan::acquire(WPcapDevice* device,vector<Guest> v,uint32_t ip_)
+void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Scan::Guest> v){
+    thread thread1(Scan::scan,device,ip_);
+    thread thread2(Scan::acquire,device,v,ip_);
+    thread2.join();
+}
+
+void Scan::acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_)
 {
     WPacket packet = WPacket();
+    time_t start, end;
+    start = time(NULL);
     while(1)
     {
         if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
@@ -65,10 +73,13 @@ void Scan::acquire(WPcapDevice* device,vector<Guest> v,uint32_t ip_)
                 v.push_back(g);
             }
         }
+        end = time(NULL);
+        printf("%f",(double)(end-start));
+        if(end-start>10)return;
     }
 }
 
-void Scan::dhcp(WPcapDevice* device,vector<Guest> v)
+void Scan::dhcp(WPcapDevice* device,list<Guest> v)
 {
     WPacket packet = WPacket();
     while(1)
