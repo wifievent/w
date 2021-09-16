@@ -6,3 +6,5 @@ include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 SOURCES += \
         hostscan-test.cpp
+
+HEADERS +=

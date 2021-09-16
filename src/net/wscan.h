@@ -18,33 +18,31 @@
 using namespace std;
 
 #pragma pack(push,1)
-struct Scan {
-private:
-    Scan();
-    ~Scan();
-
-public:
-    struct Etharp{
-        struct WEthHdr eth;
-        struct WArpHdr arp;
-    };
-
-    struct Guest{
-        WMac mac;
-        WIp ip;
-        char* name;
-    };
-
+struct Etharp{
+    struct WEthHdr eth;
+    struct WArpHdr arp;
     static Etharp makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
-    static void scan(WPcapDevice* device, uint32_t ip_);
-    static void acquire(WPcapDevice* device,list<Guest>* v,uint32_t ip_);
-    static void dhcp(WPcapDevice* device,list<Guest>* v);
-    static void full_scan(WPcapDevice* device, uint32_t ip_,list<Guest>* v);
-    static void send_arp(WPcapDevice* device,uint32_t ip_,list<Guest>* v);
-    static void arp_recover(WPcapDevice* device,WIp ip,uint32_t ip_,WIntfList& intflist);
-    static Scan& instance(){
-        static Scan scan;
-        return scan;
-    }
+};
+
+struct Host {
+  char* name;
+  WMac mac_;
+  WIp ip_;
+};
+
+struct NetBlock {
+  void open();
+  void close();
+  static void infect(WPcapDevice* device, WIp gateway,list<Host>* v);
+  void recover(WPcapDevice* device, WIntfList& intflist, WIp gateway, Host host);
+};
+
+struct Scan {
+  static void open(WPcapDevice* DHdevice, WPcapDevice* FSdevice, WIp gateway, list<Host>* v); // start fullscan and dhcpScan thread
+  void close(); // stop fullscan and dhcpScan thread
+  static void acquire(WPcapDevice* device, list<Host>* v, WIp gateway);
+  static void scan(WPcapDevice* device, WIp gateway);
+  static void dhcpScan(WPcapDevice* device, list<Host>* v);
+  virtual void onNewHost(Host host); // event when new host is detected
 };
 #pragma pack(pop)
