@@ -40,6 +40,7 @@ void NetBlock::recover(WPcapDevice* device, WIntfList& intflist, WIp gateway, Ho
     for(int i =0; i<3; i++)
         device->write(packet.buf_);
 }
+
 void Scan::scan(WPcapDevice* device, WIp gateway)
 {
     WPacket packet;
@@ -59,7 +60,7 @@ void Scan::scan(WPcapDevice* device, WIp gateway)
     }
 }
 
-void Scan::acquire(WPcapDevice* device, list<Host>* v, WIp gateway)
+void Scan::acquire(WPcapDevice* device, list<Host>* v, WIp gateway, mutex* m)
 {
     WPacket packet;
     list<Host>::iterator iter;
@@ -91,8 +92,11 @@ void Scan::acquire(WPcapDevice* device, list<Host>* v, WIp gateway)
                     break;
                 }
             }
-            if(!tmp)
+            if(!tmp){
+                m->lock();
                 v->push_back(g);
+                m->unlock();
+            }
         }
 
         end = time(NULL);
@@ -100,11 +104,11 @@ void Scan::acquire(WPcapDevice* device, list<Host>* v, WIp gateway)
     }
 }
 
-void Scan::open(WPcapDevice* DHdevice, WPcapDevice* FSdevice, WIp gateway, list<Host>* v)
+void Scan::open(WPcapDevice* DHdevice, WPcapDevice* FSdevice, WIp gateway, list<Host>* v, mutex* m)
 {
-    thread dhcp(dhcpScan,DHdevice,v);
+    thread dhcp(dhcpScan,DHdevice,v,m);
     thread scan_(scan,FSdevice,gateway);
-    thread acquire_(acquire,FSdevice,v,gateway);
+    thread acquire_(acquire,FSdevice,v,gateway,m);
     dhcp.detach();
     scan_.join();
     acquire_.join();
@@ -129,7 +133,7 @@ Etharp Etharp::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
     return etharp;
 }
 
-void Scan::dhcpScan(WPcapDevice* device, list<Host>* v)
+void Scan::dhcpScan(WPcapDevice* device, list<Host>* v, mutex* m)
 {
     WPacket packet;
     while(1)
@@ -167,7 +171,9 @@ void Scan::dhcpScan(WPcapDevice* device, list<Host>* v)
                         g.name[i] = *(&opt->len_+1+i);
                 }
             }
+            m->lock();
             v->push_back(g);
+            m->unlock();
         }
     }
 }

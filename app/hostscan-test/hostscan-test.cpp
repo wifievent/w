@@ -2,6 +2,7 @@
 
 int main()
 {
+    static mutex m;
     list<Host> v;
     WNetInfo& wnetinfo = WNetInfo::instance();
     WIntfList& intflist = wnetinfo.intfList();
@@ -17,7 +18,7 @@ int main()
     WPacket packet = WPacket();
 
     //dhcp & full-scan
-    Scan::open(&DHdevice,&FSdevice,gateway,&v);
+    Scan::open(&DHdevice,&FSdevice,gateway,&v,&m);
 
     NetBlock nb;
     //arp infection
