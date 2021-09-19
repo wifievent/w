@@ -32,6 +32,7 @@ void SendArp::recover(Host host)//recover function
 {
     Etharp etharp;
     etharp.makeArppacket(host.mac_,mac_gate,host.mac_,host.ip_,ARPdevice.intf()->gateway());
+
     WPacket packet;
     packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
     packet.buf_.size_ = sizeof(Etharp);
@@ -50,7 +51,6 @@ void Scan::scan()//full-scan function
     WIntf* intf = FSdevice.intf();
     uint32_t beginIp = (intf->ip() & intf->mask())+1;
     uint32_t endIp = (intf->ip() | ~intf->mask())-1;
-
     //find all ip connected to the network
     for(uint32_t ip = beginIp; ip!=endIp; ip++){
         if(WIp(ip)==intf->gateway())continue;
@@ -82,9 +82,17 @@ void Scan::acquire()//packet parsing(arp packet)
                 gtrace("<full scan>");
                 g.mac_ = packet.ethHdr_->smac();
                 g.ip_ = packet.arpHdr_->sip();
-
-                gtrace("%s",std::string(g.mac_).data());
-                gtrace("%s",std::string(g.ip_).data());
+                /*struct sockaddr_in addr;
+                memset(&addr,0,sizeof(addr));
+                addr.sin_addr.s_addr = inet_addr(std::string(g.ip_).c_str());
+                struct hostent *hptr = gethostbyaddr((char*)&(addr.sin_addr.s_addr),4,AF_INET);
+                if(!hptr){
+                    printf("Gethostbyaddr error!\n");
+                    exit(1);
+                }
+                printf("Official host name : %s\n",hptr->h_name);*/
+                gtrace("%s",string(g.mac_).data());
+                gtrace("%s",string(g.ip_).data());
             }
 
             //removing duplication in list
@@ -166,7 +174,7 @@ void Scan::dhcpScan()//dhcp packet parsing
 
                     string str(buf);
                     g.ip_ = WIp(str);
-                    g.ip_.print();
+                    gtrace("%s",std::string(g.ip_).data());
                 }
                 else if(opt->type_ == 12)//get name
                 {

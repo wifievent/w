@@ -166,7 +166,7 @@ void Scan::dhcpScan()//dhcp packet parsing
 
                     string str(buf);
                     g.ip_ = WIp(str);
-                    g.ip_.print();
+                    gtrace("%s",std::string(g.ip_).data());
                 }
                 else if(opt->type_ == 12)//get name
                 {

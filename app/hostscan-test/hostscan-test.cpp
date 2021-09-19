@@ -1,4 +1,4 @@
-#include "dhcp.h"
+#include "net/wscan.h"
 int main()
 {
     Scan sc;
@@ -19,7 +19,7 @@ int main()
     dhcp.detach();
     scan_.join();
     acquire_.join();
-
+    sa.v = sc.v;
     //arp infection
     thread infect(&SendArp::infect,&sa);
 
