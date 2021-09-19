@@ -9,10 +9,10 @@ int main()
 
     WPacket packet = WPacket();
 
-    //open(&dhcp); --> error generated
     //Scan sc;
+    //sc.open(&dhcp); --> error generated
 
-    //dhcp & full-scan
+    //dhcp & full-scan -> contents in open function
     thread dhcp = thread(&Scan::dhcpScan,&sc);
     thread scan_(&Scan::scan,&sc);
     thread acquire_(&Scan::acquire,&sc);
