@@ -1,4 +1,4 @@
-#include "net/wscan.h"
+#include "dhcp.h"
 
 void SendArp::infect()//infection function
 {

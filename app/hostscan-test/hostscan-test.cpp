@@ -1,37 +1,36 @@
-#include "net/wscan.h"
-
+#include "dhcp.h"
 int main()
 {
-    static mutex m;
-    list<Host> v;
-    WNetInfo& wnetinfo = WNetInfo::instance();
-    WIntfList& intflist = wnetinfo.intfList();
-    WRtm& rtm = wnetinfo.rtm();
-    WRtmEntry* rtmentry = rtm.getBestEntry(WIp("8.8.8.8"));
-    WIp gateway = rtmentry->gateway();//gateway ip
-
-    WPcapDevice FSdevice,DHdevice,ARPdevice;
-    FSdevice.open();//can find mymac, myip
-    DHdevice.open();//can find mymac, myip
-    ARPdevice.open();//can find mymac, myip
+    Scan sc;
+    SendArp sa;
+    sc.DHdevice.open();
+    sc.FSdevice.open();//can find mymac, myip
+    sa.ARPdevice.open();//can find mymac, myip
 
     WPacket packet = WPacket();
 
-    //dhcp & full-scan
-    Scan::open(&DHdevice,&FSdevice,gateway,&v,&m);
+    //open(&dhcp); --> error generated
+    //Scan sc;
 
-    NetBlock nb;
+    //dhcp & full-scan
+    thread dhcp = thread(&Scan::dhcpScan,&sc);
+    thread scan_(&Scan::scan,&sc);
+    thread acquire_(&Scan::acquire,&sc);
+    dhcp.detach();
+    scan_.join();
+    acquire_.join();
+
     //arp infection
-    thread infect(NetBlock::infect,&ARPdevice,gateway,&v);
+    thread infect(&SendArp::infect,&sa);
 
     //arp recover
     Host want;
-    nb.recover(&ARPdevice, intflist, gateway, want);
+    sa.recover(want);
 
     infect.join();
 
-    FSdevice.close();
-    DHdevice.close();
-    ARPdevice.close();
+    sc.FSdevice.close();
+    sc.DHdevice.close();
+    sa.ARPdevice.close();
     return 0;
 }

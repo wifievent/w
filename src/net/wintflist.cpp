@@ -69,7 +69,7 @@ WIntfList::WIntfList() {
 }
 
 #ifdef WOS_LINUX
-WIntf* WIntfList::findByName(std::string name) {
+WIntf* WIntfList::findByName(std::string name) {//for Linux
 	for (WIntf& intf: *this) {
 		if (intf.name() == name)
 			return &intf;
@@ -122,7 +122,7 @@ WMac WIntfList::getMac(char* intfName) {
 // TODO implenent getMac function
 #endif
 #ifdef WOS_LINUX
-WIntf* WIntfList::findByIp(WIp ip) {
+WIntf* WIntfList::findByIp(WIp ip) {//for Windows
 	for (WIntf& intf: *this) {
 		if (intf.ip() == ip)
 			return &intf;
