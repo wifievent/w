@@ -33,7 +33,7 @@ struct Host {
 
 struct SendArp {
   WPcapDevice ARPdevice;
-  list<Host> v;
+  list<Host> v;//host to manage
   WMac mac_gate;
   void open();
   void close();//if program end -> full recover arp
@@ -43,9 +43,10 @@ struct SendArp {
 
 struct Scan {
   WPcapDevice DHdevice, FSdevice;
-  list<Host> v;
+  list<Host> v;//full host
   mutex m;
-  void open(thread* dhcp); // start fullscan and dhcpScan thread
+  thread* dhcp;
+  void open(Scan* sc); // start fullscan and dhcpScan thread
   void close(); // stop fullscan and dhcpScan thread
   void acquire();
   void scan();

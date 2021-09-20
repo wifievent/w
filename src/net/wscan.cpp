@@ -1,5 +1,4 @@
 #include "net/wscan.h"
-
 void SendArp::infect()//infection function
 {
     list<Host>::iterator iter;
@@ -32,6 +31,7 @@ void SendArp::recover(Host host)//recover function
 {
     Etharp etharp;
     etharp.makeArppacket(host.mac_,mac_gate,host.mac_,host.ip_,ARPdevice.intf()->gateway());
+
     WPacket packet;
     packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
     packet.buf_.size_ = sizeof(Etharp);
@@ -50,7 +50,6 @@ void Scan::scan()//full-scan function
     WIntf* intf = FSdevice.intf();
     uint32_t beginIp = (intf->ip() & intf->mask())+1;
     uint32_t endIp = (intf->ip() | ~intf->mask())-1;
-
     //find all ip connected to the network
     for(uint32_t ip = beginIp; ip!=endIp; ip++){
         if(WIp(ip)==intf->gateway())continue;
@@ -82,9 +81,27 @@ void Scan::acquire()//packet parsing(arp packet)
                 gtrace("<full scan>");
                 g.mac_ = packet.ethHdr_->smac();
                 g.ip_ = packet.arpHdr_->sip();
+                string fname = "nmblookup -A ";
+                string fullname = fname + string(g.ip_);
+                FILE *fp = popen(fullname.c_str(),"r");
 
-                gtrace("%s",std::string(g.mac_).data());
-                gtrace("%s",std::string(g.ip_).data());
+                if(fp == NULL){
+                    perror("popen() fail");
+                    exit(1);
+                }
+
+                char buf[1024];
+                string str;
+                fgets(buf,1024,fp);
+                if(fgets(buf,1024,fp)){
+                    string str(strtok(buf," "));
+                    str.erase(str.begin());
+                    g.name = (char*)malloc(sizeof(char)*str.size());
+                    strcpy(g.name,str.c_str());
+                    gtrace(str.c_str());
+                }
+                gtrace("%s",string(g.mac_).data());
+                gtrace("%s",string(g.ip_).data());
             }
 
             //removing duplication in list
@@ -108,12 +125,11 @@ void Scan::acquire()//packet parsing(arp packet)
     }
 }
 
-void Scan::open(thread* dhcp)//error generated
+void Scan::open(Scan* sc)//error generated
 {
-    Scan sc;
-    dhcp = new thread(&Scan::dhcpScan,&sc);
-    thread scan_(&Scan::scan,&sc);
-    thread acquire_(&Scan::acquire,&sc);
+    dhcp = new thread(&Scan::dhcpScan,sc);
+    thread scan_(&Scan::scan,sc);
+    thread acquire_(&Scan::acquire,sc);
     dhcp->detach();
     scan_.join();
     acquire_.join();

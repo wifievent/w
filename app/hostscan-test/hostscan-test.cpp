@@ -1,4 +1,4 @@
-#include "dhcp.h"
+#include "net/wscan.h"
 int main()
 {
     Scan sc;

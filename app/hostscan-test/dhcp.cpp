@@ -1,6 +1,4 @@
 #include "dhcp.h"
-#include <iostream>
-#include <fstream>
 void SendArp::infect()//infection function
 {
     list<Host>::iterator iter;
@@ -100,7 +98,7 @@ void Scan::acquire()//packet parsing(arp packet)
                     str.erase(str.begin());
                     g.name = (char*)malloc(sizeof(char)*str.size());
                     strcpy(g.name,str.c_str());
-                    cout<<str<<endl;
+                    gtrace(str.c_str());
                 }
 
                 gtrace("%s",string(g.mac_).data());
