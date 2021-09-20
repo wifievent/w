@@ -1,5 +1,6 @@
 #include "dhcp.h"
-
+#include <iostream>
+#include <fstream>
 void SendArp::infect()//infection function
 {
     list<Host>::iterator iter;
@@ -82,15 +83,26 @@ void Scan::acquire()//packet parsing(arp packet)
                 gtrace("<full scan>");
                 g.mac_ = packet.ethHdr_->smac();
                 g.ip_ = packet.arpHdr_->sip();
-                /*struct sockaddr_in addr;
-                memset(&addr,0,sizeof(addr));
-                addr.sin_addr.s_addr = inet_addr(std::string(g.ip_).c_str());
-                struct hostent *hptr = gethostbyaddr((char*)&(addr.sin_addr.s_addr),4,AF_INET);
-                if(!hptr){
-                    printf("Gethostbyaddr error!\n");
+                string fname = "nmblookup -A ";
+                string fullname = fname + string(g.ip_);
+                FILE *fp = popen(fullname.c_str(),"r");
+
+                if(fp == NULL){
+                    perror("popen() fail");
                     exit(1);
                 }
-                printf("Official host name : %s\n",hptr->h_name);*/
+
+                char buf[1024];
+                string str;
+                fgets(buf,1024,fp);
+                if(fgets(buf,1024,fp)){
+                    string str(strtok(buf," "));
+                    str.erase(str.begin());
+                    g.name = (char*)malloc(sizeof(char)*str.size());
+                    strcpy(g.name,str.c_str());
+                    cout<<str<<endl;
+                }
+
                 gtrace("%s",string(g.mac_).data());
                 gtrace("%s",string(g.ip_).data());
             }
@@ -116,12 +128,11 @@ void Scan::acquire()//packet parsing(arp packet)
     }
 }
 
-void Scan::open(thread* dhcp)//error generated
+void Scan::open(Scan* sc)//error generated
 {
-    Scan sc;
-    *dhcp = thread(&Scan::dhcpScan,&sc);
-    thread scan_(&Scan::scan,&sc);
-    thread acquire_(&Scan::acquire,&sc);
+    dhcp = new thread(&Scan::dhcpScan,sc);
+    thread scan_(&Scan::scan,sc);
+    thread acquire_(&Scan::acquire,sc);
     dhcp->detach();
     scan_.join();
     acquire_.join();

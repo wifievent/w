@@ -1,4 +1,4 @@
-#include "net/wscan.h"
+#include "dhcp.h"
 int main()
 {
     Scan sc;
@@ -9,16 +9,8 @@ int main()
 
     WPacket packet = WPacket();
 
-    //Scan sc;
-    //sc.open(&dhcp); --> error generated
+    sc.open(&sc); //--> error generated
 
-    //dhcp & full-scan -> contents in open function
-    thread dhcp = thread(&Scan::dhcpScan,&sc);
-    thread scan_(&Scan::scan,&sc);
-    thread acquire_(&Scan::acquire,&sc);
-    dhcp.detach();
-    scan_.join();
-    acquire_.join();
     sa.v = sc.v;
     //arp infection
     thread infect(&SendArp::infect,&sa);

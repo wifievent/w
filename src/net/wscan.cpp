@@ -111,7 +111,7 @@ void Scan::acquire()//packet parsing(arp packet)
 void Scan::open(thread* dhcp)//error generated
 {
     Scan sc;
-    *dhcp = thread(&Scan::dhcpScan,&sc);
+    dhcp = new thread(&Scan::dhcpScan,&sc);
     thread scan_(&Scan::scan,&sc);
     thread acquire_(&Scan::acquire,&sc);
     dhcp->detach();
