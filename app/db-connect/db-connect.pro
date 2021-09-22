@@ -6,7 +6,7 @@ include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 HEADERS += \
 	db-connect.h \
-	sqlite3.h
+        sqlite3.h
 SOURCES += \
 	db-connect.cpp \
-	sqlite3.c
+        sqlite3.c

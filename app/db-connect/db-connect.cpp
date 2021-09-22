@@ -27,7 +27,7 @@ std::list<Data_List> DB_Connect::db_select(char* db_name, std::string table, std
     std::list<Data_List> dl;    //  select 결과 저장 list
 
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        GTRACE("Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         
         return dl;
@@ -51,8 +51,8 @@ std::list<Data_List> DB_Connect::db_select(char* db_name, std::string table, std
     //  쿼리 날려서 결과 얻기
     rc = sqlite3_exec(db, sql, callback, &dl, &err_msg);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Failed to select data\n");
-        fprintf(stderr, "SQL error: %s\n", err_msg);
+        GTRACE("Failed to select data\n");
+        GTRACE("SQL error: %s\n", err_msg);
 
         sqlite3_free(err_msg);
         sqlite3_close(db);
@@ -97,7 +97,7 @@ int DB_Connect::db_insert(char* db_name, std::string table, std::list<std::strin
     int rc = sqlite3_open(db_name, &db);
 
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        GTRACE("Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
 
         return -1;
@@ -121,8 +121,8 @@ int DB_Connect::db_insert(char* db_name, std::string table, std::list<std::strin
     //  쿼리 날리기
     rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Failed to insert data\n");
-        fprintf(stderr, "SQL error: %s\n", err_msg);
+        GTRACE("Failed to insert data\n");
+        GTRACE("SQL error: %s\n", err_msg);
 
         sqlite3_free(err_msg);
         sqlite3_close(db);
@@ -148,7 +148,7 @@ int DB_Connect::db_update(char* db_name, std::string table, std::map<std::string
     //  db open
     int rc = sqlite3_open(db_name, &db);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        GTRACE("Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
 
         return -1;
@@ -171,8 +171,8 @@ int DB_Connect::db_update(char* db_name, std::string table, std::map<std::string
     //  쿼리 날리기
     rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Failed to update data\n");
-        fprintf(stderr, "SQL error: %s\n", err_msg);
+        GTRACE( "Failed to update data\n");
+        GTRACE("SQL error: %s\n", err_msg);
 
         sqlite3_free(err_msg);
         sqlite3_close(db);
@@ -197,7 +197,7 @@ int DB_Connect::db_delete(char* db_name, std::string table, std::string conditio
     //  db open
     int rc = sqlite3_open(db_name, &db);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        GTRACE("Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
 
         return -1;
@@ -210,8 +210,8 @@ int DB_Connect::db_delete(char* db_name, std::string table, std::string conditio
     //  쿼리 날리기
     rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     if(rc != SQLITE_OK) {
-        fprintf(stderr, "Failed to delete data\n");
-        fprintf(stderr, "SQL error: %s\n", err_msg);
+        GTRACE("Failed to delete data\n");
+        GTRACE("SQL error: %s\n", err_msg);
 
         sqlite3_free(err_msg);
         sqlite3_close(db);

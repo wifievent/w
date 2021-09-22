@@ -3,8 +3,11 @@
 #include <cstring>
 #include <list>
 #include <map>
+#include <iostream>
 
 #include <sqlite3.h>
+#include <unistd.h>
+#include "base/gtrace.h"
 
 struct Data_List {
     int argc;
