@@ -135,6 +135,7 @@ int DB_Connect::db_insert(char* db_name, std::string table, std::list<std::strin
     return 0;
 }
 
+//  db_update 함수
 int DB_Connect::db_update(char* db_name, std::string table, std::map<std::string, std::string> update_values, std::string condition) {
     /*
     db_name: db파일 이름
@@ -184,6 +185,45 @@ int DB_Connect::db_update(char* db_name, std::string table, std::map<std::string
     return 0;
 }
 
+//  db_delete 함수
+int DB_Connect::db_delete(char* db_name, std::string table, std::string condition) {
+    /*
+    db_name: db파일 이름
+    table: 테이블 명
+    condition: where문에 올 조건식
+    */
+    char* err_msg = 0;    //  에러 메시지 저장 변수
+
+    //  db open
+    int rc = sqlite3_open(db_name, &db);
+    if(rc != SQLITE_OK) {
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+
+        return -1;
+    }
+
+    //  sql문 만들기
+    char* sql = (char*)malloc(20 + table.size() + condition.size());
+    sprintf(sql, "DELETE FROM %s WHERE %s", table.data(), condition.data());
+    
+    //  쿼리 날리기
+    rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+    if(rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to delete data\n");
+        fprintf(stderr, "SQL error: %s\n", err_msg);
+
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+        return -1;
+    }
+
+    //  자원해제
+    free(sql);
+    sqlite3_close(db);
+    return 0;
+}
+
 int main(void)
 {
     DB_Connect db_connect;
@@ -198,10 +238,13 @@ int main(void)
     // db_connect.db_insert("test.db", "Cars", values);
 
     //  update test
-    std::map<std::string, std::string> update_set;
-    update_set.insert({"Name", "'Like'"});
-    update_set.insert({"Price", "75364"});
-    db_connect.db_update("test.db", "Cars", update_set, "Id = 9");
+    // std::map<std::string, std::string> update_set;
+    // update_set.insert({"Name", "'Like'"});
+    // update_set.insert({"Price", "75364"});
+    // db_connect.db_update("test.db", "Cars", update_set, "Id = 9");
+
+    //  delete test
+    db_connect.db_delete("test.db", "Cars", "Id = 9");
 
     //  select test
     std::list<Data_List> dl;
@@ -209,8 +252,7 @@ int main(void)
     columns.push_back("*");
     dl = db_connect.db_select("test.db", "Cars", columns);
 
-    std::list<Data_List>::iterator iter;
-    for(iter = dl.begin(); iter != dl.end(); ++iter) {
+    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         for(int i = 0; i < iter->argc; ++i) {
             printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
         }
