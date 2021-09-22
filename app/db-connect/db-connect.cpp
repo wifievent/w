@@ -67,9 +67,51 @@ int DB_Connect::callback(void* NotUsed, int ac, char** av, char** c) {
     return 0;
 }
 
+int DB_Connect::db_insert(char* db_name, std::string table, std::list<std::string> values) {
+    char* err_msg = 0;
+    int rc = sqlite3_open(db_name, &db);
+
+    if(rc != SQLITE_OK) {
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+
+        return -1;
+    }
+
+    std::string v("");
+    for(std::list<std::string>::iterator iter = values.begin(); iter != values.end(); ++iter) {
+        v += *iter;
+        v += ", ";
+    }
+    v.pop_back();
+    v.pop_back();
+
+    char* sql = (char*)malloc(22 + table.size() + v.size());
+    sprintf(sql, "INSERT INTO %s VALUES(%s)", table.data(), v.data());
+    rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+    if(rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to insert data\n");
+        fprintf(stderr, "SQL error: %s\n", err_msg);
+
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+        return -1;
+    }
+    sqlite3_close(db);
+    return 0;
+}
+
 int main(void)
 {
     DB_Connect db_connect;
+
+    std::list<std::string> values;
+
+    values.push_back(std::string("9"));
+    values.push_back(std::string("'TEST'"));
+    values.push_back(std::string("521430"));
+
+    db_connect.db_insert("test.db", "Cars", values);
 
     std::list<Data_List> dl;
     std::list<std::string> columns;
