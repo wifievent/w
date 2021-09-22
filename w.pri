@@ -29,3 +29,11 @@ win32 {
 }
 
 linux: LIBS *= -lpcap
+
+#
+# DB-connect
+#
+
+linux {
+	LIBS *= -lsqlite3 -lpthread -ldl
+}
