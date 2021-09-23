@@ -1,24 +1,29 @@
-#include "net/wscan.h"
+#include "dhcp.h"
 int main()
 {
-    list<Scan::Guest> v;
-    WNetInfo& wnetinfo = WNetInfo::instance();
-    WRtm& rtm = wnetinfo.rtm();
-    WRtmEntry* rtmentry = rtm.getBestEntry(WIp("8.8.8.8"));
-
-    uint32_t ip_ = uint32_t(rtmentry->gateway());//gateway ip
-
-    WPcapDevice device;
-    device.open();//can find mymac, myip
+    Scan sc;
+    SendArp sa;
+    sc.DHdevice.open();
+    sc.FSdevice.open();//can find mymac, myip
+    sa.ARPdevice.open();//can find mymac, myip
 
     WPacket packet = WPacket();
 
-    //dhcp
-    thread dhcp(Scan::dhcp,&device,v);
-    //full-scan
-    Scan::full_scan(&device,ip_,v);
-    dhcp.join();
+    sc.open(&sc);
+    sc.findName();
+    sa.v = sc.v;
 
-    device.close();
+    //arp infection
+    //thread infect(&SendArp::infect,&sa);
+
+    //arp recover
+    /*Host want;
+    sa.recover(want);
+*/
+    //infect.join();
+
+    sc.FSdevice.close();
+    sc.DHdevice.close();
+    sa.ARPdevice.close();
     return 0;
 }

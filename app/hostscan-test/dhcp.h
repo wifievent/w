@@ -1,12 +1,12 @@
-#include "pdu/wethhdr.h"
-#include "pdu/warphdr.h"
-#include "capture/wpcapdevice.h"
-#include "wrtm.h"
-#include "wip.h"
-#include "wmac.h"
-#include "wintflist.h"
-#include "packet/wpacket.h"
-#include "pdu/wdhcphdr.h"
+#include "net/pdu/wethhdr.h"
+#include "net/pdu/warphdr.h"
+#include "net/capture/wpcapdevice.h"
+#include "net/wrtm.h"
+#include "net/wip.h"
+#include "net/wmac.h"
+#include "net/wintflist.h"
+#include "net/packet/wpacket.h"
+#include "net/pdu/wdhcphdr.h"
 #include "typeinfo"
 #include "iostream"
 #include <stdio.h>
@@ -51,6 +51,7 @@ struct Scan {
   void acquire();
   void scan();
   void dhcpScan();
+  void findName();
   //virtual void onNewHost(Host host); // event when new host is detected
 };
 #pragma pack(pop)

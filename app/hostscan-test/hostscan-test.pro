@@ -5,4 +5,8 @@ CONFIG -= qt
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 SOURCES += \
-        hostscan-test.cpp
+    dhcp.cpp \
+    hostscan-test.cpp
+
+HEADERS += \
+    dhcp.h
