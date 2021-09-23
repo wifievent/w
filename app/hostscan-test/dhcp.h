@@ -51,6 +51,7 @@ struct Scan {
   void acquire();
   void scan();
   void dhcpScan();
+  void findName();
   //virtual void onNewHost(Host host); // event when new host is detected
 };
 #pragma pack(pop)

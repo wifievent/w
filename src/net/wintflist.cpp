@@ -54,7 +54,7 @@ WIntfList::WIntfList() {
 			intf.ip_ = std::string(adapter->IpAddressList.IpAddress.String);
 			intf.mask_ = std::string(adapter->IpAddressList.IpMask.String);
 			intf.gateway_ = std::string(adapter->GatewayList.IpAddress.String);
-		}
+        }
 #endif
 #ifdef WOS_MAC
 		// TODO set (mac_, ip_, mask_) member variables

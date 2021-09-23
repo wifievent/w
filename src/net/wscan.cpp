@@ -81,7 +81,7 @@ void Scan::acquire()//packet parsing(arp packet)
                 gtrace("<full scan>");
                 g.mac_ = packet.ethHdr_->smac();
                 g.ip_ = packet.arpHdr_->sip();
-                string fname = "nmblookup -A ";
+                /*string fname = "nmblookup -A ";
                 string fullname = fname + string(g.ip_);
                 FILE *fp = popen(fullname.c_str(),"r");
 
@@ -99,7 +99,7 @@ void Scan::acquire()//packet parsing(arp packet)
                     g.name = (char*)malloc(sizeof(char)*str.size());
                     strcpy(g.name,str.c_str());
                     gtrace(str.c_str());
-                }
+                }*/
                 gtrace("%s",string(g.mac_).data());
                 gtrace("%s",string(g.ip_).data());
             }

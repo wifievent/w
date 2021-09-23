@@ -1,4 +1,4 @@
-#include "net/wscan.h"
+#include "dhcp.h"
 int main()
 {
     Scan sc;
@@ -9,17 +9,18 @@ int main()
 
     WPacket packet = WPacket();
 
-    sc.open(&sc); //--> error generated
-
+    sc.open(&sc);
+    sc.findName();
     sa.v = sc.v;
+
     //arp infection
-    thread infect(&SendArp::infect,&sa);
+    //thread infect(&SendArp::infect,&sa);
 
     //arp recover
-    Host want;
+    /*Host want;
     sa.recover(want);
-
-    infect.join();
+*/
+    //infect.join();
 
     sc.FSdevice.close();
     sc.DHdevice.close();

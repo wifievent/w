@@ -60,6 +60,31 @@ void Scan::scan()//full-scan function
     }
 }
 
+void Scan::findName(){
+    list<Host>::iterator iter;
+    for(iter = v.begin(); iter!=v.end();iter++){
+        gtrace("%s",string(iter->ip_).data());
+        string fname = "nmblookup -A ";
+        string fullname = fname + string((*iter).ip_);
+        FILE *fp = popen(fullname.c_str(),"r");
+
+        if(fp == NULL){
+            perror("popen() fail");
+            exit(1);
+        }
+
+        char buf[1024];
+        string str;
+        fgets(buf,1024,fp);
+        if(fgets(buf,1024,fp)){
+            string str(strtok(buf," "));
+            str.erase(str.begin());
+            (*iter).name = (char*)malloc(sizeof(char)*str.size());
+            strcpy((*iter).name,str.c_str());
+            gtrace(str.c_str());
+        }
+    }
+}
 void Scan::acquire()//packet parsing(arp packet)
 {
     WPacket packet;
@@ -81,25 +106,6 @@ void Scan::acquire()//packet parsing(arp packet)
                 gtrace("<full scan>");
                 g.mac_ = packet.ethHdr_->smac();
                 g.ip_ = packet.arpHdr_->sip();
-                string fname = "nmblookup -A ";
-                string fullname = fname + string(g.ip_);
-                FILE *fp = popen(fullname.c_str(),"r");
-
-                if(fp == NULL){
-                    perror("popen() fail");
-                    exit(1);
-                }
-
-                char buf[1024];
-                string str;
-                fgets(buf,1024,fp);
-                if(fgets(buf,1024,fp)){
-                    string str(strtok(buf," "));
-                    str.erase(str.begin());
-                    g.name = (char*)malloc(sizeof(char)*str.size());
-                    strcpy(g.name,str.c_str());
-                    gtrace(str.c_str());
-                }
 
                 gtrace("%s",string(g.mac_).data());
                 gtrace("%s",string(g.ip_).data());
