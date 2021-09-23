@@ -3,6 +3,7 @@
 
 #include "net/capture/wpcapdevice.h"
 #include "net/process/wpacketdbg.h"
+#include "base/wjson.h"
 
 using namespace std;
 
@@ -20,6 +21,12 @@ void captureAndDebug(WPcapDevice* pcapDevice) {
 
 int main() {
 	WPcapDevice pcapDevice;
+	Json::Value jv;
+	if (WJson::loadFromFile("pcapdevice-test.json", jv)) {
+		pcapDevice << jv["pcapDevice"];
+	}
+	pcapDevice >> jv["pcapDevice"];
+	WJson::saveToFile("pcapdevice-test.json", jv);
 
 	if (!pcapDevice.open()) {
 		std::cout << pcapDevice.err_;
@@ -35,4 +42,5 @@ int main() {
 	active = false;
 	t.join();
 	pcapDevice.close();
+
 }
