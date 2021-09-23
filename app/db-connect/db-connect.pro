@@ -1,3 +1,5 @@
+QT += core
+QT += sql
 TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
@@ -10,3 +12,8 @@ HEADERS += \
 SOURCES += \
 	db-connect.cpp \
         sqlite3.c
+#
+# DB-connect
+#
+
+linux: LIBS *= -lsqlite3 -lpthread -ldl
