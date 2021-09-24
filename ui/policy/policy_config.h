@@ -18,6 +18,10 @@ public:
     explicit policy_config(QModelIndexList indexList, QWidget *parent = nullptr);
     ~policy_config();
 
+private slots:
+    void on_applyButton_clicked();
+    void on_cancelButton_clicked();
+
 private:
     Ui::policy_config *ui;
 };
