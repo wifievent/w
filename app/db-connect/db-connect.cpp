@@ -59,13 +59,13 @@ int DB_Connect::callback(void* dl, int ac, char** av, char** c) {
     //  결과를 저장할 변수
     Data_List data;
     data.argc = ac;
-    data.argv = (char**)malloc(ac);
-    data.column = (char**)malloc(ac);
+    data.argv = (char**)malloc(ac * sizeof(char*));
+    data.column = (char**)malloc(ac * sizeof(char*));
     for(int i = 0; i < ac; ++i) {
-        data.argv[i] = (char*)malloc(sizeof(av[i]));
-        data.column[i] = (char*)malloc(sizeof(c[i]));
-        strcpy(data.argv[i], av[i]);
-        strcpy(data.column[i], c[i]);
+        data.argv[i] = (char*)malloc((strlen(av[i]) + 1));
+        data.column[i] = (char*)malloc((strlen(c[i]) + 1));
+        strncpy(data.argv[i], av[i], strlen(av[i]) + 1);
+        strncpy(data.column[i], c[i], strlen(c[i]) + 1);
     }
     //  결과를 저장
     std::list<Data_List>* data_list = (std::list<Data_List>*)dl;
@@ -172,6 +172,17 @@ int main(void)
         }
     }
 
+    //  New Test(Error fix)
     Data_List::list_free(dl);
+    dl = db_connect.select_query("SELECT * FROM policy");
+
+    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+        for(int i = 0; i < iter->argc; ++i) {
+            printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+        }
+    }
+
+    Data_List::list_free(dl);
+
     return 0;
 }
