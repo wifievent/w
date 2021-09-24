@@ -10,15 +10,20 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    policy.cpp
+    policy.cpp \
+    policy_config.cpp
 
 HEADERS += \
-    policy.h
+    policy.h \
+    policy_config.h
 
 FORMS += \
-    policy.ui
+    policy.ui \
+    policy_config.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES +=
