@@ -4,10 +4,10 @@
 
 struct WPcapCapture : WCapture {
 	std::string filter_;
-	int mtu_;
+	int mtu_{0};
 
-	void load(JsonValue& json) override;
-	void save(JsonValue& json) override;
+	void load(Json::Value& json) override;
+	void save(Json::Value& json) override;
 
 public:
 	WPcapCapture() {}

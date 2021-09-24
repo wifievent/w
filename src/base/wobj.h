@@ -1,8 +1,7 @@
 #pragma once
 
 #include "wbase.h"
-
-struct JsonValue; // TODO replace with jsoncpp
+#include "wjson.h"
 
 struct WObj {
 	WObj() {}
@@ -10,6 +9,9 @@ struct WObj {
 
 	std::string err_;
 
-	virtual void load(JsonValue& json);
-	virtual void save(JsonValue& json);
+	virtual void load(Json::Value& json);
+	virtual void save(Json::Value& json);
 };
+
+void operator << (WObj& obj, Json::Value& json);
+void operator >> (WObj& obj, Json::Value& json);
