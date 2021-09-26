@@ -23,6 +23,7 @@ private slots:
     void on_devTable_cellClicked(int row, int column);
     void on_researchBtn_clicked();
     void on_DeleteBtn_clicked();
+    void on_SaveBtn_clicked();
 
 private:
     Ui::Widget *ui;
