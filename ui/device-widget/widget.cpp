@@ -9,6 +9,7 @@ Widget::Widget(QWidget *parent)
 
     setDevInfo();
     setTableView();
+    ui->devTable->resizeColumnsToContents();
 }
 
 Widget::~Widget()
