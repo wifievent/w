@@ -83,10 +83,21 @@ void Widget::on_researchBtn_clicked()
 
 void Widget::on_DeleteBtn_clicked()
 {
+    // 디바이스가 없거나 List Widget 이 비어있으면 삭제버튼 비활성화
+    if(devices.empty() || ui->devInfo->count() < 1) {
+        return;
+    }
+
     devices.erase(devices.begin() + dinfo.vectorID);
 
     ui->devInfo->clear();
     ui->devTable->clear();
     setTableView();
+}
+
+
+void Widget::on_SaveBtn_clicked()
+{
+    // 해당 디바이스 필터가 걸린 탭으로 이동
 }
 
