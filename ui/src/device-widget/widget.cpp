@@ -45,7 +45,6 @@ void Widget::setTableView()
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].name));
 
     }
-
     // 테이블 수정 불가
     ui->devTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     // 테이블 크기 조정
@@ -55,6 +54,10 @@ void Widget::setTableView()
 
 void Widget::on_devTable_cellClicked(int row, int column)
 {
-    qDebug() << row << " row" << column << " col" ;
+    ui->devInfo->clear();
+    ui->devInfo->addItem("OUI");
+    ui->devInfo->addItem("MAC\t" + devices[row].mac);
+    ui->devInfo->addItem("IP\t" + devices[row].ip);
+    ui->devInfo->addItem("Name\t" + devices[row].name);
 }
 

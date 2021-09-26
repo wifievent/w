@@ -137,28 +137,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QListWidget" name="listWidget">
-           <item>
-            <property name="text">
-             <string>OUI</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Name</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAC Addr</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>IP Addr</string>
-            </property>
-           </item>
-          </widget>
+          <widget class="QListWidget" name="devInfo"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="btnLayout">
