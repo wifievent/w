@@ -8,14 +8,18 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+include(../../w.pri)
+
 SOURCES += \
     dinfo.cpp \
     main.cpp \
-    widget.cpp
+    widget.cpp \
+    db-connect.cpp
 
 HEADERS += \
     dinfo.h \
-    widget.h
+    widget.h \
+    db-connect.h
 
 FORMS += \
     widget.ui
