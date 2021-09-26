@@ -21,9 +21,12 @@ public:
 
 private slots:
     void on_devTable_cellClicked(int row, int column);
+    void on_researchBtn_clicked();
+    void on_DeleteBtn_clicked();
 
 private:
     Ui::Widget *ui;
     std::vector<dInfo> devices;
+    dInfo dinfo;
 };
 #endif // WIDGET_H

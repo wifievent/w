@@ -9,8 +9,6 @@ Widget::Widget(QWidget *parent)
 
     setDevInfo();
     setTableView();
-
-
 }
 
 Widget::~Widget()
@@ -18,6 +16,7 @@ Widget::~Widget()
     delete ui;
 }
 
+// dummy data for test
 void Widget::setDevInfo()
 {
     dInfo dummy1;
@@ -36,11 +35,13 @@ void Widget::setDevInfo()
 
 void Widget::setTableView()
 {
-    int rowCount = devices.size();
-    ui->devTable->setRowCount(rowCount);
+    QStringList colHeader;
+    colHeader << "IP" << "Name" ;
+    ui->devTable->setHorizontalHeaderLabels(colHeader);
+    ui->devTable->setRowCount(devices.size());
     ui->devTable->setColumnCount(2);
 
-    for (int i = 0; i < rowCount; i ++) {
+    for (int i = 0; i < (int)devices.size(); i ++) {
         ui->devTable->setItem(i, 0, new QTableWidgetItem(devices[i].ip));
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].name));
 
@@ -48,16 +49,44 @@ void Widget::setTableView()
     // 테이블 수정 불가
     ui->devTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     // 테이블 크기 조정
-    ui->devTable->resizeColumnsToContents();
     ui->devTable->horizontalHeader()->setStretchLastSection(true);
 }
 
+// dev Table 에서 cell 클릭 시 리스트에 해당 device info view
 void Widget::on_devTable_cellClicked(int row, int column)
 {
+    dinfo.mac = devices[row].mac;
+    dinfo.ip = devices[row].ip;
+    dinfo.name = devices[row].name;
+    dinfo.vectorID = row;
+
     ui->devInfo->clear();
-    ui->devInfo->addItem("OUI");
-    ui->devInfo->addItem("MAC\t" + devices[row].mac);
-    ui->devInfo->addItem("IP\t" + devices[row].ip);
-    ui->devInfo->addItem("Name\t" + devices[row].name);
+    ui->devInfo->addItem("OUI\t" + dinfo.oui);
+    ui->devInfo->addItem("MAC\t" + dinfo.mac);
+    ui->devInfo->addItem("IP\t" + dinfo.ip);
+    ui->devInfo->addItem("Name\t" + dinfo.name);
+}
+
+
+void Widget::on_researchBtn_clicked()
+{
+    // clear
+    ui->devTable->clear();
+    ui->devInfo->clear();
+    // 재탐색 실행
+    // todo
+
+    // 테이블 view
+    setTableView();
+}
+
+
+void Widget::on_DeleteBtn_clicked()
+{
+    devices.erase(devices.begin() + dinfo.vectorID);
+
+    ui->devInfo->clear();
+    ui->devTable->clear();
+    setTableView();
 }
 
