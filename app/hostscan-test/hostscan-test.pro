@@ -5,8 +5,24 @@ CONFIG -= qt
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 SOURCES += \
-    dhcp.cpp \
-    hostscan-test.cpp
+    arppacket.cpp \
+    core.cpp \
+    fullscan.cpp \
+    hostscan-test.cpp \
+    netblock.cpp \
+    packet.cpp \
+    parser.cpp
+    /home/bob/project/host-list/w/app/db-connect/db-connect.cpp \
+    /home/bob/project/host-list/w/app/db-connect/sqlite3.c
 
 HEADERS += \
-    dhcp.h
+    arppacket.h \
+    core.h \
+    fullscan.h \
+    netblock.h \
+    packet.h \
+    parser.h \
+    pch.h
+
+DISTFILES += \
+    test.db
