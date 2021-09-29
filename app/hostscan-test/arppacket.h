@@ -10,7 +10,7 @@ public:
     ARPPacket();
     ~ARPPacket();
     WIp mac_ip;
-    WMac mac_gate;
+    WIntf* intf_g;
     Packet& instance = Packet::instance();
     void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     EthArp& getPacket() { return packet; }

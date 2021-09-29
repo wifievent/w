@@ -6,7 +6,7 @@ void DHCPParser::parse()
     while(1){
         WPacket& packet = fs.getWPacket();//get packet -> singleton pattern
         if(packet.ethHdr_->type()!=WEthHdr::Ip4)continue;//is ip4 packet?
-        if(packet.ipHdr_->p()!=WIpHdr::Udp)continue;//is udp packet?
+        if(packet.ipHdr_->p_!=WIpHdr::Udp)continue;//is udp packet?
         if(packet.udpHdr_->sport()!=67&&packet.udpHdr_->dport()!=67)continue;//Is dhcp packet?
         if(!packet.ethHdr_->dmac_.isBroadcast())continue; // Is DHCP Request?
 

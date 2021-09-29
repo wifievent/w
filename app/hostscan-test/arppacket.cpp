@@ -1,10 +1,10 @@
 #include "arppacket.h"
-ARPPacket::ARPPacket(){
+ARPPacket::ARPPacket()
+{
     WNetInfo& wnetinfo = WNetInfo::instance();
     WIntfList& intflist = wnetinfo.intfList();
     mac_ip = instance.getDevice().intf()->gateway();
-    WIntf* intf_g = intflist.findByIp(mac_ip);
-    mac_gate = intf_g->mac();
+    intf_g = intflist.findByIp(mac_ip);
 };
 
 ARPPacket::~ARPPacket(){};
@@ -66,7 +66,7 @@ void Recover::send(map<WMac,Host> map_){
     ARPPacket arp;
     for(map<WMac,Host>::iterator iter = map_.begin(); iter!=map_.end();iter++){
         if((fs.getMap())[iter->first].active){//full-scan & policy
-            arp.makeArppacket(iter->first,mac_gate,iter->first,(iter->second).ip_,arp.instance.getDevice().intf()->gateway());
+            arp.makeArppacket(iter->first,intf_g->mac(),iter->first,(iter->second).ip_,arp.instance.getDevice().intf()->gateway());
             fs.send_ARPpacket(arp.getPacket(),3);
         }
     }
