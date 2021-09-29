@@ -27,6 +27,8 @@ private slots:
     void on_researchBtn_clicked();
     void on_DeleteBtn_clicked();
 
+    void on_policyBtn_clicked();
+
 private:
     Ui::Widget *ui;
     std::vector<dInfo> devices;

@@ -174,3 +174,11 @@ void Widget::on_DeleteBtn_clicked()
     ui->devTable->clear();
     setTableView();
 }
+
+void Widget::on_policyBtn_clicked()
+{
+    // todo
+    // When clicked
+    // Go to the Policies tab with the applicable device filter
+}
+
