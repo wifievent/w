@@ -75,9 +75,12 @@ void Widget::setDummyDB()
     db_connect->send_query("INSERT into policy	VALUES(13, 3, 8)");
 }
 
-// dummy data for test
+// Set Device List from DB to Vector
 void Widget::setDevInfo()
 {
+    // todo
+    // call fullscan API
+
     std::list<Data_List> dl;
     dl = db_connect->select_query("SELECT * FROM host");
 
@@ -95,6 +98,7 @@ void Widget::setDevInfo()
     Data_List::list_free(dl);
 }
 
+// Set Device Info Table
 void Widget::setTableView()
 {
     QStringList colHeader;
@@ -129,6 +133,7 @@ void Widget::on_devTable_cellClicked(int row, int column)
     ui->devInfo->addItem("Name\t" + dinfo.name);
 }
 
+// Clear Device Info Vector
 void Widget::clear_devices()
 {
     devices.clear();
@@ -136,11 +141,14 @@ void Widget::clear_devices()
 
 void Widget::on_researchBtn_clicked()
 {
-    // clear
+    // Clear View
     ui->devTable->clear();
     ui->devInfo->clear();
-    // 재탐색 실행
+
     // todo
+    // Call Fullscan API
+
+    // Clear Devices Vector
     clear_devices();
     setDevInfo();
 
@@ -156,16 +164,13 @@ void Widget::on_DeleteBtn_clicked()
         return;
     }
 
+    int host_id = devices[dinfo.vectorID].host_id;
     devices.erase(devices.begin() + dinfo.vectorID);
+
+    // Delete Data of host table
+    db_connect->send_query("DELETE FROM host WHERE host_id = " + std::to_string(host_id));
 
     ui->devInfo->clear();
     ui->devTable->clear();
     setTableView();
 }
-
-
-void Widget::on_SaveBtn_clicked()
-{
-    // 해당 디바이스 필터가 걸린 탭으로 이동
-}
-
