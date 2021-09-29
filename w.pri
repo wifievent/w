@@ -29,3 +29,7 @@ win32 {
 }
 
 linux: LIBS *= -lpcap
+
+HEADERS +=
+
+SOURCES +=
