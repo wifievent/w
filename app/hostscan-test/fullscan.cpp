@@ -7,7 +7,7 @@ void FullScan::start(){
     thread conn_(&Connection::send,&conn,FSMap); //find what device is connected to network
     thread arp_(&ARPParser::parse,&arp); //arp packet parsing
 
-    conn_.join();
+    conn_.detach();
     arp_.join();
 }
 void FullScan::finish(){
@@ -54,6 +54,7 @@ void FullScan::receive_packet(){//every packet receiving
         getMutex().lock();
         if(instance.getDevice().WPcapCapture::read(&packet)==WPacket::Result::Ok){ //if packet is ok
             setWPacket(&packet);//singleton pattern
+            return;
         }
         getMutex().unlock();
     }
