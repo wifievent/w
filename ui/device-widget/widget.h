@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QDebug>
 #include "dinfo.h"
+#include "../../app/db-connect/db-connect.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -16,8 +17,10 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
+    void setDummyDB();
     void setDevInfo();
     void setTableView();
+    void clear_devices();
 
 private slots:
     void on_devTable_cellClicked(int row, int column);
@@ -29,5 +32,6 @@ private:
     Ui::Widget *ui;
     std::vector<dInfo> devices;
     dInfo dinfo;
+    DB_Connect *db_connect;
 };
 #endif // WIDGET_H

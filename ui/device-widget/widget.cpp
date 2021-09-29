@@ -7,6 +7,8 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    db_connect = new DB_Connect("test.db");
+    setDummyDB();
     setDevInfo();
     setTableView();
     ui->devTable->resizeColumnsToContents();
@@ -17,21 +19,80 @@ Widget::~Widget()
     delete ui;
 }
 
+
+void Widget::setDummyDB()
+{
+    // init for test
+    db_connect->send_query("DROP TABLE IF EXISTS host");
+    db_connect->send_query("DROP TABLE IF EXISTS time");
+    db_connect->send_query("DROP TABLE IF EXISTS policy");
+
+    db_connect->send_query("CREATE TABLE host (\
+    host_id	INTEGER		NOT NULL PRIMARY KEY AUTOINCREMENT,\
+    mac		CHAR(17)	NOT NULL,\
+    last_ip	VARCHAR(15)	NULL,\
+    name	VARCHAR(30)	NULL)");
+
+    db_connect->send_query("CREATE TABLE time (\
+    time_id			INTEGER	NOT NULL PRIMARY KEY AUTOINCREMENT,\
+    start_time		CHAR(4)	NOT NULL,\
+    end_time		CHAR(4)	NOT NULL,\
+    day_of_the_week	TINYINT	NOT NULL)");
+
+    db_connect->send_query("CREATE TABLE policy (\
+    policy_id	INTEGER	NOT NULL PRIMARY KEY AUTOINCREMENT,\
+    host_id		INTEGER	NOT NULL,\
+    time_id		INTEGER	NOT NULL)");
+
+    // insert host table data
+    db_connect->send_query("INSERT INTO host VALUES(1, '40:70:F5:AA:AA:AA', '192.168.1.101', 'Kim Apple')");
+    db_connect->send_query("INSERT INTO host VALUES(2, '70:CE:8C:BB:BB:BB', '192.168.1.102', 'Lee Samsung')");
+    db_connect->send_query("INSERT INTO host VALUES(3, '20:DF:B9:CC:CC:CC', '192.168.1.103', 'Park Google')");
+
+    // insert time table data
+    db_connect->send_query("INSERT INTO time VALUES(1, '2200', '0830', 1)");
+    db_connect->send_query("INSERT INTO time VALUES(2, '2200', '0830', 2)");
+    db_connect->send_query("INSERT INTO time VALUES(3, '2200', '0830', 3)");
+    db_connect->send_query("INSERT INTO time VALUES(4, '2200', '0830', 4)");
+    db_connect->send_query("INSERT INTO time VALUES(5, '2200', '0830', 5)");
+    db_connect->send_query("INSERT INTO time VALUES(6, '1200', '1500', 1)");
+    db_connect->send_query("INSERT INTO time VALUES(7, '1600', '1800', 2)");
+    db_connect->send_query("INSERT INTO time VALUES(8, '1200', '1800', 3)");
+
+    // insert policy table data
+    db_connect->send_query("INSERT into policy	VALUES(1, 1, 1)");
+    db_connect->send_query("INSERT into policy	VALUES(2, 1, 2)");
+    db_connect->send_query("INSERT into policy	VALUES(3, 1, 3)");
+    db_connect->send_query("INSERT into policy	VALUES(4, 1, 4)");
+    db_connect->send_query("INSERT into policy	VALUES(5, 1, 5)");
+    db_connect->send_query("INSERT into policy	VALUES(6, 1, 6)");
+    db_connect->send_query("INSERT into policy	VALUES(7, 1, 7)");
+    db_connect->send_query("INSERT into policy	VALUES(8, 3, 1)");
+    db_connect->send_query("INSERT into policy	VALUES(9, 3, 2)");
+    db_connect->send_query("INSERT into policy	VALUES(10, 3, 3)");
+    db_connect->send_query("INSERT into policy	VALUES(11, 3, 4)");
+    db_connect->send_query("INSERT into policy	VALUES(12, 3, 5)");
+    db_connect->send_query("INSERT into policy	VALUES(13, 3, 8)");
+}
+
 // dummy data for test
 void Widget::setDevInfo()
 {
-    dInfo dummy1;
-    dummy1.mac = "AA:BB:CC:DD:EE:FF";
-    dummy1.ip = "192.168.111.111";
-    dummy1.name = "iphone12";
+    std::list<Data_List> dl;
+    dl = db_connect->select_query("SELECT * FROM host");
 
-    dInfo dummy2;
-    dummy2.mac = "AA:BB:CC:EE:FF:DD";
-    dummy2.ip = "192.168.111.222";
-    dummy2.name = "ipad air4";
+    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+        for(int i = 0; i < iter->argc / 4; ++i) {
+            dInfo tmp;
+            tmp.host_id = atoi(iter->argv[0 + i * 4]);
+            tmp.mac = iter->argv[1 + i * 4];
+            tmp.last_ip = iter->argv[2 + i * 4];
+            tmp.name = iter->argv[3 + i * 4];
+            devices.push_back(tmp);
+        }
+    }
 
-    devices.push_back(dummy1);
-    devices.push_back(dummy2);
+    Data_List::list_free(dl);
 }
 
 void Widget::setTableView()
@@ -43,7 +104,7 @@ void Widget::setTableView()
     ui->devTable->setColumnCount(2);
 
     for (int i = 0; i < (int)devices.size(); i ++) {
-        ui->devTable->setItem(i, 0, new QTableWidgetItem(devices[i].ip));
+        ui->devTable->setItem(i, 0, new QTableWidgetItem(devices[i].last_ip));
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].name));
 
     }
@@ -57,17 +118,21 @@ void Widget::setTableView()
 void Widget::on_devTable_cellClicked(int row, int column)
 {
     dinfo.mac = devices[row].mac;
-    dinfo.ip = devices[row].ip;
+    dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
     dinfo.vectorID = row;
 
     ui->devInfo->clear();
     ui->devInfo->addItem("OUI\t" + dinfo.oui);
     ui->devInfo->addItem("MAC\t" + dinfo.mac);
-    ui->devInfo->addItem("IP\t" + dinfo.ip);
+    ui->devInfo->addItem("IP\t" + dinfo.last_ip);
     ui->devInfo->addItem("Name\t" + dinfo.name);
 }
 
+void Widget::clear_devices()
+{
+    devices.clear();
+}
 
 void Widget::on_researchBtn_clicked()
 {
@@ -76,6 +141,8 @@ void Widget::on_researchBtn_clicked()
     ui->devInfo->clear();
     // 재탐색 실행
     // todo
+    clear_devices();
+    setDevInfo();
 
     // 테이블 view
     setTableView();
