@@ -1,4 +1,3 @@
-#include "netblock.h"
 #include "arppacket.h"
 #include "/home/bob/project/host-list/w/app/db-connect/db-connect.h"
 
@@ -7,7 +6,7 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
     Host g;
     list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
-    NBMap.clear();
+    NBMap_new.clear();
 
     for(list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
         if(atoi(iter->argv[3])!=day)continue; // different day
@@ -34,7 +33,7 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
                     break;
                 }
             }
-            NBMap.insert(pair<WMac,Host>(g.mac_, g));
+            NBMap_new.insert(pair<WMac,Host>(g.mac_, g));
         }
     }
     Data_List::list_free(d1);
@@ -43,14 +42,14 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
 
 void NetBlock::send_infect(){//full-scan : active & policy
     Infection infect;
-    infect.send(NBMap);
+    infect.send();
 }
 void NetBlock::update_DB(){//update last_ip
     DB_Connect db_connect("/home/bob/real/arp-sppof/test.db");
     list<Data_List> d1;
     char query[50];
     d1 = db_connect.select_query("SELECT * FROM host");
-    for(map<WMac,Host>::iterator iter = fs.getMap().begin(); iter!=fs.getMap().end();iter++){//fullscan
+    for(map<WMac,Host>::iterator iter = fs.getMap().begin(); iter!=fs.getMap().end();iter++){ //fullscan
         int tmp = 0;
         for(list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
             if(WMac(iter2->argv[1])==iter->first){//same mac
@@ -71,20 +70,23 @@ void NetBlock::update_DB(){//update last_ip
 }
 
 void NetBlock::update_map(){
+    Recover recover;
     time_t timer;
     struct tm* t;
-    map<WMac,Host>::iterator iter;
     timer = time(NULL);
 
-    while(true){
-        for(iter = fs.getMap().begin(); iter!=fs.getMap().end();iter++){
-            iter->second.active = 0;
-        }
+    while(check) {
         fs.start(); //full-scan
-        fs.findName(); //get device-name
+        sleep(3);
         update_DB(); //update_db
+
         t = localtime(&timer);
         getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
-        sleep(3);
+        recover.send();//recover
+
+        if(NBMap_new.size() > 0){
+            NBMap_old.clear();
+            NBMap_old.insert(NBMap_new.begin(),NBMap_new.end());
+        }
     }
 }

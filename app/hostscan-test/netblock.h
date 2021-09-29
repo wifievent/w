@@ -2,7 +2,7 @@
 class NetBlock
 {
 private:
-    map<WMac,Host> NBMap;
+    map<WMac,Host> NBMap_old,NBMap_new;
     FullScan& fs = FullScan::instance_fs();
     mutex m;
 public:
@@ -21,4 +21,6 @@ public:
     void send_infect();//no sleep
     void update_DB();
     void update_map();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
+    map<WMac,Host>& getOldMap(){return NBMap_old;}
+    map<WMac,Host>& getNewMap(){return NBMap_new;}
 };

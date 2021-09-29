@@ -14,8 +14,7 @@ public:
     void start();
     void finish();
     void send_ARPpacket(EthArp etharp, int cnt);
-    void receive_packet();
-    void findName();
+    void findName(Host* g);
     static FullScan& instance_fs(){
         static FullScan fs;
         return fs;

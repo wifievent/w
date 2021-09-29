@@ -11,6 +11,4 @@ public:
         return packet;
     }
     WPcapDevice& getDevice(){return pcapdevice;}
-    void send(WPacket p);
-    void receive(WPacket* p);
 };
