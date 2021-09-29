@@ -7,10 +7,10 @@ class dInfo
 {
 public:
     dInfo();
-    int hostID;
+    int host_id;
     QString oui;
     QString mac;
-    QString ip;
+    QString last_ip;
     QString name;
     int vectorID;
 };
