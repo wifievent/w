@@ -1,18 +1,28 @@
 #include "core.h"
-#include "parser.h"
 void Core::start(){
-    DHCPParser dhcp;
-    fs.receive_packet();
-    recv_ = new thread(&FullScan::receive_packet,&fs);//only receive-packet
-    dhcp_ = new thread(&DHCPParser::parse,&dhcp);//dhcp packet parser
-
+    recv_ = new thread(&Core::receive_packet,this);//only receive-packet
     thread update_(&NetBlock::update_map,&nb);//update FSMap
-    //update_.join();
-    //nb.send_infect();
     thread infect_(&NetBlock::send_infect,&nb);//send infect
-    dhcp_->detach();
+
     recv_->detach();
-    infect_.join();
     update_.detach();
+    infect_.join();
+}
+
+void Core::receive_packet(){//every packet receiving
+    WPacket& packet = fs.getWPacket();
+    while(check){
+        fs.getMutex().lock();
+        if(instance.getDevice().WPcapCapture::read(&packet)==WPacket::Result::Ok){ //if packet is ok
+            if(packet.ethHdr_->smac()==instance.getDevice().intf()->mac())return; // packet I sent
+            fs.setWPacket(&packet);//singleton pattern
+            dhcp.parse();
+            arp.parse();
+        }
+        fs.getMutex().unlock();
+    }
+}
+void Core::end(){
+    check = false;
 }
 

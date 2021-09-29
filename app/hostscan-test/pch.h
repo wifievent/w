@@ -1,15 +1,11 @@
 #pragma once
-#include "net/pdu/wethhdr.h"
-#include "net/pdu/warphdr.h"
 #include "net/capture/wpcapdevice.h"
 #include "net/wrtm.h"
-#include "net/wip.h"
-#include "net/wmac.h"
 #include "net/wintflist.h"
 #include "net/packet/wpacket.h"
-#include "net/pdu/wdhcphdr.h"
-#include "typeinfo"
-#include "iostream"
+
+#include <typeinfo>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>
@@ -17,6 +13,7 @@
 #include <thread>
 #include <time.h>
 #include <mutex>
+
 using namespace std;
 
 struct EthArp{
@@ -30,3 +27,4 @@ struct Host {
   WIp ip_;
   int active;
 };
+static bool check = true;

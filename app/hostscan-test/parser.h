@@ -1,4 +1,4 @@
-#include "fullscan.h"
+#include "arppacket.h"
 class Parser
 {
 public:
@@ -6,6 +6,9 @@ public:
     ~Parser() {};
     FullScan& fs = FullScan::instance_fs();
     Packet& instance = Packet::instance();
+    Connection conn;
+    ARPPacket arppacket;
+    NetBlock nb;
     virtual void parse(){};
 };
 
