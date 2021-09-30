@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QDebug>
+#include <QThread>
 #include "dinfo.h"
 #include "../../app/db-connect/db-connect.h"
 
@@ -25,14 +26,15 @@ public:
 private slots:
     void on_devTable_cellClicked(int row, int column);
     void on_researchBtn_clicked();
-    void on_DeleteBtn_clicked();
-
     void on_policyBtn_clicked();
+
+    void on_deleteBtn_clicked();
 
 private:
     Ui::Widget *ui;
     std::vector<dInfo> devices;
     dInfo dinfo;
     DB_Connect *db_connect;
+    QThread *check_active;
 };
 #endif // WIDGET_H

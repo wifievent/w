@@ -11,7 +11,8 @@ Widget::Widget(QWidget *parent)
     setDummyDB();
     setDevInfo();
     setTableView();
-    ui->devTable->resizeColumnsToContents();
+
+    // check_active->start();
 }
 
 Widget::~Widget()
@@ -48,6 +49,7 @@ void Widget::setDummyDB()
     db_connect->send_query("INSERT INTO host VALUES(1, '40:70:F5:AA:AA:AA', '192.168.1.101', 'Kim Apple')");
     db_connect->send_query("INSERT INTO host VALUES(2, '70:CE:8C:BB:BB:BB', '192.168.1.102', 'Lee Samsung')");
     db_connect->send_query("INSERT INTO host VALUES(3, '20:DF:B9:CC:CC:CC', '192.168.1.103', 'Park Google')");
+    db_connect->send_query("INSERT INTO host VALUES(4, '99:11:11:DD:DD:DD', '192.168.1.104', 'Jegal Kakao')");
 
     // insert time table data
     db_connect->send_query("INSERT INTO time VALUES(1, '2200', '0830', 1)");
@@ -102,20 +104,41 @@ void Widget::setDevInfo()
 void Widget::setTableView()
 {
     QStringList colHeader;
-    colHeader << "IP" << "Name" ;
+    colHeader << "" << "IP" << "Name" ;
+    ui->devTable->setColumnCount(3);
     ui->devTable->setHorizontalHeaderLabels(colHeader);
     ui->devTable->setRowCount(devices.size());
-    ui->devTable->setColumnCount(2);
 
     for (int i = 0; i < (int)devices.size(); i ++) {
-        ui->devTable->setItem(i, 0, new QTableWidgetItem(devices[i].last_ip));
-        ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].name));
+        if(devices[i].is_active) {
+            ui->devTable->setItem(i, 0, new QTableWidgetItem(""));
 
+            QPushButton *btn = new QPushButton();
+            btn->setParent(ui->devTable);
+            btn->setStyleSheet("QPushButton { margin: 4px; background-color: blue; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
+            ui->devTable->setCellWidget(i, 0, btn);
+
+        }else {
+            QPushButton *btn = new QPushButton();
+            btn->setParent(ui->devTable);
+            btn->setStyleSheet("QPushButton { margin: 4px; background-color: red; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
+            ui->devTable->setCellWidget(i, 0, btn);
+        }
+        ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
+        ui->devTable->setItem(i, 2, new QTableWidgetItem(devices[i].name));
     }
     // 테이블 수정 불가
     ui->devTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->devTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     // 테이블 크기 조정
+    // ui->devTable->resizeColumnsToContents();
+    ui->devTable->resizeColumnToContents(0);
+    ui->devTable->resizeColumnToContents(1);
     ui->devTable->horizontalHeader()->setStretchLastSection(true);
+
+
+    // todo
+    // thread start
 }
 
 // dev Table 에서 cell 클릭 시 리스트에 해당 device info view
@@ -141,23 +164,25 @@ void Widget::clear_devices()
 
 void Widget::on_researchBtn_clicked()
 {
-    // Clear View
+    // Clear View & Devices Vector
     ui->devTable->clear();
     ui->devInfo->clear();
-
-    // todo
-    // Call Fullscan API
-
-    // Clear Devices Vector
     clear_devices();
-    setDevInfo();
 
+    setDevInfo();
     // 테이블 view
     setTableView();
 }
 
+void Widget::on_policyBtn_clicked()
+{
+    // todo
+    // When clicked
+    // Go to the Policies tab with the applicable device filter
+}
 
-void Widget::on_DeleteBtn_clicked()
+
+void Widget::on_deleteBtn_clicked()
 {
     // 디바이스가 없거나 List Widget 이 비어있으면 삭제버튼 비활성화
     if(devices.empty() || ui->devInfo->count() < 1) {
@@ -168,17 +193,11 @@ void Widget::on_DeleteBtn_clicked()
     devices.erase(devices.begin() + dinfo.vectorID);
 
     // Delete Data of host table
+    // fsmap -> delete req
     db_connect->send_query("DELETE FROM host WHERE host_id = " + std::to_string(host_id));
 
     ui->devInfo->clear();
     ui->devTable->clear();
     setTableView();
-}
-
-void Widget::on_policyBtn_clicked()
-{
-    // todo
-    // When clicked
-    // Go to the Policies tab with the applicable device filter
 }
 
