@@ -5,14 +5,13 @@ void DHCPParser::parse(WPacket& packet)
     if(packet.ethHdr_->type() != WEthHdr::Ip4) { return; }  // Is ip4 packet?
     if(packet.ipHdr_->p() != WIpHdr::Udp) { return; }       // Is udp packet?
     if(packet.udpHdr_->sport() != 67 && packet.udpHdr_->dport() != 67) { return; }  // Is dhcp packet?
-    //  sport와 dport 둘 다가 67 이면 안되는 것? 아니면 둘 다 67이어야되는 것?
     if(!packet.ethHdr_->dmac_.isBroadcast()) { return; }    // Is DHCP Request?
 
     packet.dhcpHdr_ = (WDhcpHdr*)packet.udpData_.data_;
     gtrace("<Dhcp>");
 
     g.mac_ = packet.dhcpHdr_->clientMac_;//get mac
-    g.active = true;//get active = true
+    g.is_connect = true;//get is_connect = true
     gtrace("%s",std::string(g.mac_).data());
 
     for(WDhcpHdr::Option* opt = packet.dhcpHdr_->first(); opt != nullptr; opt = opt->next())
@@ -54,14 +53,14 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
     {
         g.mac_ = packet.ethHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
-        g.active = true; //get active
+        g.is_connect = true; //get is_connect
         gtrace("<full scan>");
         gtrace("%s",string(g.mac_).data());
         gtrace("%s",string(g.ip_).data());
         std::map<WMac, Host>::iterator iter = fs.getMap().find(g.mac_);
         if(iter != fs.getMap().end()) {
             iter->second.ip_ = g.ip_;
-            iter->second.active = true;
+            iter->second.is_connect = true;
         }
         else {
             fs.findName(&g);
@@ -76,20 +75,28 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
     if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
         //infection
         std::map<WMac,Host>::iterator iter;
+        int tmp = 0;
         for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-            if(packet.arpHdr_->tip() == iter->second.ip_) {
+            if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arppacket.intf_g->ip()) {//gateway
+                tmp = 1;
+                break;
+            }
+            else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arppacket.intf_g->ip()) { //infected device
+                tmp = 2;
                 break;
             }
         }
-        if(packet.arpHdr_->sip() == arppacket.intf_g->ip() && iter != nb_map.end()){//gateway
-            arppacket.makeArppacket(arppacket.intf_g->mac(),intf->mac(),arppacket.intf_g->mac(),arppacket.intf_g->ip(),packet.arpHdr_->tip());
-        }else if(nb_map.find(g.mac_)!=nb_map.end()){
-            arppacket.makeArppacket(g.mac_,intf->mac(),g.mac_,g.ip_,arppacket.intf_g->gateway());
+        switch(tmp){
+            case 0: return;
+            case 1: //gateway
+                arppacket.makeArppacket(arppacket.intf_g->mac(), intf->mac(), arppacket.intf_g->mac(), arppacket.intf_g->ip(), packet.arpHdr_->tip());
+                break;
+            case 2://infected device
+                arppacket.makeArppacket(g.mac_, intf->mac(), g.mac_, g.ip_, arppacket.intf_g->ip());
+                break;
         }
-        else {
-            return;
-        }
+        
         arppacket.getPacket().arp.op_ = htons(WArpHdr::Reply);
-        fs.send_ARPpacket(arppacket.getPacket(),3);
+        arppacket.send(arppacket.getPacket(), 3);
     }
 }

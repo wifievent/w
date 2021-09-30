@@ -1,7 +1,7 @@
 #pragma once
+#include "net/packet/wpacket.h"
 #include "net/wrtm.h"
 #include "net/wintflist.h"
-#include "net/packet/wpacket.h"
 
 #include <typeinfo>
 #include <iostream>
@@ -16,14 +16,14 @@
 using namespace std;
 
 struct EthArp{
-    struct WEthHdr eth;
-    struct WArpHdr arp;
+    WEthHdr eth;
+    WArpHdr arp;
 };
 
 struct Host {
   char* name;
   WMac mac_;
   WIp ip_;
-  bool active;
+  bool is_connect;
 };
 static bool check = true;

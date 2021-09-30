@@ -1,5 +1,4 @@
-#include "arppacket.h"
-#include "base/db-connect.h"
+
 
 void NetBlock::getBlockHostMap(Week day, int hour, int minute){
     DB_Connect db_connect("/home/kali/BoB-10/project/w/app/hostscan-test/test.db");
@@ -40,7 +39,7 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
     Data_List::list_free(d2);
 }
 
-void NetBlock::send_infect(){//full-scan : active & policy
+void NetBlock::send_infect(){//full-scan : is_connect & policy
     Infection infect;
     infect.send();
 }

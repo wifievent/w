@@ -1,14 +1,14 @@
 #include "core.h"
 
 void Core::start(){
-    recv_ = new thread(&Core::receive_packet, this);    // only receive-packet
-    fs_update_ = new thread(&FullScan::scan, &fs);      // update fs_map
-    nb_update = new thread(&NetBlock::update_map, &nb);
-    infect_ = new thread(&NetBlock::send_infect, &nb);  // send infect
+    recv_ = std::thread(&Core::receive_packet, this);    // only receive-packet
+    fs_scan = std::thread(&FullScan::scan, &fs);         // update fs_map
+    nb_update = std::thread(&NetBlock::update_map, &nb);
+    infect_ = std::thread(&NetBlock::send_infect, &nb);  // send infect
 
-    recv_->detach();
-    fs_update_->detach();
-    infect_->join();
+    recv_.detach();
+    fs_scan.detach();
+    infect_.join();
 }
 
 void Core::receive_packet(){//every packet receiving

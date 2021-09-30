@@ -1,5 +1,5 @@
 #pragma once
-#include "packet.h"
+#include "arppacket.h"
 #include "base/db-connect.h"
 
 class FullScan
@@ -7,26 +7,23 @@ class FullScan
 private:
     map<WMac,Host> fs_map;
     thread* dhcp;
-    Packet& instance = Packet::instance();
     FullScan(){};
     ~FullScan(){};
-    WPacket wpacket;
-    mutex m; // have to think
+    Connection conn;
+    std::thread conn_th;
 public:
-    bool end_check = true;
-    void start();
-    void finish();
-    void send_ARPpacket(EthArp etharp, int cnt);
-    void findName(Host* g);
-    static FullScan& instance_fs(){
+    static FullScan& getInstance(){
         static FullScan fs;
         return fs;
     }
-    mutex& getMutex(){return m;}
-    WPacket& getWPacket(){return wpacket;}
-    void setWPacket(WPacket* wpacket_){wpacket = *wpacket_;}
+    bool end_check = true;
+    void start();
+    void finish();
+    void findName(Host* g);
     map<WMac,Host>& getMap(){return fs_map;}
     void scan();
     void update_DB();
     void addHost(std::pair<WMac,Host> host);
+    bool isConnect(std::string mac);
+    void delHost(std::string mac);
 };

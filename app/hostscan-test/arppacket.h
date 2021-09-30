@@ -1,22 +1,25 @@
-#include "netblock.h"
+#pragma once
+#include "packet.h"
+#include "fullscan.h"
+#include "pch.h"
 
 class ARPPacket
 {
-private:
-    EthArp packet;
 protected:
+    Packet& instance = Packet::getInstance();
+    FullScan& fs = FullScan::getInstance();
+    EthArp packet;
+    WPacket wpacket;
     virtual void send(){};
-    FullScan& fs = FullScan::instance_fs();
-    NetBlock nb;
 public:
     bool end_check = true;
     ARPPacket();
     ~ARPPacket();
     WIp mac_ip;
     WIntf* intf_g;//gateway info
-    Packet& instance = Packet::instance();
     void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     EthArp& getPacket() { return packet; }
+    void send(EthArp p, int cnt);
 };
 
 class Connection : ARPPacket{
@@ -24,6 +27,7 @@ public:
     Connection(){};
     ~Connection(){};
     void send() override;
+
 };
 
 class Request : ARPPacket{//remove?
@@ -41,6 +45,8 @@ public:
 };
 
 class Infection : ARPPacket{
+private:
+    NetBlock nb;
 public:
     Infection(){};
     ~Infection(){};

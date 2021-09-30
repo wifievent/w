@@ -1,14 +1,15 @@
 #include "parser.h"
+#include "netblock.h"
 
 class Core
 {
 private:
-    Packet& packet_instance = Packet::instance();
-    FullScan& fs = FullScan::instance_fs();
+    Packet& packet_instance = Packet::getInstance();
+    FullScan& fs = FullScan::getInstance();
     NetBlock nb;
     DHCPParser dhcp;
     ARPParser arp;
-    std::thread *recv_, *fs_update_, *nb_update, *infect_;
+    std::thread recv_, fs_scan, nb_update, infect_;
 
     WPacket packet_;
     std::mutex m;
@@ -21,4 +22,3 @@ public:
     void end();//program end
     void receive_packet();
 };
-

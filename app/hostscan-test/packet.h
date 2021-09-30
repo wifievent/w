@@ -8,7 +8,7 @@ private:
     Packet();//pcapdevice open
     ~Packet();
 public:
-    static Packet& instance(){
+    static Packet& getInstance(){
         static Packet packet;
         return packet;
     }

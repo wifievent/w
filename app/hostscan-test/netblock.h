@@ -1,11 +1,12 @@
+#pragma once
 #include "fullscan.h"
-
+#include "pch.h"
 
 class NetBlock
 {
 private:
-    map<WMac,Host> NBMap_old,NBMap_new;
-    FullScan& fs = FullScan::instance_fs();
+    std::map<WMac,Host> NBMap_old,NBMap_new;
+    FullScan& fs = FullScan::getInstance();
     mutex m;
 public:
     bool end_check = true;

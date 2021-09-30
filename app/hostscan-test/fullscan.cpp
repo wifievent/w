@@ -1,9 +1,8 @@
-#include "parser.h"
+#include "fullscan.h"
 
 void FullScan::start(){
-    Connection conn;
-    thread conn_(&Connection::send,&conn); //find what device is connected to network
-    conn_.detach();
+    conn_th = std::thread(&Connection::send, &conn); //find what device is connected to network
+    conn_th.detach();
 }
 void FullScan::finish(){
 
@@ -28,14 +27,6 @@ void FullScan::findName(Host* g){
         g->name = (char*)malloc(sizeof(char) * str.size());
         strcpy(g->name, str.data());
         gtrace("%s", str.data());
-    }
-}
-
-void FullScan::send_ARPpacket(EthArp etharp, int cnt){//every packet sending
-    wpacket.buf_.data_ = reinterpret_cast<byte*>(&etharp);
-    wpacket.buf_.size_ = sizeof(EthArp);
-    for(int i =0; i<cnt; i++){
-        instance.getDevice().write(wpacket.buf_);
     }
 }
 
@@ -73,4 +64,14 @@ void FullScan::update_DB(){//update last_ip
 }
 void FullScan::addHost(std::pair<WMac,Host> host) {
     fs_map.insert(host);
+}
+
+bool FullScan::isConnect(std::string mac) {
+    WMac wmac(mac);
+    return fs_map[wmac].is_connect;
+}
+
+void FullScan::delHost(std::string mac) {
+    WMac wmac(mac);
+    fs_map.erase(wmac);
 }

@@ -1,13 +1,14 @@
-#include "arppacket.h"
+#include "fullscan.h"
+#include "packet.h"
+#include "pch.h"
 
 class Parser
 {
 public:
     Parser() {};
     ~Parser() {};
-    FullScan& fs = FullScan::instance_fs();
-    Packet& instance = Packet::instance();
-    ARPPacket arppacket;
+    FullScan& fs = FullScan::getInstance();
+    Packet& instance = Packet::getInstance();
     Host g;
     virtual void parse(WPacket& packet){};
 };
