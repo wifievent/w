@@ -11,8 +11,6 @@ Widget::Widget(QWidget *parent)
     setDummyDB();
     setDevInfo();
     setTableView();
-
-    // check_active->start();
 }
 
 Widget::~Widget()
@@ -20,6 +18,12 @@ Widget::~Widget()
     delete ui;
 }
 
+void updateState()
+{
+    // Check tabelWidget items
+    // call api
+    // if active -> set red color
+}
 
 void Widget::setDummyDB()
 {

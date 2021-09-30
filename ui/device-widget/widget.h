@@ -22,12 +22,12 @@ public:
     void setDevInfo();
     void setTableView();
     void clear_devices();
+    void updateState();
 
 private slots:
     void on_devTable_cellClicked(int row, int column);
     void on_researchBtn_clicked();
     void on_policyBtn_clicked();
-
     void on_deleteBtn_clicked();
 
 private:
@@ -35,6 +35,5 @@ private:
     std::vector<dInfo> devices;
     dInfo dinfo;
     DB_Connect *db_connect;
-    QThread *check_active;
 };
 #endif // WIDGET_H
