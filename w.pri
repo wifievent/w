@@ -30,6 +30,13 @@ win32 {
 
 linux: LIBS *= -lpcap
 
-HEADERS +=
+#
+# sqlite
+#
+#win32 {
+#	INCLUDEPATH *= $${PWD}/../npcap/include
+#	LIBS *= -L$${PWD}/../npcap/Lib/x64
+#	LIBS *= -lwpcap -lpacket -lws2_32 -liphlpapi
+#}
 
-SOURCES +=
+linux: LIBS *= -lsqlite3 -lpthread -ldl

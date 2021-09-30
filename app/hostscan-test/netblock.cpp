@@ -1,8 +1,8 @@
 #include "arppacket.h"
-#include "/home/bob/project/host-list/w/app/db-connect/db-connect.h"
+#include "base/db-connect.h"
 
 void NetBlock::getBlockHostMap(Week day, int hour, int minute){
-    DB_Connect db_connect("/home/bob/real/arp-sppof/test.db");
+    DB_Connect db_connect("/home/kali/BoB-10/project/w/app/hostscan-test/test.db");
     Host g;
     list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
@@ -44,43 +44,19 @@ void NetBlock::send_infect(){//full-scan : active & policy
     Infection infect;
     infect.send();
 }
-void NetBlock::update_DB(){//update last_ip
-    DB_Connect db_connect("/home/bob/real/arp-sppof/test.db");
-    list<Data_List> d1;
-    char query[50];
-    d1 = db_connect.select_query("SELECT * FROM host");
-    for(map<WMac,Host>::iterator iter = fs.getMap().begin(); iter!=fs.getMap().end();iter++){ //fullscan
-        int tmp = 0;
-        for(list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
-            if(WMac(iter2->argv[1])==iter->first){//same mac
-                if(WIp(iter2->argv[2])!=iter->second.ip_){//need update
-                    sprintf(query,"UPDATE host SET last_ip = '%s' WHERE mac = '%s'",std::string((iter->second).ip_).data(),std::string(iter->first).data());
-                    db_connect.send_query(query);
-                }else{//if exist
-                    tmp = 1;
-                }
-                break;
-            }
-        }
-        //different mac -> insert
-        sprintf(query,"INSERT INTO host VALUES(%d, '%s', '%s', '%s')",fs.getMap().size()+1,std::string(iter->first).data(),std::string((iter->second).ip_).data(),iter->second.name);
-        db_connect.send_query(query);
-    }
-    Data_List::list_free(d1);
-}
 
 void NetBlock::update_map(){
     Recover recover;
     time_t timer;
     struct tm* t;
-    timer = time(NULL);
 
-    while(check) {
-        fs.start(); //full-scan
-        sleep(3);
-        update_DB(); //update_db
-
+    while(end_check) {
+        timer = time(NULL);
+        gtrace("nb timer: %d \n", timer);
         t = localtime(&timer);
+        if(t->tm_min % 10 != 0 && t->tm_sec != 0) {
+            continue;
+        }
         getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
         recover.send();//recover
 

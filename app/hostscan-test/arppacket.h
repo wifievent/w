@@ -1,4 +1,5 @@
 #include "netblock.h"
+
 class ARPPacket
 {
 private:
@@ -8,6 +9,7 @@ protected:
     FullScan& fs = FullScan::instance_fs();
     NetBlock nb;
 public:
+    bool end_check = true;
     ARPPacket();
     ~ARPPacket();
     WIp mac_ip;

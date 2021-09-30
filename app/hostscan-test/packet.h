@@ -1,4 +1,6 @@
 #include "pch.h"
+#include "net/capture/wpcapdevice.h"
+
 class Packet
 {
 private:

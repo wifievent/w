@@ -1,4 +1,6 @@
 #include "fullscan.h"
+
+
 class NetBlock
 {
 private:
@@ -6,6 +8,7 @@ private:
     FullScan& fs = FullScan::instance_fs();
     mutex m;
 public:
+    bool end_check = true;
     NetBlock(){};
     ~NetBlock(){};
     enum Week{
@@ -19,8 +22,7 @@ public:
     };
     void getBlockHostMap(Week day, int hour, int minute);
     void send_infect();//no sleep
-    void update_DB();
     void update_map();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
-    map<WMac,Host>& getOldMap(){return NBMap_old;}
-    map<WMac,Host>& getNewMap(){return NBMap_new;}
+    map<WMac,Host> getOldMap(){return NBMap_old;}
+    map<WMac,Host> getNewMap(){return NBMap_new;}
 };

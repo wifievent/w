@@ -1,4 +1,5 @@
 #include "arppacket.h"
+
 class Parser
 {
 public:
@@ -6,18 +7,20 @@ public:
     ~Parser() {};
     FullScan& fs = FullScan::instance_fs();
     Packet& instance = Packet::instance();
-    Connection conn;
     ARPPacket arppacket;
-    NetBlock nb;
-    virtual void parse(){};
+    Host g;
+    virtual void parse(WPacket& packet){};
 };
 
 class DHCPParser: public Parser{
 public:
-    virtual void parse()override;
+    void parse(WPacket& packet)override;
 };
 
 class ARPParser: public Parser{
+private:
+    WIntf* intf;
 public:
-    virtual void parse()override;
+    void parse(WPacket& packet)override;
+    void parse(WPacket& packet, std::map<WMac, Host> nb_map);
 };

@@ -1,5 +1,4 @@
 #pragma once
-#include "net/capture/wpcapdevice.h"
 #include "net/wrtm.h"
 #include "net/wintflist.h"
 #include "net/packet/wpacket.h"
@@ -25,6 +24,6 @@ struct Host {
   char* name;
   WMac mac_;
   WIp ip_;
-  int active;
+  bool active;
 };
 static bool check = true;

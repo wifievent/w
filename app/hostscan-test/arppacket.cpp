@@ -1,4 +1,5 @@
 #include "arppacket.h"
+
 ARPPacket::ARPPacket()
 {
     WNetInfo& wnetinfo = WNetInfo::instance();
@@ -46,26 +47,6 @@ void Connection::send(){
     }
 }
 
-/*void Request::send(map<WMac,Host> map_){
-    map<WMac,Host>::iterator iter;
-    ARPPacket arp;
-
-    while(check) {
-        gtrace("<size>");
-        std::cout<<map_.size()<<std::endl;
-
-        for(iter = map_.begin(); iter!=map_.end();iter++) {
-            gtrace("<sendarp>");
-            gtrace("%s",std::string(iter->first).data());
-            gtrace("%s",std::string((iter->second).ip_).data());
-
-            arp.makeArppacket(iter->first,arp.instance.getDevice().intf()->mac(),iter->first,(iter->second).ip_,arp.instance.getDevice().intf()->gateway());
-            fs.send_ARPpacket(arp.getPacket(),3);
-            sleep(1);
-        }
-    }
-}*/
-
 void Recover::send(){
     ARPPacket arp;
     map<WMac,Host>::iterator iter_old;
@@ -81,7 +62,7 @@ void Infection::send(){
     map<WMac,Host>::iterator iter;
     ARPPacket arp;
 
-    while(check) {
+    while(end_check) {
         sleep(30);
         gtrace("<size>");
         std::cout<<nb.getOldMap().size()<<std::endl;
