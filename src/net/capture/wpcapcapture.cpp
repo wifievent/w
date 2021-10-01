@@ -1,11 +1,13 @@
 #include "wpcapcapture.h"
 
-void WPcapCapture::load(JsonValue& json) {
-	(void)json;
+void WPcapCapture::load(Json::Value& json) {
+	json["filter"] >> filter_;
+	json["mtu"] >> mtu_;
 }
 
-void WPcapCapture::save(JsonValue& json) {
-	(void)json;
+void WPcapCapture::save(Json::Value& json) {
+	json["filter"] << filter_;
+	json["mtu"] << mtu_;
 }
 
 bool WPcapCapture::doOpen() {

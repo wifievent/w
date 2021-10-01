@@ -1,92 +1,100 @@
+#include "netblock.h"
 #include "arppacket.h"
-#include "/home/bob/project/host-list/w/app/db-connect/db-connect.h"
 
 void NetBlock::getBlockHostMap(Week day, int hour, int minute){
-    DB_Connect db_connect("/home/bob/real/arp-sppof/test.db");
+    DB_Connect db_connect("/home/bob/pm/w/app/hostscan-test/test.db");
     Host g;
     list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
-    NBMap_new.clear();
 
-    for(list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
-        if(atoi(iter->argv[3])!=day)continue; // different day
+    m.lock();
+    new_nb_map.clear();
+    m.unlock();
 
-        int st = atoi(iter->argv[1])/100;
-        int et = atoi(iter->argv[2])/100;
+    for(std::list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
+        if(atoi(iter->argv[3])!=day) { continue; } // different day
+
+        int sh = atoi(iter->argv[1])/100;
+        int eh = atoi(iter->argv[2])/100;
         int sm = atoi(iter->argv[1])%100;
         int em = atoi(iter->argv[2])%100;
-        if(st<=hour&&hour<=et&&sm<=minute&&minute<=em) {
-            d2 = db_connect.select_query("SELECT * FROM policy");
-            int host_id;
+        if(sh <= hour && hour <= eh && sm <= minute && minute <= em) {
+            d2 = db_connect.select_query("SELECT * FROM block_host");
             for(list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
-                if(atoi(iter2->argv[2])==atoi(iter->argv[0])){
-                    host_id = atoi(iter2->argv[1]);
-                    break;
-                }
+                g.mac_ = WMac(iter2->argv[0]);
+                g.ip_ = WIp(iter2->argv[1]);
+                g.name = iter2->argv[2];
+                break;
             }
-            d2 = db_connect.select_query("SELECT * FROM host");
-            for(list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
-                if(atoi(iter2->argv[0])==host_id){
-                    g.mac_ = WMac(iter2->argv[1]);
-                    g.ip_ = WIp(iter2->argv[2]);
-                    g.name = iter2->argv[3];
-                    break;
-                }
-            }
-            NBMap_new.insert(pair<WMac,Host>(g.mac_, g));
+            m.lock();
+            new_nb_map.insert(pair<WMac, Host>(g.mac_, g));
+            m.unlock();
         }
     }
     Data_List::list_free(d1);
     Data_List::list_free(d2);
 }
 
-void NetBlock::send_infect(){//full-scan : active & policy
-    Infection infect;
-    infect.send();
-}
-void NetBlock::update_DB(){//update last_ip
-    DB_Connect db_connect("/home/bob/real/arp-sppof/test.db");
-    list<Data_List> d1;
-    char query[50];
-    d1 = db_connect.select_query("SELECT * FROM host");
-    for(map<WMac,Host>::iterator iter = fs.getMap().begin(); iter!=fs.getMap().end();iter++){ //fullscan
-        int tmp = 0;
-        for(list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
-            if(WMac(iter2->argv[1])==iter->first){//same mac
-                if(WIp(iter2->argv[2])!=iter->second.ip_){//need update
-                    sprintf(query,"UPDATE host SET last_ip = '%s' WHERE mac = '%s'",std::string((iter->second).ip_).data(),std::string(iter->first).data());
-                    db_connect.send_query(query);
-                }else{//if exist
-                    tmp = 1;
-                }
-                break;
+void NetBlock::sendInfect(){//full-scan = is_connect & policy
+    map<WMac,Host>::iterator iter;
+    map<WMac, Host> fs_map = fs.getFsMap();
+
+    Packet& instance = Packet::getInstance();
+
+    ARPPacket infect_packet;
+
+    while(end_check) {
+        {
+            std::lock_guard<mutex> lock(m);
+            if(nb_map.size() == 0) { continue; }
+        }
+        m.lock();
+        for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
+            if(fs_map[iter->first].isConnected()){//full-scan & policy
+                gtrace("<sendarp>");
+                gtrace("%s",std::string(iter->first).data());
+                gtrace("%s",std::string((iter->second).ip_).data());
+
+                infect_packet.makeArppacket(iter->first, instance.getDevice().intf()->mac(), iter->first, (iter->second).ip_, instance.getDevice().intf()->gateway());
+                infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+                infect_packet.send(3);
             }
         }
-        //different mac -> insert
-        sprintf(query,"INSERT INTO host VALUES(%d, '%s', '%s', '%s')",fs.getMap().size()+1,std::string(iter->first).data(),std::string((iter->second).ip_).data(),iter->second.name);
-        db_connect.send_query(query);
+        m.unlock();
+        sleep(30);
     }
-    Data_List::list_free(d1);
+}
+
+void NetBlock::sendRecover(Host host) {
+    ARPPacket recover_packet;
+    recover_packet.makeArppacket(host.mac_, recover_packet.intf_g->mac(), host.mac_, host.ip_, recover_packet.intf_g->ip());
+    recover_packet.send(3);
 }
 
 void NetBlock::update_map(){
-    Recover recover;
     time_t timer;
     struct tm* t;
-    timer = time(NULL);
 
-    while(check) {
-        fs.start(); //full-scan
-        sleep(3);
-        update_DB(); //update_db
-
+    while(end_check) {
+        timer = time(NULL);
         t = localtime(&timer);
-        getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
-        recover.send();//recover
-
-        if(NBMap_new.size() > 0){
-            NBMap_old.clear();
-            NBMap_old.insert(NBMap_new.begin(),NBMap_new.end());
+        if(t->tm_min % 10 != 0 && t->tm_sec != 0) {
+            continue;
         }
+        getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
+        m.lock();
+        for(map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
+            if(new_nb_map.find(iter_old->first) == new_nb_map.end()) {
+                sendRecover(iter_old->second);//end policy
+            }
+        }
+        m.unlock();
+
+        m.lock();
+        if(new_nb_map.size() > 0){
+            nb_map.clear();
+            nb_map.swap(new_nb_map);
+        }
+        m.unlock();
     }
 }

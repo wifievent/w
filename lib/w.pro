@@ -2,16 +2,21 @@ CONFIG -= qt
 TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += c++11
+CONFIG += c99
 CONFIG += W_BUILD
 include($${PWD}/../w.pri)
 DESTDIR = $${PWD}/../bin
 
 HEADERS += \
 	../src/base/gtrace.h \
+	../src/base/json/json-forwards.h \
+	../src/base/json/json.h \
 	../src/base/wbase.h \
 	../src/base/wbuf.h \
+	../src/base/wjson.h \
 	../src/base/wobj.h \
 	../src/base/wstateobj.h \
+	../src/base/db-connect.h \
 	../src/net/capture/wcapture.h \
 	../src/net/capture/wpcapcapture.h \
 	../src/net/capture/wpcapdevice.h \
@@ -36,15 +41,18 @@ HEADERS += \
 	../src/net/wreadable.h \
 	../src/net/wrtm.h \
 	../src/net/wrtmentry.h \
-	../src/net/wscan.h \
-	../src/net/wwritable.h
+	../src/net/wwritable.h \
+	../src/base/sqlite/sqlite3.h
 
 SOURCES += \
 	../src/base/gtrace.cpp \
+	../src/base/jsoncpp.cpp \
 	../src/base/wbase.cpp \
 	../src/base/wbuf.cpp \
+	../src/base/wjson.cpp \
 	../src/base/wobj.cpp \
 	../src/base/wstateobj.cpp \
+	../src/base/db-connect.cpp \
 	../src/net/capture/wcapture.cpp \
 	../src/net/capture/wpcapcapture.cpp \
 	../src/net/capture/wpcapdevice.cpp \
@@ -69,8 +77,8 @@ SOURCES += \
 	../src/net/wreadable.cpp \
 	../src/net/wrtm.cpp \
 	../src/net/wrtmentry.cpp \
-	../src/net/wscan.cpp \
-	../src/net/wwritable.cpp
+	../src/net/wwritable.cpp \
+	../src/base/sqlite/sqlite3.c
 
 win32 {
 HEADERS += \

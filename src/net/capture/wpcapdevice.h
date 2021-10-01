@@ -10,8 +10,8 @@ struct WPcapDevice : WPcapCapture {
 	int readTimeout_{-1}; // -1 msec
 	int waitTimeout_{1}; // 1msec
 
-	void load(JsonValue& json) override;
-	void save(JsonValue& json) override;
+	void load(Json::Value& json) override;
+	void save(Json::Value& json) override;
 
 public:
 	WPcapDevice();
