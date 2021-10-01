@@ -1,6 +1,6 @@
 #pragma once
-#include "net/packet/wpacket.h"
 #include "net/wrtm.h"
+#include "net/packet/wpacket.h"
 #include "net/wintflist.h"
 
 #include <typeinfo>
@@ -26,4 +26,3 @@ struct Host {
   WIp ip_;
   bool is_connect;
 };
-static bool check = true;

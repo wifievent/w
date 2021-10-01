@@ -1,16 +1,16 @@
 #pragma once
-#include "arppacket.h"
+#include <mutex>
+#include "packet.h"
 #include "base/db-connect.h"
 
 class FullScan
 {
 private:
-    map<WMac,Host> fs_map;
-    thread* dhcp;
+    std::map<WMac, Host> fs_map;
+    std::mutex m;
+    Packet& instance = Packet::getInstance();
     FullScan(){};
     ~FullScan(){};
-    Connection conn;
-    std::thread conn_th;
 public:
     static FullScan& getInstance(){
         static FullScan fs;
@@ -18,12 +18,12 @@ public:
     }
     bool end_check = true;
     void start();
-    void finish();
-    void findName(Host* g);
-    map<WMac,Host>& getMap(){return fs_map;}
     void scan();
     void update_DB();
+    void finish();
+    void findName(Host* g);
+    std::map<WMac,Host>& getFsMap(){ return fs_map; }
     void addHost(std::pair<WMac,Host> host);
-    bool isConnect(std::string mac);
+    static bool isConnect(std::string mac);
     void delHost(std::string mac);
 };

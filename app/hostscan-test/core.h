@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "netblock.h"
+#include "arppacket.h"
 
 class Core
 {

@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "arppacket.h"
 
 void DHCPParser::parse(WPacket& packet)
 {
@@ -49,6 +50,7 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
 
     WIp mask = intf->mask();
 
+    gtrace("<full scan>");
     if((packet.arpHdr_->sip() & mask) == (intf->gateway() & mask))
     {
         g.mac_ = packet.ethHdr_->smac();//get mac
@@ -57,8 +59,8 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
         gtrace("<full scan>");
         gtrace("%s",string(g.mac_).data());
         gtrace("%s",string(g.ip_).data());
-        std::map<WMac, Host>::iterator iter = fs.getMap().find(g.mac_);
-        if(iter != fs.getMap().end()) {
+        std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
+        if(iter != fs.getFsMap().end()) {
             iter->second.ip_ = g.ip_;
             iter->second.is_connect = true;
         }
@@ -72,31 +74,34 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
 void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
     parse(packet);
 
+    ARPPacket arp_packet;
+
     if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
         //infection
         std::map<WMac,Host>::iterator iter;
         int tmp = 0;
         for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-            if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arppacket.intf_g->ip()) {//gateway
+            if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arp_packet.intf_g->ip()) {//gateway
                 tmp = 1;
                 break;
             }
-            else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arppacket.intf_g->ip()) { //infected device
+            else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arp_packet.intf_g->ip()) { //infected device
                 tmp = 2;
                 break;
             }
         }
-        switch(tmp){
-            case 0: return;
+        if(iter != nb_map.end()) {
+            switch(tmp){
             case 1: //gateway
-                arppacket.makeArppacket(arppacket.intf_g->mac(), intf->mac(), arppacket.intf_g->mac(), arppacket.intf_g->ip(), packet.arpHdr_->tip());
+                arp_packet.makeArppacket(arp_packet.intf_g->mac(), intf->mac(), arp_packet.intf_g->mac(), arp_packet.intf_g->ip(), packet.arpHdr_->tip());
                 break;
             case 2://infected device
-                arppacket.makeArppacket(g.mac_, intf->mac(), g.mac_, g.ip_, arppacket.intf_g->ip());
+                arp_packet.makeArppacket(g.mac_, intf->mac(), g.mac_, g.ip_, arp_packet.intf_g->ip());
                 break;
-        }
+            }
         
-        arppacket.getPacket().arp.op_ = htons(WArpHdr::Reply);
-        arppacket.send(arppacket.getPacket(), 3);
+            arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+            arp_packet.send(3);
+        }
     }
 }

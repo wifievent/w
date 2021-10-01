@@ -5,9 +5,9 @@
 class NetBlock
 {
 private:
-    std::map<WMac,Host> NBMap_old,NBMap_new;
+    std::map<WMac,Host> nb_map, new_nb_map;
     FullScan& fs = FullScan::getInstance();
-    mutex m;
+    std::mutex m;
 public:
     bool end_check = true;
     NetBlock(){};
@@ -21,9 +21,9 @@ public:
         Friday = 5,
         Saturday = 6,
     };
+    void sendInfect();//no sleep
+    void sendRecover(Host host);
     void getBlockHostMap(Week day, int hour, int minute);
-    void send_infect();//no sleep
     void update_map();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
-    map<WMac,Host> getOldMap(){return NBMap_old;}
-    map<WMac,Host> getNewMap(){return NBMap_new;}
+    std::map<WMac, Host> getNbMap() { return nb_map; }
 };

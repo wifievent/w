@@ -1,6 +1,6 @@
+#pragma once
 #include "fullscan.h"
 #include "packet.h"
-#include "pch.h"
 
 class Parser
 {
@@ -19,7 +19,6 @@ public:
 };
 
 class ARPParser: public Parser{
-private:
     WIntf* intf;
 public:
     void parse(WPacket& packet)override;
