@@ -36,6 +36,7 @@ Client::Client(string ip, int port)
 
 void Client::send_data()
 {
+    memset(sendbuf, '\0', BUF_SIZE);
     write(sock, sendbuf, strlen(sendbuf));
     return;
 }
@@ -43,15 +44,13 @@ void Client::send_data()
 int Client::recv_data()
 {
     int str_len;
-    for(int i = 0; i < 2; i++)
+    memset(recvbuf, '\0', BUF_SIZE);
+    str_len = read(sock, recvbuf, sizeof(recvbuf));
+    cout << "len: " << str_len << endl;
+    if(str_len==-1)
     {
-        str_len = read(sock, recvbuf, sizeof(recvbuf));
-        cout << "len: " << str_len << endl;
-        if(str_len==-1)
-        {
-            error_handling("Can't read data");
-            return 0;
-        }
+        error_handling("Can't read data");
+        return 0;
     }
     return 1;
 }
