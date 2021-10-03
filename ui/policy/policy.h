@@ -26,7 +26,7 @@ public:
         ROW_SIZE=6
     };
 
-    DB_Connect dbConnect = DB_Connect("bin/test.db");
+    DB_Connect dbConnect = DB_Connect("test.db");
     PolicyObj policyObj;
     QVector<PolicyObj> policyList;
     QList<QListWidgetItem *> selectedHost;

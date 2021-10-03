@@ -4,7 +4,7 @@
 
 void policy_config::getHostFromDatabase()
 {
-    DB_Connect dbConnect("bin/test.db");
+    DB_Connect dbConnect("test.db");
 
     std::list<Data_List> dl;
     dl = dbConnect.select_query("SELECT host_id, name FROM host");
@@ -42,7 +42,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     getHostFromDatabase();
 
     if (policyId != 0) {
-        DB_Connect dbConnect("../../db/test.db");
+        DB_Connect dbConnect("test.db");
 
         std::list<Data_List> dl;
         dl = dbConnect.select_query("SELECT host_id FROM policy WHERE policy_id= " + QString::number(policyId).toStdString());
@@ -100,7 +100,7 @@ void policy_config::on_applyButton_clicked()
 
     QList<QString>timeIdList;
     std::list<Data_List> dl;
-    DB_Connect dbConnect("../../db/test.db");
+    DB_Connect dbConnect("test.db");
     for (QList<int>::iterator iter = checked_day_of_week.begin(); iter != checked_day_of_week.end(); ++iter) {
         QString query = "INSERT INTO time VALUES(null, '" + start_time + "', '" + end_time + "', " + QString::number(*iter) + ")";
         dbConnect.send_query(query.toStdString());

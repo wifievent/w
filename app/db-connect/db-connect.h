@@ -7,6 +7,8 @@
 #include "sqlite3.h"
 #include "base/gtrace.h"
 
+#ifndef DB_CONNECT
+#define DB_CONNECT
 struct Data_List {
     int argc;
     char** argv;
@@ -26,3 +28,4 @@ struct DB_Connect {
 protected:
     static int callback(void* dl, int ac, char** av, char** c);
 };
+#endif
