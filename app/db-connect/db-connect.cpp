@@ -106,7 +106,7 @@ int DB_Connect::send_query(std::string query) {
     return 0;
 }
 
-int main(void)
+/*int main(void)
 {
     DB_Connect db_connect("test.db");
 
@@ -185,4 +185,4 @@ int main(void)
     Data_List::list_free(dl);
 
     return 0;
-}
+}*/
