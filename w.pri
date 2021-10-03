@@ -6,7 +6,7 @@ INCLUDEPATH *= $${PWD}/src
 #
 # link library
 #
-LIBS *= -L$${PWD}/bin -lw -pthread
+LIBS *= -L$${PWD}/bin -lw -pthread -lsqlite3
 
 !CONFIG(W_BUILD) {
 	PRE_TARGETDEPS *= $${PWD}/bin/libw.a
