@@ -17,7 +17,6 @@ SOURCES += \
     ../policy/policyobj.cpp \
     ../device-widget/devicewidget.cpp \
     ../device-widget/dinfo.cpp \
-    ../device-widget/dthread.cpp \
     ../../app/db-connect/db-connect.cpp
 
 HEADERS += \
@@ -27,7 +26,6 @@ HEADERS += \
     ../policy/policyobj.h \
     ../device-widget/devicewidget.h \
     ../device-widget/dinfo.h \
-    ../device-widget/dthread.h \
     ../../app/db-connect/db-connect.h
 
 FORMS += \

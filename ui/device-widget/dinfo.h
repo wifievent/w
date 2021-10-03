@@ -13,7 +13,7 @@ public:
     QString last_ip;
     QString name;
     int vectorID;
-    bool is_active = false;
+    bool is_connect = false;
 };
 
 #endif // DINFO_H
