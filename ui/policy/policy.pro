@@ -13,11 +13,16 @@ include(../../w.pri)
 SOURCES += \
     main.cpp \
     policy.cpp \
-    policy_config.cpp
+    policy_config.cpp \
+    ../../app/db-connect/db-connect.cpp \
+    policyobj.cpp
 
 HEADERS += \
+    db_policy.h \
     policy.h \
-    policy_config.h
+    policy_config.h \
+    ../../app/db-connect/db-connect.h \
+    policyobj.h
 
 FORMS += \
     policy.ui \
@@ -29,3 +34,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES +=
+
+linux: LIBS *= -lsqlite3 -lpthread -ldl

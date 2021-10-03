@@ -15,8 +15,10 @@ class policy_config : public QDialog
     Q_OBJECT
 
 public:
-    explicit policy_config(QModelIndexList indexList, QWidget *parent = nullptr);
+    explicit policy_config(QModelIndexList indexList, int policyId = 0, QWidget *parent = nullptr);
     ~policy_config();
+
+    void getHostFromDatabase();
 
 private slots:
     void on_applyButton_clicked();

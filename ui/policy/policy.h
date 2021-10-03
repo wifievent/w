@@ -5,6 +5,9 @@
 #include <QtCore>
 #include <QtWidgets>
 #include <QDebug>
+#include <QMap>
+#include "../app/db-connect/db-connect.h"
+#include "policyobj.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class policy; }
@@ -18,16 +21,35 @@ public:
     policy(QWidget *parent = nullptr);
     ~policy();
 
-private slots:
-    void on_pushButton_clicked();
+    enum TABLE_INFO {
+        COLUMN_SIZE=5,
+        ROW_SIZE=6
+    };
 
-    void on_pushButton_2_clicked();
+    DB_Connect dbConnect = DB_Connect("bin/test.db");
+    PolicyObj policyObj;
+    QVector<PolicyObj> policyList;
+    QList<QListWidgetItem *> selectedHost;
+    int checkOverlapCell(int startRow, int lastRow, int columnIdx);
+    void resetPolicyTable();
+    int setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor policyColor, int policyCnt, int policyId);
+    void getPolicyFromDatabase(QString where = "");
+    void setPolicyToTable();
+    void getHostFromDatabase();
+
+private slots:
+
+    void on_addPolicyButton_clicked();
 
     void on_tableWidget_cellDoubleClicked();
 
-    void open_policy_config();
+    void openPolicyConfig();
+
+    void on_host_filter_itemSelectionChanged();
 
 private:
     Ui::policy *ui;
+    QStringList colorList = { "#ff6b6b", "#339af0", "#51cf66", "#ff922b" };
+    //colorpicker dial
 };
 #endif // POLICY_H
