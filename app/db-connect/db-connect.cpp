@@ -105,5 +105,3 @@ int DB_Connect::send_query(std::string query) {
     sqlite3_close(db);
     return 0;
 }
-
-
