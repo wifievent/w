@@ -1,31 +1,43 @@
-#include "widget.h"
-#include "ui_widget.h"
+#include "devicewidget.h"
+#include "ui_devicewidget.h"
 
-Widget::Widget(QWidget *parent)
+DeviceWidget::DeviceWidget(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Widget)
+    , ui(new Ui::DeviceWidget)
 {
     ui->setupUi(this);
+    setWindowState(Qt::WindowMaximized);
 
     db_connect = new DB_Connect("test.db");
     setDummyDB();
     setDevInfo();
-    setTableView();
+    setDevTableWidget();
+    initDevListWidget();
+
+    //dthread = new DThread(this);
+    // connect(dthread, SIGNAL(), this, SLOT());
 }
 
-Widget::~Widget()
+DeviceWidget::~DeviceWidget()
 {
     delete ui;
 }
 
-void updateState()
+void DeviceWidget::setDevState()
 {
-    // Check tabelWidget items
-    // call api
-    // if active -> set red color
+    // true -> active
+    while(true) {
+        sleep(10);
+        for(int i = 0; i < (int)devices.size(); i++) {
+            QString qmac_ = devices[i].mac;
+            std::string mac_ = qmac_.toStdString();
+            qDebug() << "Current MAC : " << qmac_;
+            // devices[i].is_active = FullScan::isConnect(mac_);
+        }
+    }
 }
 
-void Widget::setDummyDB()
+void DeviceWidget::setDummyDB()
 {
     // init for test
     db_connect->send_query("DROP TABLE IF EXISTS host");
@@ -82,11 +94,8 @@ void Widget::setDummyDB()
 }
 
 // Set Device List from DB to Vector
-void Widget::setDevInfo()
+void DeviceWidget::setDevInfo()
 {
-    // todo
-    // call fullscan API
-
     std::list<Data_List> dl;
     dl = db_connect->select_query("SELECT * FROM host");
 
@@ -104,15 +113,9 @@ void Widget::setDevInfo()
     Data_List::list_free(dl);
 }
 
-// Set Device Info Table
-void Widget::setTableView()
+// Set the device's state in the table widget
+void DeviceWidget::viewDevState()
 {
-    QStringList colHeader;
-    colHeader << "" << "IP" << "Name" ;
-    ui->devTable->setColumnCount(3);
-    ui->devTable->setHorizontalHeaderLabels(colHeader);
-    ui->devTable->setRowCount(devices.size());
-
     for (int i = 0; i < (int)devices.size(); i ++) {
         if(devices[i].is_active) {
             ui->devTable->setItem(i, 0, new QTableWidgetItem(""));
@@ -131,54 +134,74 @@ void Widget::setTableView()
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
         ui->devTable->setItem(i, 2, new QTableWidgetItem(devices[i].name));
     }
-    // 테이블 수정 불가
+}
+
+// Set the device list in the table widget
+void DeviceWidget::setDevTableWidget()
+{
+    QStringList colHeader;
+    colHeader << "" << "IP" << "Name" ;
+    ui->devTable->setColumnCount(3);
+    ui->devTable->setHorizontalHeaderLabels(colHeader);
+    ui->devTable->setRowCount(devices.size());
+
+    viewDevState();
+    // Table can't be modified
     ui->devTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->devTable->setFocusPolicy(Qt::NoFocus);
     ui->devTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    // 테이블 크기 조정
-    // ui->devTable->resizeColumnsToContents();
     ui->devTable->resizeColumnToContents(0);
     ui->devTable->resizeColumnToContents(1);
     ui->devTable->horizontalHeader()->setStretchLastSection(true);
-
-
-    // todo
-    // thread start
 }
 
-// dev Table 에서 cell 클릭 시 리스트에 해당 device info view
-void Widget::on_devTable_cellClicked(int row, int column)
+void DeviceWidget::initDevListWidget()
 {
+    ui->devInfo->clear();
+    ui->policyBtn->setEnabled(false);
+    ui->deleteBtn->setEnabled(false);
+}
+
+void DeviceWidget::activateBtn()
+{
+    ui->policyBtn->setEnabled(true);
+    ui->deleteBtn->setEnabled(true);
+}
+
+// Show the deivce info in the list
+// When click the cell
+void DeviceWidget::on_devTable_cellClicked(int row, int column)
+{
+    initDevListWidget();
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
     dinfo.vectorID = row;
 
-    ui->devInfo->clear();
     ui->devInfo->addItem("OUI\t" + dinfo.oui);
     ui->devInfo->addItem("MAC\t" + dinfo.mac);
     ui->devInfo->addItem("IP\t" + dinfo.last_ip);
     ui->devInfo->addItem("Name\t" + dinfo.name);
+    activateBtn();
 }
 
-// Clear Device Info Vector
-void Widget::clear_devices()
+// Clear device info vector
+void DeviceWidget::clear_devices()
 {
     devices.clear();
 }
 
-void Widget::on_researchBtn_clicked()
+void DeviceWidget::on_reloadBtn_clicked()
 {
     // Clear View & Devices Vector
     ui->devTable->clear();
-    ui->devInfo->clear();
     clear_devices();
-
+    initDevListWidget();
     setDevInfo();
-    // 테이블 view
-    setTableView();
+    setDevTableWidget();
 }
 
-void Widget::on_policyBtn_clicked()
+void DeviceWidget::on_policyBtn_clicked()
 {
     // todo
     // When clicked
@@ -186,22 +209,24 @@ void Widget::on_policyBtn_clicked()
 }
 
 
-void Widget::on_deleteBtn_clicked()
+void DeviceWidget::on_deleteBtn_clicked()
 {
-    // 디바이스가 없거나 List Widget 이 비어있으면 삭제버튼 비활성화
     if(devices.empty() || ui->devInfo->count() < 1) {
         return;
     }
 
-    int host_id = devices[dinfo.vectorID].host_id;
+    int host_id_ = devices[dinfo.vectorID].host_id;
+    QString qmac_ = devices[dinfo.vectorID].mac;
+    std::string mac_ = qmac_.toStdString();
     devices.erase(devices.begin() + dinfo.vectorID);
 
     // Delete Data of host table
     // fsmap -> delete req
-    db_connect->send_query("DELETE FROM host WHERE host_id = " + std::to_string(host_id));
+    // fs.delHost(mac_);
+    db_connect->send_query("DELETE FROM host WHERE host_id = " + std::to_string(host_id_));
 
     ui->devInfo->clear();
     ui->devTable->clear();
-    setTableView();
+    setDevTableWidget();
 }
 
