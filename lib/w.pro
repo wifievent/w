@@ -39,6 +39,7 @@ HEADERS += \
 	../src/net/wreadable.h \
 	../src/net/wrtm.h \
 	../src/net/wrtmentry.h \
+	../src/net/wscan.h \
 	../src/net/wwritable.h
 
 SOURCES += \
@@ -73,6 +74,7 @@ SOURCES += \
 	../src/net/wreadable.cpp \
 	../src/net/wrtm.cpp \
 	../src/net/wrtmentry.cpp \
+	../src/net/wscan.cpp \
 	../src/net/wwritable.cpp
 
 win32 {

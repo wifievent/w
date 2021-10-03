@@ -34,7 +34,6 @@ struct WIp final {
 		uint8_t prefix = (ip_ & 0xFF000000) >> 24;
 		return prefix >= 0xE0 && prefix < 0xF0;
 	}
-
 	static WIp nullIp() { return WIp(0); }
 
 protected:
