@@ -1,10 +1,11 @@
 #include <QApplication>
-#include "widget.h"
+#include "devicewidget.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Widget w;
+    DeviceWidget w;
     w.show();
+
     return a.exec();
 }

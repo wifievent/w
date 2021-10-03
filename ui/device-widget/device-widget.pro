@@ -12,18 +12,22 @@ DESTDIR = $${PWD}/../../bin
 include(../../w.pri)
 
 SOURCES += \
+    devicewidget.cpp \
     dinfo.cpp \
+    dthread.cpp \
     main.cpp \
-    widget.cpp \
     ../../app/db-connect/db-connect.cpp
+    ../../app/hostscan-test/fullscan.cpp
 
 HEADERS += \
+    devicewidget.h \
     dinfo.h \
-    widget.h \
+    dthread.h \
     ../../app/db-connect/db-connect.h
+    ../../app/hostscan-test/fullscan.h
 
 FORMS += \
-    widget.ui
+    devicewidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
