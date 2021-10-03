@@ -14,13 +14,23 @@ DeviceWidget::DeviceWidget(QWidget *parent)
     setDevTableWidget();
     initDevListWidget();
 
-    //dthread = new DThread(this);
-    // connect(dthread, SIGNAL(), this, SLOT());
+    connect(
+        ui->devTable,
+        SIGNAL(itemSelectionChanged()),
+        this,
+        SLOT(slotSelectionChanged())
+    );
 }
 
 DeviceWidget::~DeviceWidget()
 {
     delete ui;
+}
+
+// Disable button on empty space click
+void DeviceWidget::slotSelectionChanged()
+{
+    initDevListWidget();
 }
 
 void DeviceWidget::setDevState()
@@ -211,10 +221,6 @@ void DeviceWidget::on_policyBtn_clicked()
 
 void DeviceWidget::on_deleteBtn_clicked()
 {
-    if(devices.empty() || ui->devInfo->count() < 1) {
-        return;
-    }
-
     int host_id_ = devices[dinfo.vectorID].host_id;
     QString qmac_ = devices[dinfo.vectorID].mac;
     std::string mac_ = qmac_.toStdString();
