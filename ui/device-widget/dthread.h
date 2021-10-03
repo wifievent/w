@@ -9,6 +9,7 @@ class DThread : public QThread
     Q_OBJECT
 public:
     explicit DThread(QObject *parent = 0);
+    void init(QWidget *);
 
 private slots:
     void isConnect(std::string);

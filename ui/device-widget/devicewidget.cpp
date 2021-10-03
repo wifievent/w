@@ -20,6 +20,9 @@ DeviceWidget::DeviceWidget(QWidget *parent)
         this,
         SLOT(slotSelectionChanged())
     );
+
+    dthread = new DThread();
+    dthread->init(this);
 }
 
 DeviceWidget::~DeviceWidget()
