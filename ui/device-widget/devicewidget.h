@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QDebug>
+#include <QItemSelection>
 #include "dthread.h"
 #include "dinfo.h"
 #include "../../app/db-connect/db-connect.h"
@@ -29,11 +30,15 @@ public:
     void setDevState();
     void viewDevState();
 
+//signals:
+    void itemSelectionChanged();
+
 private slots:
     void on_devTable_cellClicked(int row, int column);
     void on_reloadBtn_clicked();
     void on_policyBtn_clicked();
     void on_deleteBtn_clicked();
+    void slotSelectionChanged();
 
 private:
     Ui::DeviceWidget *ui;
