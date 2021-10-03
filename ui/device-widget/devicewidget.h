@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QDebug>
 #include <QItemSelection>
-#include "dthread.h"
+#include <QTimer>
 #include "dinfo.h"
 #include "../../app/db-connect/db-connect.h"
 #include "../../app/hostscan-test/fullscan.h"
@@ -20,14 +20,12 @@ class DeviceWidget : public QWidget
 public:
     DeviceWidget(QWidget *parent = nullptr);
     ~DeviceWidget();
-    std::vector<dInfo> devices;
     void setDummyDB();
     void setDevInfo();
     void setDevTableWidget();
     void initDevListWidget();
     void activateBtn();
     void clear_devices();
-    void setDevState();
     void viewDevState();
 
 //signals:
@@ -39,12 +37,14 @@ private slots:
     void on_policyBtn_clicked();
     void on_deleteBtn_clicked();
     void slotSelectionChanged();
+    void updateDevState();
 
 private:
     Ui::DeviceWidget *ui;
     dInfo dinfo;
     DB_Connect *db_connect;
-    DThread *dthread;
+    std::vector<dInfo> devices;
+    QTimer *timer;
     // FullScan& fs = FullScan::instance_fs();
 };
 #endif // DEVICEWIDGET_H
