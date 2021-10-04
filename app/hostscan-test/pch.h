@@ -1,8 +1,7 @@
 #pragma once
-#include "net/capture/wpcapdevice.h"
 #include "net/wrtm.h"
-#include "net/wintflist.h"
 #include "net/packet/wpacket.h"
+#include "net/wintflist.h"
 
 #include <typeinfo>
 #include <iostream>
@@ -17,14 +16,18 @@
 using namespace std;
 
 struct EthArp{
-    struct WEthHdr eth;
-    struct WArpHdr arp;
+    WEthHdr eth;
+    WArpHdr arp;
 };
 
 struct Host {
-  char* name;
+  string name;
   WMac mac_;
   WIp ip_;
-  int active;
+  struct timeval last;
+  bool isConnected(){
+      struct timeval now;
+      gettimeofday(&now,NULL);
+      return now.tv_sec - last.tv_sec < 60;
+  }
 };
-static bool check = true;

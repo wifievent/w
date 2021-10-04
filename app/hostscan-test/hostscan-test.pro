@@ -12,8 +12,6 @@ SOURCES += \
     netblock.cpp \
     packet.cpp \
     parser.cpp
-    /home/bob/project/host-list/w/app/db-connect/db-connect.cpp \
-    /home/bob/project/host-list/w/app/db-connect/sqlite3.c
 
 HEADERS += \
     arppacket.h \

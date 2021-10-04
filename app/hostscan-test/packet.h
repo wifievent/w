@@ -1,4 +1,7 @@
+#pragma once
 #include "pch.h"
+#include "net/capture/wpcapdevice.h"
+
 class Packet
 {
 private:
@@ -6,7 +9,7 @@ private:
     Packet();//pcapdevice open
     ~Packet();
 public:
-    static Packet& instance(){
+    static Packet& getInstance() {
         static Packet packet;
         return packet;
     }
