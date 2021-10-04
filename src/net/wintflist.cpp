@@ -54,7 +54,7 @@ WIntfList::WIntfList() {
 			intf.ip_ = std::string(adapter->IpAddressList.IpAddress.String);
 			intf.mask_ = std::string(adapter->IpAddressList.IpMask.String);
 			intf.gateway_ = std::string(adapter->GatewayList.IpAddress.String);
-		}
+        }
 #endif
 #ifdef WOS_MAC
 		// TODO set (mac_, ip_, mask_) member variables
@@ -69,7 +69,7 @@ WIntfList::WIntfList() {
 }
 
 #ifdef WOS_LINUX
-WIntf* WIntfList::findByName(std::string name) {
+WIntf* WIntfList::findByName(std::string name) {//for Linux
 	for (WIntf& intf: *this) {
 		if (intf.name() == name)
 			return &intf;
@@ -120,4 +120,13 @@ WMac WIntfList::getMac(char* intfName) {
 
 #ifdef WOS_MAC
 // TODO implenent getMac function
+#endif
+#ifdef WOS_LINUX
+WIntf* WIntfList::findByIp(WIp ip) {//for Windows
+	for (WIntf& intf: *this) {
+		if (intf.ip() == ip)
+			return &intf;
+	}
+	return nullptr;
+}
 #endif

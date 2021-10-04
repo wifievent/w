@@ -44,7 +44,11 @@ struct WMac final {
 	bool isMulticast() const { // 01:00:5E:0*
 		return mac_[0] == 0x01 && mac_[1] == 0x00 && mac_[2] == 0x5E && (mac_[3] & 0x80) == 0x00;
 	}
-
+    void print(){
+        for(int i =0; i<5; i++)
+            printf("%x:",mac_[i]);
+        printf("%x\n",mac_[5]);
+    }
 	static WMac randomMac();
 	static WMac& nullMac();
 	static WMac& broadcastMac();

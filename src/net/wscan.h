@@ -15,34 +15,42 @@
 #include <string>
 #include <thread>
 #include <time.h>
+#include <mutex>
 using namespace std;
 
 #pragma pack(push,1)
+struct Etharp{
+    struct WEthHdr eth;
+    struct WArpHdr arp;
+    void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
+};
+
+struct Host {
+  char* name;
+  WMac mac_;
+  WIp ip_;
+};
+
+struct SendArp {
+  WPcapDevice ARPdevice;
+  list<Host> v;//host to manage
+  WMac mac_gate;
+  void open();
+  void close();//if program end -> full recover arp
+  void infect();
+  void recover(Host want);
+};
+
 struct Scan {
-private:
-    Scan();
-    ~Scan();
-
-public:
-    struct Etharp{
-        struct WEthHdr eth;
-        struct WArpHdr arp;
-    };
-
-    struct Guest{
-        WMac mac;
-        WIp ip;
-        char* name;
-    };
-
-    static Etharp makearppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
-    static void scan(WPcapDevice* device, uint32_t ip_);
-    static void acquire(WPcapDevice* device,list<Guest> v,uint32_t ip_);
-    static void dhcp(WPcapDevice* device,list<Guest> v);
-    static void full_scan(WPcapDevice* device, uint32_t ip_,list<Scan::Guest> v);
-    static Scan& instance(){
-        static Scan scan;
-        return scan;
-    }
+  WPcapDevice DHdevice, FSdevice;
+  list<Host> v;//full host
+  mutex m;
+  thread* dhcp;
+  void open(Scan* sc); // start fullscan and dhcpScan thread
+  void close(); // stop fullscan and dhcpScan thread
+  void acquire();
+  void scan();
+  void dhcpScan();
+  //virtual void onNewHost(Host host); // event when new host is detected
 };
 #pragma pack(pop)

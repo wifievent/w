@@ -5,4 +5,22 @@ CONFIG -= qt
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 SOURCES += \
-        hostscan-test.cpp
+    arppacket.cpp \
+    core.cpp \
+    fullscan.cpp \
+    hostscan-test.cpp \
+    netblock.cpp \
+    packet.cpp \
+    parser.cpp
+
+HEADERS += \
+    arppacket.h \
+    core.h \
+    fullscan.h \
+    netblock.h \
+    packet.h \
+    parser.h \
+    pch.h
+
+DISTFILES += \
+    test.db
