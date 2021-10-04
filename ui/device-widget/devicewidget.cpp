@@ -25,6 +25,11 @@ DeviceWidget::DeviceWidget(QWidget *parent)
 
     connect(timer, SIGNAL(timeout()), this, SLOT(updateDevState()));
     timer->start(10000);
+
+    // connect the "clicked" signal to the "buttonClicked" slot
+    connect(ui->policyBtn, SIGNAL(clicked()), this, SLOT(on_policyBtn_clicked()));
+    // connect the child's "sendMac" signal to the parent's "receiveMac" slot
+    connect(this, SIGNAL(sendMac(QString)), parent, SLOT(receiveMac(QString)));
 }
 
 DeviceWidget::~DeviceWidget()
@@ -46,7 +51,6 @@ void DeviceWidget::updateDevState()
             check = true;
         }
         devices[i].is_connect = check;
-        qDebug() << "devices[" << i << "].mac : " << devices[i].mac << " check : " << check;
     }
     viewDevState();
 }
@@ -195,7 +199,7 @@ void DeviceWidget::activateBtn()
 // When click the cell
 void DeviceWidget::on_devTable_cellClicked(int row, int column)
 {
-    initDevListWidget();
+    ui->devInfo->clear();
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
@@ -226,9 +230,9 @@ void DeviceWidget::on_reloadBtn_clicked()
 
 void DeviceWidget::on_policyBtn_clicked()
 {
-    // todo
-    // When clicked
-    // Go to the Policies tab with the applicable device filter
+    //setDevTableWidget();
+    //initDevListWidget();
+    emit sendMac(dinfo.name);
 }
 
 

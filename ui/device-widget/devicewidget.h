@@ -28,8 +28,8 @@ public:
     void clear_devices();
     void viewDevState();
 
-//signals:
-    void itemSelectionChanged();
+signals:
+    void sendMac(const QString mac);
 
 private slots:
     void on_devTable_cellClicked(int row, int column);
