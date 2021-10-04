@@ -21,7 +21,7 @@ struct EthArp{
 };
 
 struct Host {
-  char* name;
+  string name;
   WMac mac_;
   WIp ip_;
   struct timeval last;

@@ -22,6 +22,11 @@ int DHCPParser::parse(WPacket& packet)
                 sprintf(buf + 4 * i, "%03d.", *(&opt->len_ + 1 + i));
             }
             sprintf(buf + 12, "%03d", *(&opt->len_ + 4));
+
+            WIp mask = intf->mask();
+            //out of bound
+            if((WIp(std::string(buf)) & mask) != (intf->gateway() & mask)){ return 0; }
+
             g.ip_ = WIp(std::string(buf));
             gtrace("%s", std::string(g.ip_).data());
         }
@@ -34,20 +39,19 @@ int DHCPParser::parse(WPacket& packet)
     }
 
     fs.addHost(pair<WMac,Host>(g.mac_, g));//insert into fs_map
+    return 1;
 }
 
 int ARPParser::parse(WPacket& packet) //arp packet parsing
 {
-    intf = instance.getDevice().intf();
-
-    if(packet.ethHdr_->type() != WEthHdr::Arp) {return 0;}
-    if(packet.ethHdr_->dmac_ != intf->mac()) {return 0;}
+    if(packet.ethHdr_->type() != WEthHdr::Arp) { return 0; }
+    if(packet.ethHdr_->dmac_ != intf->mac()) { return 0; }
+    if((packet.arpHdr_->sip() == intf->gateway())){ return 0; } //if gateway
 
     WIp mask = intf->mask();
 
     gtrace("<full scan>");
-    if((packet.arpHdr_->sip() & mask) == (intf->gateway() & mask))
-    {
+    if((packet.arpHdr_->sip() & mask) == (intf->gateway() & mask)) {
         g.mac_ = packet.ethHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last,NULL);//get is_connect
@@ -61,22 +65,25 @@ int ARPParser::parse(WPacket& packet) //arp packet parsing
             gettimeofday(&iter->second.last,NULL);//get is_connect
         }
         else {//not found
-            fs.findName(&g);
+            g.name = string(g.ip_).data();
+            gtrace("name = %s", g.name.data());
+            //fs.findName(&g); -> error exist
             fs.addHost(pair<WMac,Host>(g.mac_, g)); //insert into fs_map
         }
     }
     return 1;
 }
 
-void ARPParser::parse(WPacket& packet, map<WMac, Host> nb_map) {
-    if(!parse(packet)) return;;
+void ARPParser::parse(WPacket& packet, map<WMac, Host> nb_map)
+{
+    if(!parse(packet)) return;
 
     ARPPacket arp_packet;
-
+    int tmp;
     if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
         //infection
         map<WMac,Host>::iterator iter;
-        int tmp = 0;
+        tmp = 0;
         for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
             if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arp_packet.intf_g->ip()) {//packet from gateway
                 tmp = 1;
@@ -87,7 +94,7 @@ void ARPParser::parse(WPacket& packet, map<WMac, Host> nb_map) {
                 break;
             }
         }
-        if(iter != nb_map.end()&&tmp) {
+        if(iter != nb_map.end() && tmp) {
             //infect gateway
             arp_packet.makeArppacket(arp_packet.intf_g->mac(), intf->mac(), arp_packet.intf_g->mac(), arp_packet.intf_g->ip(), packet.arpHdr_->tip());
             arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);

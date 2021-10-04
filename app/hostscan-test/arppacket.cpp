@@ -10,7 +10,8 @@ ARPPacket::ARPPacket()
 
 ARPPacket::~ARPPacket(){};
 
-void ARPPacket::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
+void ARPPacket::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
+{
     packet.eth.dmac_ = dmac;
     packet.eth.smac_ = smac;
     packet.eth.type_ = htons(WEthHdr::Arp);
@@ -26,11 +27,13 @@ void ARPPacket::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip){
     packet.arp.tip_ = htonl(tip);
 }
 
-void ARPPacket::send(int cnt) {
+void ARPPacket::send(int cnt)
+{
     wpacket.buf_.data_ = reinterpret_cast<byte*>(&packet);
     wpacket.buf_.size_ = sizeof(EthArp);
-    for(int i =0; i<cnt; i++){
+
+    for(int i =0; i<cnt; i++) {
         instance.getDevice().write(wpacket.buf_);
-        usleep(100000);//sleep 0.1s
+        usleep(10000);//sleep 0.1s
     }
 }

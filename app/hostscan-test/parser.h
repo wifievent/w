@@ -10,6 +10,7 @@ public:
     FullScan& fs = FullScan::getInstance();
     Packet& instance = Packet::getInstance();
     Host g;
+    WIntf* intf = instance.getDevice().intf();
     virtual int parse(WPacket& packet){(void)packet;};
 };
 
@@ -19,7 +20,6 @@ public:
 };
 
 class ARPParser: public Parser{
-    WIntf* intf;
 public:
     int parse(WPacket& packet)override;
     void parse(WPacket& packet, std::map<WMac, Host> nb_map);
