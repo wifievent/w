@@ -15,6 +15,9 @@ public:
     NetBlock(QWidget *parent = nullptr);
     ~NetBlock();
 
+public slots:
+    void receiveMac(const QString mac);
+
 private:
     Ui::NetBlock *ui;
 };

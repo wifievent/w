@@ -14,6 +14,8 @@ DeviceWidget::DeviceWidget(QWidget *parent)
     setDevTableWidget();
     initDevListWidget();
 
+    timer = new QTimer(this);
+
     connect(
         ui->devTable,
         SIGNAL(itemSelectionChanged()),
@@ -21,8 +23,13 @@ DeviceWidget::DeviceWidget(QWidget *parent)
         SLOT(slotSelectionChanged())
     );
 
-    dthread = new DThread();
-    dthread->init(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateDevState()));
+    timer->start(10000);
+
+    // connect the "clicked" signal to the "buttonClicked" slot
+    connect(ui->policyBtn, SIGNAL(clicked()), this, SLOT(on_policyBtn_clicked()));
+    // connect the child's "sendMac" signal to the parent's "receiveMac" slot
+    connect(this, SIGNAL(sendMac(QString)), parent, SLOT(receiveMac(QString)));
 }
 
 DeviceWidget::~DeviceWidget()
@@ -30,24 +37,28 @@ DeviceWidget::~DeviceWidget()
     delete ui;
 }
 
+void DeviceWidget::updateDevState()
+{
+    for(int i = 0; i < (int)devices.size(); i++) {
+        bool check = false;
+        /*
+        if((check = FullScan::isConnect(devices[i].mac.toStdString())) == NULL){
+            qDebug() << "[" << i << "] devices.mac check : NULL";
+            continue;
+        }
+        */
+        if(i / 2 == 0) {
+            check = true;
+        }
+        devices[i].is_connect = check;
+    }
+    viewDevState();
+}
+
 // Disable button on empty space click
 void DeviceWidget::slotSelectionChanged()
 {
     initDevListWidget();
-}
-
-void DeviceWidget::setDevState()
-{
-    // true -> active
-    while(true) {
-        sleep(10);
-        for(int i = 0; i < (int)devices.size(); i++) {
-            QString qmac_ = devices[i].mac;
-            std::string mac_ = qmac_.toStdString();
-            qDebug() << "Current MAC : " << qmac_;
-            // devices[i].is_active = FullScan::isConnect(mac_);
-        }
-    }
 }
 
 void DeviceWidget::setDummyDB()
@@ -119,6 +130,7 @@ void DeviceWidget::setDevInfo()
             tmp.mac = iter->argv[1 + i * 4];
             tmp.last_ip = iter->argv[2 + i * 4];
             tmp.name = iter->argv[3 + i * 4];
+            // tmp.is_connect = FullScan::isConnect(tmp.mac.toStdString());
             devices.push_back(tmp);
         }
     }
@@ -130,7 +142,7 @@ void DeviceWidget::setDevInfo()
 void DeviceWidget::viewDevState()
 {
     for (int i = 0; i < (int)devices.size(); i ++) {
-        if(devices[i].is_active) {
+        if(devices[i].is_connect) {
             ui->devTable->setItem(i, 0, new QTableWidgetItem(""));
 
             QPushButton *btn = new QPushButton();
@@ -144,8 +156,6 @@ void DeviceWidget::viewDevState()
             btn->setStyleSheet("QPushButton { margin: 4px; background-color: red; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
             ui->devTable->setCellWidget(i, 0, btn);
         }
-        ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
-        ui->devTable->setItem(i, 2, new QTableWidgetItem(devices[i].name));
     }
 }
 
@@ -159,6 +169,10 @@ void DeviceWidget::setDevTableWidget()
     ui->devTable->setRowCount(devices.size());
 
     viewDevState();
+    for(int i = 0; i < (int)devices.size(); i++) {
+        ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
+        ui->devTable->setItem(i, 2, new QTableWidgetItem(devices[i].name));
+    }
     // Table can't be modified
     ui->devTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->devTable->setFocusPolicy(Qt::NoFocus);
@@ -185,7 +199,7 @@ void DeviceWidget::activateBtn()
 // When click the cell
 void DeviceWidget::on_devTable_cellClicked(int row, int column)
 {
-    initDevListWidget();
+    ui->devInfo->clear();
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
@@ -216,9 +230,9 @@ void DeviceWidget::on_reloadBtn_clicked()
 
 void DeviceWidget::on_policyBtn_clicked()
 {
-    // todo
-    // When clicked
-    // Go to the Policies tab with the applicable device filter
+    //setDevTableWidget();
+    //initDevListWidget();
+    emit sendMac(dinfo.name);
 }
 
 
