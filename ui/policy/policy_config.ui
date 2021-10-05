@@ -15,57 +15,65 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="day_of_week_form">
-     <item>
-      <widget class="QCheckBox" name="day_of_week_0">
-       <property name="text">
-        <string>Sun</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_1">
-       <property name="text">
-        <string>Mon</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_2">
-       <property name="text">
-        <string>Tue</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_3">
-       <property name="text">
-        <string>Wed</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_4">
-       <property name="text">
-        <string>Thu</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_5">
-       <property name="text">
-        <string>Fri</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_6">
-       <property name="text">
-        <string>Sat</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="dayOfTheWeekGroup">
+     <property name="title">
+      <string>Day Of The Week</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCheckBox" name="day_of_week_0">
+        <property name="text">
+         <string>Sun</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_1">
+        <property name="text">
+         <string>Mon</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_2">
+        <property name="text">
+         <string>Tue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_3">
+        <property name="text">
+         <string>Wed</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_4">
+        <property name="text">
+         <string>Thu</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_5">
+        <property name="text">
+         <string>Fri</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="day_of_week_6">
+        <property name="text">
+         <string>Sat</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -79,7 +87,7 @@
             <string>Start Time</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -104,7 +112,7 @@
             <string>End Time</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
