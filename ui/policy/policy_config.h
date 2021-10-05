@@ -24,8 +24,11 @@ private slots:
     void on_applyButton_clicked();
     void on_cancelButton_clicked();
 
+    void on_listWidget_itemSelectionChanged();
+
 private:
     Ui::policy_config *ui;
+    QStringList colorList = { "#ff6b6b", "#339af0", "#51cf66", "#ff922b" };
 };
 
 #endif // POLICY_CONFIG_H

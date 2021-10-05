@@ -12,7 +12,9 @@ void policy_config::getHostFromDatabase()
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         for(int j = 0; j < iter->argc / 2; j++) {
+            QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
             ui->listWidget->addItem(iter->argv[1 + j * 2]);
+            ui->listWidget->item(idx)->setForeground(mColor);
             ui->listWidget->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
         }
         idx++;
@@ -25,6 +27,8 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
 {
     ui->setupUi(this);
     this->setWindowTitle(QString::number(policyId));
+    ui->applyButton->setDisabled(true);
+    ui->deleteButton->setDisabled(true);
 
     QRegularExpression exp("day_of_week_[0-6]");
     QList<QCheckBox *>selected_day_of_week_list = findChildren<QCheckBox *>(exp);
@@ -56,12 +60,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
                 }
             }
         }
-    }
-
-    // if new policy, condition is false
-    bool condition = true;
-    if (condition) {
-        ui->deleteButton->setDisabled(true);
+        ui->deleteButton->setDisabled(false);
     }
 }
 
@@ -126,3 +125,13 @@ void policy_config::on_cancelButton_clicked()
 {
     close();
 }
+
+void policy_config::on_listWidget_itemSelectionChanged()
+{
+    if (ui->listWidget->selectedItems().length()) {
+        ui->applyButton->setEnabled(true);
+    } else {
+        ui->applyButton->setEnabled(false);
+    }
+}
+
