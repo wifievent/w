@@ -47,6 +47,9 @@ private slots:
 
     void on_host_filter_itemSelectionChanged();
 
+
+    void on_tableWidget_itemSelectionChanged();
+
 private:
     Ui::policy *ui;
     QStringList colorList = { "#ff6b6b", "#339af0", "#51cf66", "#ff922b" };

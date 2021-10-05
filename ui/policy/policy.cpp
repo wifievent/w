@@ -145,6 +145,7 @@ policy::policy(QWidget *parent)
     ui->splitter->setStretchFactor(1, 1);
 
     ui->host_filter->setSelectionMode(QAbstractItemView::MultiSelection);
+
     this->setWindowTitle("NetBlock");
 
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -185,5 +186,13 @@ void policy::on_host_filter_itemSelectionChanged()
 
     getPolicyFromDatabase(host_filter_condition);
     setPolicyToTable();
+}
+
+void policy::on_tableWidget_itemSelectionChanged()
+{
+    QModelIndexList selectedIndexes = ui->tableWidget->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() > 1 && selectedIndexes.constFirst().column() != selectedIndexes.constLast().column()) {
+        ui->tableWidget->clearSelection();
+    }
 }
 
