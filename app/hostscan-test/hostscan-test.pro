@@ -11,7 +11,8 @@ SOURCES += \
     hostscan-test.cpp \
     netblock.cpp \
     packet.cpp \
-    parser.cpp
+    parser.cpp \
+    pch.cpp
 
 HEADERS += \
     arppacket.h \

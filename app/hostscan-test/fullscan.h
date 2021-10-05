@@ -6,9 +6,12 @@
 class FullScan
 {
 private:
-    std::map<WMac, Host> fs_map;
-    std::mutex m;
-    Packet& instance = Packet::getInstance();
+    class FSMap : public std::map<WMac, Host> {
+    public:
+        std::mutex m;
+    };
+    FSMap fs_map;
+    Packet& packet_instance = Packet::getInstance();
     FullScan(){};
     ~FullScan(){};
 public:
@@ -19,11 +22,10 @@ public:
     bool end_check = true;
     void start();
     void scan();
-    void update_DB();
-    void finish();
-    void findName(Host* g);
+    void updateDB();
     std::map<WMac,Host>& getFsMap(){ return fs_map; }
+    void updateHostInfo(WMac mac_, WIp ip_, struct timeval last_);
     void addHost(std::pair<WMac,Host> host);
-    static bool isConnect(std::string mac);
+    // static bool isConnect(std::string mac);
     void delHost(std::string mac);
 };

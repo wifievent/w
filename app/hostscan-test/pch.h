@@ -6,12 +6,15 @@
 #include <typeinfo>
 #include <iostream>
 #include <stdio.h>
-#include <stdlib.h>
 #include <map>
 #include <string>
 #include <thread>
 #include <time.h>
 #include <mutex>
+#include <sys/time.h>
+
+#include <stdlib.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -24,5 +27,13 @@ struct Host {
   char* name;
   WMac mac_;
   WIp ip_;
-  bool is_connect;
+  struct timeval last;
+
+  bool isConnected() {
+      struct timeval now;
+      gettimeofday(&now, NULL);
+      return now.tv_sec - last.tv_sec < 60;
+  }
 };
+
+void sleepFunc(int msec);

@@ -6,7 +6,7 @@ class Core
 {
 private:
     Packet& packet_instance = Packet::getInstance();
-    FullScan& fs = FullScan::getInstance();
+    FullScan& fs_instance = FullScan::getInstance();
     NetBlock nb;
     DHCPParser dhcp;
     ARPParser arp;
@@ -20,6 +20,6 @@ public:
     Core(){};
     ~Core(){};
     void start();//fullscan(connection) -> receive_packet
-    void end();//program end
+    void stop();//program end
     void receive_packet();
 };

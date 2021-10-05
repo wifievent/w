@@ -2,7 +2,7 @@
 #include "arppacket.h"
 
 void NetBlock::getBlockHostMap(Week day, int hour, int minute){
-    DB_Connect db_connect("/home/kali/BoB-10/project/w/app/hostscan-test/test.db");
+    DB_Connect& db_connect = DB_Connect::getInstance();
     Host g;
     std::list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
@@ -31,25 +31,29 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
 }
 
 void NetBlock::sendInfect(){//full-scan : is_connect & policy
-    std::map<WMac,Host>::iterator iter;
-
-    std::map<WMac, Host> fs_map = fs.getFsMap();
+    std::map<WMac, Host> fs_map = fs_instance.getFsMap();
     
-    Packet& instance = Packet::getInstance();
+    Packet& packet_instance = Packet::getInstance();
 
     ARPPacket infect_packet;
 
     while(end_check) {
         if(nb_map.size() == 0) { continue; }
-        for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-            if(fs_map[iter->first].is_connect){//full-scan & policy
-                gtrace("<sendarp>");
-                gtrace("%s",std::string(iter->first).data());
-                gtrace("%s",std::string((iter->second).ip_).data());
+        {
+            std::lock_guard<std::mutex> lock(m);
+            for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
+                if(fs_map[iter->first].isConnected()){//full-scan & policy
+                    GTRACE("<sendarp>");
+                    GTRACE("%s",std::string(iter->first).data());
+                    GTRACE("%s",std::string((iter->second).ip_).data());
 
-                infect_packet.makeArppacket(iter->first, instance.getDevice().intf()->mac(), iter->first, (iter->second).ip_, instance.getDevice().intf()->gateway());
-                infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                infect_packet.send(3);
+                    {
+                        std::lock_guard<std::mutex> lock(packet_instance.m);
+                        infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
+                    }
+                    infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+                    infect_packet.send(3);
+                }
             }
         }
         sleep(30);
@@ -59,9 +63,7 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
 void NetBlock::sendRecover(Host host) {
     ARPPacket recover_packet;
     recover_packet.makeArppacket(host.mac_, recover_packet.intf_g->mac(), host.mac_, host.ip_, recover_packet.intf_g->ip());
-    m.lock();
     recover_packet.send(3);
-    m.unlock();
 }
 
 void NetBlock::update_map(){
@@ -70,11 +72,13 @@ void NetBlock::update_map(){
 
     while(end_check) {
         timer = time(NULL);
+        GTRACE("timer: %d", timer);
         t = localtime(&timer);
         if(t->tm_min % 10 != 0 && t->tm_sec != 0) {
             continue;
         }
         getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
+        
         
         for(std::map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
             if(new_nb_map.find(iter_old->first) == new_nb_map.end()) {
@@ -82,9 +86,12 @@ void NetBlock::update_map(){
             }
         }
 
-        if(new_nb_map.size() > 0){
-            nb_map.clear();
-            nb_map.swap(new_nb_map);
+        {
+            std::lock_guard<std::mutex> lock(m);
+            if(new_nb_map.size() > 0){
+                nb_map.clear();
+                nb_map.swap(new_nb_map);
+            }
         }
     }
 }

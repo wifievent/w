@@ -1,31 +1,38 @@
 #include "core.h"
 
 void Core::start(){
-    recv_ = std::thread(&Core::receive_packet, this);    // only receive-packet
-    fs_scan = std::thread(&FullScan::start, &fs);         // update fs_map
+    recv_ = std::thread(&Core::receive_packet, this);       // only receive-packet
+    fs_scan = std::thread(&FullScan::start, &fs_instance);  // update fs_map
     nb_update = std::thread(&NetBlock::update_map, &nb);
-    infect_ = std::thread(&NetBlock::sendInfect, &nb);  // send infect
-
-    recv_.detach();
-    fs_scan.detach();
-    nb_update.detach();
-    infect_.join();
+    infect_ = std::thread(&NetBlock::sendInfect, &nb);      // send infect
 }
 
 void Core::receive_packet(){//every packet receiving
     while(end_check){
-        gtrace("%d", packet_instance.getDevice().WPcapCapture::read(&packet_) == WPacket::Result::Ok);
+        int result;
+        {
+            std::lock_guard<std::mutex> lock(packet_instance.m);
+            result = packet_instance.read(&packet_);
+        }
 
-        if(packet_instance.getDevice().WPcapCapture::read(&packet_) == WPacket::Result::Ok){ //if packet is ok
-            if(packet_.ethHdr_->smac() != packet_instance.getDevice().intf()->mac()) { // packet I sent
+        GTRACE("result: %d", result);
+
+        if(result == WPacket::Result::Ok){ //if packet is ok
+            if(packet_.ethHdr_->smac() != packet_instance.intf()->mac()) { // packet I sent
                 dhcp.parse(packet_);
                 arp.parse(packet_, nb.getNbMap());
             }
         }
     }
 }
-void Core::end(){
+
+void Core::stop(){
     end_check = false;
-    fs.end_check = false;
+    fs_instance.end_check = false;
     nb.end_check = false;
+
+    recv_.join();
+    fs_scan.join();
+    nb_update.join();
+    infect_.join();
 }

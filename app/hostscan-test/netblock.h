@@ -6,7 +6,7 @@ class NetBlock
 {
 private:
     std::map<WMac,Host> nb_map, new_nb_map;
-    FullScan& fs = FullScan::getInstance();
+    FullScan& fs_instance = FullScan::getInstance();
     std::mutex m;
 public:
     bool end_check = true;
