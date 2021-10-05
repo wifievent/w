@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="dayOfTheWeekGroup">
+    <widget class="QGroupBox" name="dayOfTheWeekLayout">
      <property name="title">
       <string>Day Of The Week</string>
      </property>
@@ -24,52 +24,73 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QCheckBox" name="day_of_week_0">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_0">
         <property name="text">
          <string>Sun</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_1">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_1">
         <property name="text">
          <string>Mon</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_2">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_2">
         <property name="text">
          <string>Tue</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_3">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_3">
         <property name="text">
          <string>Wed</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_4">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_4">
         <property name="text">
          <string>Thu</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_5">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_5">
         <property name="text">
          <string>Fri</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="day_of_week_6">
+       <widget class="QRadioButton" name="dayOfTheWeekButton_6">
         <property name="text">
          <string>Sat</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
        </widget>
       </item>
      </layout>
@@ -169,4 +190,7 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="dayOfTheWeekGroup"/>
+ </buttongroups>
 </ui>

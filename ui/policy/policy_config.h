@@ -5,6 +5,7 @@
 #include <QtCore>
 #include <QtWidgets>
 #include <QDebug>
+#include "policyobj.h"
 
 namespace Ui {
 class policy_config;
@@ -18,13 +19,18 @@ public:
     explicit policy_config(QModelIndexList indexList, int policyId = 0, QWidget *parent = nullptr);
     ~policy_config();
 
+    PolicyObj policy_obj;
+
     void getHostFromDatabase();
+    void setPolicyConfigModal(int policyId);
 
 private slots:
     void on_applyButton_clicked();
     void on_cancelButton_clicked();
 
     void on_listWidget_itemSelectionChanged();
+
+    void on_deleteButton_clicked();
 
 private:
     Ui::policy_config *ui;
