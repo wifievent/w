@@ -10,17 +10,17 @@ public:
     FullScan& fs = FullScan::getInstance();
     Packet& packet_instance = Packet::getInstance();
     Host g;
-    virtual void parse(WPacket& packet){(void)packet;};
+    virtual bool parse(WPacket& packet) = 0;
 };
 
 class DHCPParser: public Parser{
 public:
-    void parse(WPacket& packet)override;
+    bool parse(WPacket& packet)override;
 };
 
 class ARPParser: public Parser{
 public:
-    void parse(WPacket& packet)override;
+    bool parse(WPacket& packet)override;
     void parse(WPacket& packet, std::map<WMac, Host> nb_map);
     void findName();
 };

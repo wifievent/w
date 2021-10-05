@@ -1,12 +1,12 @@
 #include "parser.h"
 #include "arppacket.h"
 
-void DHCPParser::parse(WPacket& packet)
+bool DHCPParser::parse(WPacket& packet)
 {
-    if(packet.ethHdr_->type() != WEthHdr::Ip4) { return; }  // Is ip4 packet?
-    if(packet.ipHdr_->p() != WIpHdr::Udp) { return; }       // Is udp packet?
-    if(packet.udpHdr_->sport() != 67 && packet.udpHdr_->dport() != 67) { return; }  // Is dhcp packet?
-    if(!packet.ethHdr_->dmac_.isBroadcast()) { return; }    // Is DHCP Request?
+    if(packet.ethHdr_->type() != WEthHdr::Ip4) { return false; }  // Is ip4 packet?
+    if(packet.ipHdr_->p() != WIpHdr::Udp) { return false; }       // Is udp packet?
+    if(packet.udpHdr_->sport() != 67 && packet.udpHdr_->dport() != 67) { return false; }  // Is dhcp packet?
+    if(!packet.ethHdr_->dmac_.isBroadcast()) { return false; }    // Is DHCP Request?
 
     packet.dhcpHdr_ = (WDhcpHdr*)packet.udpData_.data_;
     GTRACE("<Dhcp>");
@@ -39,6 +39,7 @@ void DHCPParser::parse(WPacket& packet)
     }
 
     fs.addHost(pair<WMac,Host>(g.mac_, g));//insert into fs_map
+    return true;
 }
 
 void ARPParser::findName(){
@@ -58,12 +59,12 @@ void ARPParser::findName(){
         std::string str(strtok(buf, " "));
         str.erase(str.begin());
         g.name = (char*)malloc(sizeof(char) * str.size());
-        strcpy(g.name, str.data());
+        g.name = str;
         GTRACE("%s", str.data());
     }
 }
 
-void ARPParser::parse(WPacket& packet) //arp packet parsing
+bool ARPParser::parse(WPacket& packet) //arp packet parsing
 {
     WMac my_mac;
     WIp mask;
@@ -75,8 +76,8 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
         gateway = packet_instance.intf()->gateway();
     }
 
-    if(packet.ethHdr_->type() != WEthHdr::Arp) {return;}
-    if(packet.ethHdr_->dmac_ != my_mac) {return;}
+    if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
+    if(packet.ethHdr_->dmac_ != my_mac) {return false;}
 
     if((packet.arpHdr_->sip() & mask) == (gateway & mask))
     {
@@ -92,43 +93,45 @@ void ARPParser::parse(WPacket& packet) //arp packet parsing
             fs.updateHostInfo(g.mac_, g.ip_, g.last);
         }
         else {
-            findName();
+            g.name = std::string(g.ip_);
+            // findName();
             fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
         }
     }
+    return true;
 }
 
 void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
-    parse(packet);
+    if(parse(packet)) {
+        ARPPacket arp_packet;
 
-    ARPPacket arp_packet;
+        if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
+            //infection
+            std::map<WMac,Host>::iterator iter;
+            for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
+                if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arp_packet.intf_g->ip()) {//gateway
+                    break;
+                }
+                else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arp_packet.intf_g->ip()) { //infected device
+                    break;
+                }
+            }
+            if(iter != nb_map.end()) {
+                WMac my_mac;
+                {
+                    std::lock_guard<std::mutex> lock(packet_instance.m);
+                    my_mac = packet_instance.intf()->mac();
+                }
+                // Infect gateway
+                arp_packet.makeArppacket(arp_packet.intf_g->mac(), my_mac, arp_packet.intf_g->mac(), arp_packet.intf_g->ip(), packet.arpHdr_->tip());
+                arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+                arp_packet.send(3);
 
-    if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
-        //infection
-        std::map<WMac,Host>::iterator iter;
-        for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-            if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arp_packet.intf_g->ip()) {//gateway
-                break;
+                // Infect Host
+                arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.intf_g->ip());
+                arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+                arp_packet.send(3);
             }
-            else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arp_packet.intf_g->ip()) { //infected device
-                break;
-            }
-        }
-        if(iter != nb_map.end()) {
-            WMac my_mac;
-            {
-                std::lock_guard<std::mutex> lock(packet_instance.m);
-                my_mac = packet_instance.intf()->mac();
-            }
-            // Infect gateway
-            arp_packet.makeArppacket(arp_packet.intf_g->mac(), my_mac, arp_packet.intf_g->mac(), arp_packet.intf_g->ip(), packet.arpHdr_->tip());
-            arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-            arp_packet.send(3);
-
-            // Infect Host
-            arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.intf_g->ip());
-            arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-            arp_packet.send(3);
         }
     }
 }

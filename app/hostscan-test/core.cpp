@@ -5,6 +5,7 @@ void Core::start(){
     fs_scan = std::thread(&FullScan::start, &fs_instance);  // update fs_map
     nb_update = std::thread(&NetBlock::update_map, &nb);
     infect_ = std::thread(&NetBlock::sendInfect, &nb);      // send infect
+    // receive_packet();
 }
 
 void Core::receive_packet(){//every packet receiving

@@ -24,7 +24,7 @@ struct EthArp{
 };
 
 struct Host {
-  char* name;
+  std::string name;
   WMac mac_;
   WIp ip_;
   struct timeval last;

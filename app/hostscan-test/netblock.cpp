@@ -1,7 +1,7 @@
 #include "netblock.h"
 #include "arppacket.h"
 
-void NetBlock::getBlockHostMap(Week day, int hour, int minute){
+void NetBlock::getBlockHostMap(){
     DB_Connect& db_connect = DB_Connect::getInstance();
     Host g;
     std::list<Data_List> d1,d2;
@@ -9,22 +9,14 @@ void NetBlock::getBlockHostMap(Week day, int hour, int minute){
     new_nb_map.clear();
     
     for(std::list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
-        if(atoi(iter->argv[3])!=day) { continue; } // different day
-
-        int sh = atoi(iter->argv[1])/100;
-        int eh = atoi(iter->argv[2])/100;
-        int sm = atoi(iter->argv[1])%100;
-        int em = atoi(iter->argv[2])%100;
-        if(sh <= hour && hour <= eh && sm <= minute && minute <= em) {
-            d2 = db_connect.select_query("SELECT * FROM block_host");
-            for(list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
-                g.mac_ = WMac(iter2->argv[0]);
-                g.ip_ = WIp(iter2->argv[1]);
-                g.name = iter2->argv[2];
-                break;
-            }
-            new_nb_map.insert(pair<WMac, Host>(g.mac_, g));
+        d2 = db_connect.select_query("SELECT * FROM block_host");
+        for(list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
+            g.mac_ = WMac(iter2->argv[0]);
+            g.ip_ = WIp(iter2->argv[1]);
+            g.name = iter2->argv[2];
+            break;
         }
+        new_nb_map.insert(pair<WMac, Host>(g.mac_, g));
     }
     Data_List::list_free(d1);
     Data_List::list_free(d2);
@@ -72,12 +64,11 @@ void NetBlock::update_map(){
 
     while(end_check) {
         timer = time(NULL);
-        GTRACE("timer: %d", timer);
         t = localtime(&timer);
         if(t->tm_min % 10 != 0 && t->tm_sec != 0) {
             continue;
         }
-        getBlockHostMap((Week)t->tm_wday,t->tm_hour,t->tm_min);//update NBmap
+        getBlockHostMap();//update NBmap
         
         
         for(std::map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
