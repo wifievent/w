@@ -40,7 +40,7 @@ HEADERS += \
 	../src/net/wrtm.h \
 	../src/net/wrtmentry.h \
 	../src/net/wscan.h \
-	../src/net/wwritable.h
+        ../src/net/wwritable.hz
 
 SOURCES += \
 	../src/base/gtrace.cpp \
