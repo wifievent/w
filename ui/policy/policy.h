@@ -50,6 +50,5 @@ private slots:
 private:
     Ui::policy *ui;
     QStringList colorList = { "#ff6b6b", "#339af0", "#51cf66", "#ff922b" };
-    //colorpicker dial
 };
 #endif // POLICY_H
