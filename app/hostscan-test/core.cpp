@@ -17,8 +17,6 @@ void Core::receive_packet(){//every packet receiving
             result = packet_instance.read(&packet_);
         }
 
-        GTRACE("result: %d", result);
-
         if(result == WPacket::Result::Ok){ //if packet is ok
             if(packet_.ethHdr_->smac() != packet_instance.intf()->mac()) { // packet I sent
                 dhcp.parse(packet_);

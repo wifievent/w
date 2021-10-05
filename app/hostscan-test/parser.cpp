@@ -79,7 +79,7 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
     if(packet.ethHdr_->dmac_ != my_mac) {return false;}
 
-    if((packet.arpHdr_->sip() & mask) == (gateway & mask))
+    if((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway)
     {
         g.mac_ = packet.ethHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
@@ -117,6 +117,7 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
                 }
             }
             if(iter != nb_map.end()) {
+                GTRACE("have nb list");
                 WMac my_mac;
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);

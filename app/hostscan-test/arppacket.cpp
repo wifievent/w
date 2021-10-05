@@ -35,6 +35,6 @@ void ARPPacket::send(int cnt) {
             std::lock_guard<std::mutex> lock(packet_instance.m);
             packet_instance.write(wpacket.buf_);
         }
-        sleepFunc(100);
+        sleepFunc(3);
     }
 }
