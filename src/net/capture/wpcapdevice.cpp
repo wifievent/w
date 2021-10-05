@@ -1,12 +1,24 @@
 #include "wpcapdevice.h"
 #include <thread>
 
-void WPcapDevice::load(JsonValue& json) {
-	(void)json;
+void WPcapDevice::load(Json::Value& json) {
+	WPcapCapture::load(json);
+
+	json["intfName"] >> intfName_;
+	json["snapLen"] >> snapLen_;
+	json["flags"] >> flags_;
+	json["readTimeout"] >> readTimeout_;
+	json["waitTimeout"] >> waitTimeout_;
 }
 
-void WPcapDevice::save(JsonValue& json) {
-	(void)json;
+void WPcapDevice::save(Json::Value& json) {
+	WPcapCapture::save(json);
+
+	json["intfName"] << intfName_;
+	json["snapLen"] << snapLen_;
+	json["flags"] << flags_;
+	json["readTimeout"] << readTimeout_;
+	json["waitTimeout"] << waitTimeout_;
 }
 
 WPcapDevice::WPcapDevice() {

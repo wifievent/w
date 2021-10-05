@@ -8,8 +8,11 @@ DESTDIR = $${PWD}/../bin
 
 HEADERS += \
 	../src/base/gtrace.h \
+	../src/base/json/json-forwards.h \
+	../src/base/json/json.h \
 	../src/base/wbase.h \
 	../src/base/wbuf.h \
+	../src/base/wjson.h \
 	../src/base/wobj.h \
 	../src/base/wstateobj.h \
 	../src/net/capture/wcapture.h \
@@ -36,12 +39,15 @@ HEADERS += \
 	../src/net/wreadable.h \
 	../src/net/wrtm.h \
 	../src/net/wrtmentry.h \
+	../src/net/wscan.h \
 	../src/net/wwritable.h
 
 SOURCES += \
 	../src/base/gtrace.cpp \
+	../src/base/jsoncpp.cpp \
 	../src/base/wbase.cpp \
 	../src/base/wbuf.cpp \
+	../src/base/wjson.cpp \
 	../src/base/wobj.cpp \
 	../src/base/wstateobj.cpp \
 	../src/net/capture/wcapture.cpp \
@@ -68,6 +74,7 @@ SOURCES += \
 	../src/net/wreadable.cpp \
 	../src/net/wrtm.cpp \
 	../src/net/wrtmentry.cpp \
+	../src/net/wscan.cpp \
 	../src/net/wwritable.cpp
 
 win32 {
