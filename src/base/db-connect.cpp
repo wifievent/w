@@ -1,10 +1,13 @@
 #include "db-connect.h"
 
+<<<<<<< HEAD
 //  DB_Connect 생성자
 DB_Connect::DB_Connect(std::string db_name) {
     this->db_name = db_name;
 }
 
+=======
+>>>>>>> feature/code-integrated
 //  동적할당한 메모리 해제함수
 void Data_List::list_free(std::list<Data_List> data) {
     for(std::list<Data_List>::iterator iter = data.begin(); iter != data.end(); ++iter) {
@@ -17,6 +20,26 @@ void Data_List::list_free(std::list<Data_List> data) {
     }
 }
 
+<<<<<<< HEAD
+=======
+//  DB_Connect 생성자
+DB_Connect::DB_Connect() {
+    //  JSON을 통해서 옵션화
+    std::string db_name("netblock.db");
+
+    //  db open
+    rc = sqlite3_open(db_name.data(), &db);
+
+    if(rc != SQLITE_OK) {
+        GTRACE("Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+    }
+}
+DB_Connect::~DB_Connect() {
+    sqlite3_close(db);
+}
+
+>>>>>>> feature/code-integrated
 //  db_select 함수
 std::list<Data_List> DB_Connect::select_query(std::string query) {
     /*
@@ -25,6 +48,7 @@ std::list<Data_List> DB_Connect::select_query(std::string query) {
     return: Select 결과가 담긴 list<Data_List>
     */
     char* err_msg = 0;    //  에러 메시지 저장 변수
+<<<<<<< HEAD
 
     //  db open
     int rc = sqlite3_open(db_name.data(), &db);
@@ -51,6 +75,24 @@ std::list<Data_List> DB_Connect::select_query(std::string query) {
 
     //  자원 해제
     sqlite3_close(db);
+=======
+    
+    std::list<Data_List> dl;    //  select 결과 저장 list
+    
+    {
+        std::lock_guard<std::mutex> lock(m);
+        //  쿼리 날려서 결과 얻기
+        rc = sqlite3_exec(db, query.data(), callback, &dl, &err_msg);
+        
+        if(rc != SQLITE_OK) {
+            GTRACE("Failed to select data\n");
+            GTRACE("SQL error: %s\n", err_msg);
+
+            sqlite3_free(err_msg);
+        }
+    }
+
+>>>>>>> feature/code-integrated
     return dl;
 }
 
@@ -80,6 +122,7 @@ int DB_Connect::send_query(std::string query) {
     query: 쿼리문
     */
     char* err_msg = 0;    //  에러 메시지 저장 변수
+<<<<<<< HEAD
 
     //  db open
     int rc = sqlite3_open(db_name.data(), &db);
@@ -104,4 +147,22 @@ int DB_Connect::send_query(std::string query) {
     //  자원해제
     sqlite3_close(db);
     return 0;
+=======
+    int result = 0;
+
+    {
+        std::lock_guard<std::mutex> lock(m);
+        //  쿼리 날리기
+        rc = sqlite3_exec(db, query.data(), 0, 0, &err_msg);
+        if(rc != SQLITE_OK) {
+            GTRACE("Failed to send query\n");
+            GTRACE("SQL error: %s\n", err_msg);
+
+            sqlite3_free(err_msg);
+            result = -1;
+        }
+    }
+    
+    return result;
+>>>>>>> feature/code-integrated
 }

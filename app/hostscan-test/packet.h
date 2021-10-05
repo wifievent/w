@@ -2,10 +2,9 @@
 #include "pch.h"
 #include "net/capture/wpcapdevice.h"
 
-class Packet
+struct Packet : WPcapDevice
 {
 private:
-    WPcapDevice pcapdevice;
     Packet();//pcapdevice open
     ~Packet();
 public:
@@ -13,5 +12,5 @@ public:
         static Packet packet;
         return packet;
     }
-    WPcapDevice& getDevice(){return pcapdevice;}
+    std::mutex m;
 };

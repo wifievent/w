@@ -6,14 +6,14 @@ class Core
 {
 private:
     Packet& packet_instance = Packet::getInstance();
-    FullScan& fs = FullScan::getInstance();
+    FullScan& fs_instance = FullScan::getInstance();
     NetBlock nb;
     DHCPParser dhcp;
     ARPParser arp;
-    thread recv_, fs_scan, nb_update, infect_;
+    std::thread recv_, fs_scan, nb_update, infect_;
 
     WPacket packet_;
-    mutex m;
+    std::mutex m;
 
 public:
     bool end_check = true;

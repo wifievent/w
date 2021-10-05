@@ -8,19 +8,19 @@ public:
     Parser() {};
     ~Parser() {};
     FullScan& fs = FullScan::getInstance();
-    Packet& instance = Packet::getInstance();
+    Packet& packet_instance = Packet::getInstance();
     Host g;
-    WIntf* intf = instance.getDevice().intf();
-    virtual int parse(WPacket& packet){(void)packet;};
+    virtual bool parse(WPacket& packet) = 0;
 };
 
 class DHCPParser: public Parser{
 public:
-    int parse(WPacket& packet)override;
+    bool parse(WPacket& packet)override;
 };
 
 class ARPParser: public Parser{
 public:
-    int parse(WPacket& packet)override;
+    bool parse(WPacket& packet)override;
     void parse(WPacket& packet, std::map<WMac, Host> nb_map);
+    void findName();
 };
