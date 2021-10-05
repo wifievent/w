@@ -20,7 +20,6 @@ void NetBlock::getBlockHostMap(){
     }
     Data_List::list_free(d1);
     Data_List::list_free(d2);
-    Data_List::list_free(d3);
 }
 
 void NetBlock::sendInfect(){//full-scan : is_connect & policy

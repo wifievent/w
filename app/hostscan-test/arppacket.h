@@ -15,9 +15,5 @@ public:
     WIp mac_ip;
     WIntf* intf_g;//gateway info
     void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
-<<<<<<< HEAD
-    EthArp& getPacket() { return packet; }
-=======
->>>>>>> feature/code-integrated
     void send(int cnt);
 };
