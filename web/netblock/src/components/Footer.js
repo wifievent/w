@@ -4,7 +4,7 @@ import React from "react";
 const Footer = () => {
   return (
     <div>
-      <Nav style={{ backgroundColor: "aqua" }} activeKey="/home">
+      <Nav className="footerNav" activeKey="/home">
         <Nav.Item>NetBlock</Nav.Item>
       </Nav>
     </div>

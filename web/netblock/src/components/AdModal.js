@@ -7,7 +7,7 @@ const AdModal = ({ show, handleClose }) => {
     <div>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>Download NetBlock and Support us</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <AdYoutube />

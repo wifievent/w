@@ -4,7 +4,7 @@ import DownloadButton from "../components/DownloadButton";
 
 const MainPage = () => {
   return (
-    <div>
+    <div className="mainPage">
       <Contents></Contents>
       <DownloadButton></DownloadButton>
     </div>
