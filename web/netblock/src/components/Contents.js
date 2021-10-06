@@ -6,7 +6,7 @@ import card3 from "../img/03.png";
 
 const Contents = () => {
   return (
-    <Carousel style={{ width: "60vh" }}>
+    <Carousel style={{ width: "80vh" }}>
       <Carousel.Item>
         <img className="d-block w-100" src={card1} alt="First slide" />
         <Carousel.Caption></Carousel.Caption>
