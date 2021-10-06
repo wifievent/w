@@ -31,10 +31,7 @@ void ARPPacket::send(int cnt) {
     wpacket.buf_.data_ = reinterpret_cast<byte*>(&packet);
     wpacket.buf_.size_ = sizeof(EthArp);
     for(int i =0; i<cnt; i++) {
-        {
-            std::lock_guard<std::mutex> lock(packet_instance.m);
-            packet_instance.write(wpacket.buf_);
-        }
+        packet_instance.write(wpacket.buf_);
         sleepFunc(3);
     }
 }

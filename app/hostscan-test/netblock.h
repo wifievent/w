@@ -24,6 +24,6 @@ public:
     void sendInfect();//no sleep
     void sendRecover(Host host);
     void getBlockHostMap();
-    void update_map();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
+    void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
     std::map<WMac, Host> getNbMap() { return nb_map; }
 };

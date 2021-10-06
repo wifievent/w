@@ -37,9 +37,9 @@ int main()
 
     Core core;
     core.start();
-    cout << "press any key to close"<<endl;
-    string s;
-    getline(cin,s);
+    std::cout << "press any key to close" <<std::endl;
+    std::string s;
+    std::getline(std::cin,s);
     core.stop();
     return 0;
 }

@@ -16,8 +16,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace std;
-
 struct EthArp{
     WEthHdr eth;
     WArpHdr arp;

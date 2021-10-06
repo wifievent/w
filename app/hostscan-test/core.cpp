@@ -2,23 +2,21 @@
 
 void Core::start(){
     fs_instance.getFsMap().clear();
-    recv_ = std::thread(&Core::receive_packet, this);       // only receive-packet
+    recv_ = std::thread(&Core::receivePacket, this);       // only receive-packet
     fs_scan = std::thread(&FullScan::start, &fs_instance);  // update fs_map
-    nb_update = std::thread(&NetBlock::update_map, &nb);
+    nb_update = std::thread(&NetBlock::updateMap, &nb);
     infect_ = std::thread(&NetBlock::sendInfect, &nb);      // send infect
-    // receive_packet();
 }
 
-void Core::receive_packet(){//every packet receiving
+void Core::receivePacket(){//every packet receiving
+    WMac my_mac;
+    {
+        std::lock_guard<std::mutex> lock(packet_instance.m);
+        my_mac = packet_instance.intf()->mac();
+    }
     while(end_check){
-        int result;
-        {
-            std::lock_guard<std::mutex> lock(packet_instance.m);
-            result = packet_instance.read(&packet_);
-        }
-
-        if(result == WPacket::Result::Ok){ //if packet is ok
-            if(packet_.ethHdr_->smac() != packet_instance.intf()->mac()) { // packet I sent
+        if(packet_instance.read(&packet_) == WPacket::Result::Ok){ //if packet is ok
+            if(packet_.ethHdr_->smac() != my_mac) { // packet I sent
                 dhcp.parse(packet_);
                 arp.parse(packet_, nb.getNbMap());
             }

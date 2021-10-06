@@ -38,7 +38,7 @@ bool DHCPParser::parse(WPacket& packet)
         }
     }
 
-    fs.addHost(pair<WMac,Host>(g.mac_, g));//insert into fs_map
+    fs.addHost(std::pair<WMac,Host>(g.mac_, g));//insert into fs_map
     return true;
 }
 
@@ -77,7 +77,9 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     }
 
     if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
-    if(packet.ethHdr_->dmac_ != my_mac) {return false;}
+    if(packet.ethHdr_->smac_ == my_mac) {return false;}
+
+    GTRACE("mac: %s, ip: %s", std::string(packet.ethHdr_->smac()).data(), std::string(packet.arpHdr_->sip()).data());
 
     if((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway)
     {
@@ -85,8 +87,8 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);
         GTRACE("<full scan>");
-        GTRACE("%s",string(g.mac_).data());
-        GTRACE("%s",string(g.ip_).data());
+        GTRACE("%s", std::string(g.mac_).data());
+        GTRACE("%s", std::string(g.ip_).data());
         
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
@@ -105,6 +107,7 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
     if(parse(packet)) {
         ARPPacket arp_packet;
 
+        GTRACE("next-parse: %d", packet.arpHdr_->op()==packet.arpHdr_->Request);
         if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
             //infection
             std::map<WMac,Host>::iterator iter;

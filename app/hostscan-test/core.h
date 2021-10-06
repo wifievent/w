@@ -13,7 +13,6 @@ private:
     std::thread recv_, fs_scan, nb_update, infect_;
 
     WPacket packet_;
-    std::mutex m;
 
 public:
     bool end_check = true;
@@ -21,5 +20,5 @@ public:
     ~Core(){};
     void start();//fullscan(connection) -> receive_packet
     void stop();//program end
-    void receive_packet();
+    void receivePacket();
 };
