@@ -21,8 +21,7 @@ public:
 
     PolicyObj policy_obj;
 
-    void getHostFromDatabase();
-    void setPolicyConfigModal(int policyId);
+    void getHostListFromDatabase();
 
 private slots:
     void on_applyButton_clicked();

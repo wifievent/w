@@ -2,7 +2,7 @@
 #include "ui_policy_config.h"
 #include "../app/db-connect/db-connect.h"
 
-void policy_config::getHostFromDatabase()
+void policy_config::getHostListFromDatabase()
 {
     DB_Connect dbConnect("test.db");
 
@@ -21,26 +21,6 @@ void policy_config::getHostFromDatabase()
     }
 }
 
-void policy_config::setPolicyConfigModal(int policyId) {
-    ui->listWidget->setDisabled(true);
-    ui->dayOfTheWeekLayout->setDisabled(true);
-    ui->deleteButton->setDisabled(false);
-
-    DB_Connect dbConnect("test.db");
-    std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT host_id FROM policy WHERE policy_id= " + QString::number(policyId).toStdString());
-
-    for (std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for (int i = 0; i < iter->argc; i++) {
-            for (int j = 0; j < ui->listWidget->count(); j++) {
-                if (ui->listWidget->item(j)->data(Qt::UserRole) == iter->argv[i]) {
-                    ui->listWidget->item(j)->setSelected(true);
-                }
-            }
-        }
-    }
-}
-
 policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::policy_config)
@@ -52,25 +32,54 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     ui->listWidget->setSelectionMode(QAbstractItemView::MultiSelection);
 
 
+    getHostListFromDatabase();
+
+    int day_of_the_week;
+    QTime start_time;
+    QTime end_time;
+    if (!policyId) {
+        day_of_the_week = indexList.constFirst().column() / 5;
+        start_time = QTime(indexList.constFirst().row() / 6, indexList.constFirst().row() * 10 % 60);
+        end_time = QTime((indexList.constLast().row() + 1) / 6, (indexList.constLast().row() + 1) * 10 % 60);
+    } else {
+        ui->listWidget->setDisabled(true);
+        ui->dayOfTheWeekLayout->setDisabled(true);
+        ui->deleteButton->setDisabled(false);
+
+        DB_Connect dbConnect("test.db");
+        std::list<Data_List> dl;
+        dl = dbConnect.select_query("SELECT p.host_id, t.start_time, t.end_time, t.day_of_the_week FROM policy AS p JOIN time AS t ON t.time_id=p.time_id WHERE p.policy_id= " + QString::number(policyId).toStdString());
+
+        for (std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+            day_of_the_week = atoi(iter->argv[3]);
+
+            int start_hour = QString(iter->argv[1]).leftRef(2).toInt();
+            int start_minute = QString(iter->argv[1]).rightRef(2).toInt();
+            int end_hour = QString(iter->argv[2]).leftRef(2).toInt();
+            int end_minute = QString(iter->argv[2]).rightRef(2).toInt();
+            start_time = QTime(start_hour, start_minute);
+            end_time = QTime(end_hour, end_minute);
+
+            int host_id = atoi(iter->argv[0]);
+            for (int j = 0; j < ui->listWidget->count(); j++) {
+                if (ui->listWidget->item(j)->data(Qt::UserRole) == host_id) {
+                    ui->listWidget->item(j)->setSelected(true);
+                }
+            }
+        }
+    }
+
     QList<QAbstractButton *> dayOfTheWeekList = ui->dayOfTheWeekGroup->buttons();
     for (QAbstractButton *itm : dayOfTheWeekList) {
         int day_id = itm->objectName().split('_').last().toInt();
         ui->dayOfTheWeekGroup->setId(itm, day_id);
-        if (day_id == indexList.constFirst().column() / 5) {
+        if (day_id == day_of_the_week) {
             itm->setChecked(true);
         }
     }
 
-    // TODO: if policyId, change DB policy info
-
-    QTime start_time = QTime(indexList.constFirst().row() / 6, indexList.constFirst().row() * 10 % 60);
-    QTime end_time = QTime((indexList.constLast().row() + 1) / 6, (indexList.constLast().row() + 1) * 10 % 60);
     ui->start_time->setTime(start_time);
     ui->end_time->setTime(end_time);
-
-    getHostFromDatabase();
-
-    policyId ? setPolicyConfigModal(policyId) : void();
 }
 
 policy_config::~policy_config()
