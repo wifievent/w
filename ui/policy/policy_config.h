@@ -27,7 +27,7 @@ private slots:
     void on_applyButton_clicked();
     void on_cancelButton_clicked();
 
-    void on_listWidget_itemSelectionChanged();
+    void on_hostList_itemSelectionChanged();
 
     void on_deleteButton_clicked();
 

@@ -1,4 +1,5 @@
 #include "policy_config.h"
+#include "policytimeedit.h"
 #include "ui_policy_config.h"
 #include "../app/db-connect/db-connect.h"
 
@@ -13,9 +14,9 @@ void policy_config::getHostListFromDatabase()
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         for(int j = 0; j < iter->argc / 2; j++) {
             QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
-            ui->listWidget->addItem(iter->argv[1 + j * 2]);
-            ui->listWidget->item(idx)->setForeground(mColor);
-            ui->listWidget->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
+            ui->hostList->addItem(iter->argv[1 + j * 2]);
+            ui->hostList->item(idx)->setForeground(mColor);
+            ui->hostList->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
         }
         idx++;
     }
@@ -29,7 +30,14 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     this->setWindowTitle(QString::number(policyId));
     ui->applyButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
-    ui->listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->hostList->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    PolicyTimeEdit *start_time_edit = new PolicyTimeEdit;
+    PolicyTimeEdit *end_time_edit = new PolicyTimeEdit;
+    start_time_edit->setObjectName("startTime");
+    end_time_edit->setObjectName("endTime");
+    ui->startTimeLayout->addWidget(start_time_edit);
+    ui->endTimeLayout->addWidget(end_time_edit);
 
     getHostListFromDatabase();
 
@@ -41,7 +49,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
         start_time = QTime(indexList.constFirst().row() / 6, indexList.constFirst().row() * 10 % 60);
         end_time = QTime((indexList.constLast().row() + 1) / 6, (indexList.constLast().row() + 1) * 10 % 60);
     } else {
-        ui->listWidget->setDisabled(true);
+        ui->hostList->setDisabled(true);
         ui->dayOfTheWeekLayout->setDisabled(true);
         ui->deleteButton->setDisabled(false);
 
@@ -60,9 +68,9 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
             end_time = QTime(end_hour, end_minute);
 
             int host_id = atoi(iter->argv[0]);
-            for (int j = 0; j < ui->listWidget->count(); j++) {
-                if (ui->listWidget->item(j)->data(Qt::UserRole) == host_id) {
-                    ui->listWidget->item(j)->setSelected(true);
+            for (int j = 0; j < ui->hostList->count(); j++) {
+                if (ui->hostList->item(j)->data(Qt::UserRole) == host_id) {
+                    ui->hostList->item(j)->setSelected(true);
                 }
             }
         }
@@ -98,8 +106,8 @@ void policy_config::on_applyButton_clicked()
                                 .arg(ui->end_time->time().hour(), 2, 10, QLatin1Char('0'))
                                 .arg(ui->end_time->time().minute(), 2, 10, QLatin1Char('0'));
 
-    QListWidgetItem *selected_host = ui->listWidget->selectedItems().constFirst();
-    QList<QListWidgetItem *> selected_host_list = ui->listWidget->selectedItems();
+    QListWidgetItem *selected_host = ui->hostList->selectedItems().constFirst();
+    QList<QListWidgetItem *> selected_host_list = ui->hostList->selectedItems();
 
     std::list<Data_List> dl;
     DB_Connect dbConnect("test.db");
@@ -165,9 +173,9 @@ void policy_config::on_cancelButton_clicked()
     close();
 }
 
-void policy_config::on_listWidget_itemSelectionChanged()
+void policy_config::on_hostList_itemSelectionChanged()
 {
-    if (ui->listWidget->selectedItems().length()) {
+    if (ui->hostList->selectedItems().length()) {
         ui->applyButton->setEnabled(true);
     } else {
         ui->applyButton->setEnabled(false);

@@ -16,14 +16,16 @@ SOURCES += \
     policy.cpp \
     policy_config.cpp \
     ../../app/db-connect/db-connect.cpp \
-    policyobj.cpp
+    policyobj.cpp \
+    policytimeedit.cpp
 
 HEADERS += \
     db_policy.h \
     policy.h \
     policy_config.h \
     ../../app/db-connect/db-connect.h \
-    policyobj.h
+    policyobj.h \
+    policytimeedit.h
 
 FORMS += \
     policy.ui \
