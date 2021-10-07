@@ -4,18 +4,18 @@
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class NetBlock; }
+namespace Ui { class NetBlock_UI; }
 QT_END_NAMESPACE
 
-class NetBlock : public QMainWindow
+class NetBlock_UI : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    NetBlock(QWidget *parent = nullptr);
-    ~NetBlock();
+    NetBlock_UI(QWidget *parent = nullptr);
+    ~NetBlock_UI();
 
 private:
-    Ui::NetBlock *ui;
+    Ui::NetBlock_UI *ui;
 };
 #endif // NETBLOCK_H

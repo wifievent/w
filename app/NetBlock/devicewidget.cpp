@@ -8,7 +8,7 @@ DeviceWidget::DeviceWidget(QWidget *parent)
     ui->setupUi(this);
     setWindowState(Qt::WindowMaximized);
 
-    setDummyDB();
+    // setDummyDB();
     setDevInfo();
     setDevTableWidget();
     initDevListWidget();
