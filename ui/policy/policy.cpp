@@ -50,6 +50,23 @@ int policy::setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor 
     }
 }
 
+void policy::getHostFromDatabase()
+{
+    std::list<Data_List> dl;
+    dl = dbConnect.select_query("SELECT host_id, name FROM host");
+
+    int idx = 0;
+    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+        for(int j = 0; j < iter->argc / 2; j++) {
+            QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
+            ui->host_filter->addItem(iter->argv[1 + j * 2]);
+            ui->host_filter->item(idx)->setForeground(mColor);
+            ui->host_filter->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
+        }
+        idx++;
+    }
+}
+
 void policy::getPolicyFromDatabase(QString where)
 {
     policyList.clear();
@@ -69,23 +86,6 @@ void policy::getPolicyFromDatabase(QString where)
     }
 }
 
-void policy::getHostFromDatabase()
-{
-    std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT host_id, name FROM host");
-
-    int idx = 0;
-    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for(int j = 0; j < iter->argc / 2; j++) {
-            QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
-            ui->host_filter->addItem(iter->argv[1 + j * 2]);
-            ui->host_filter->item(idx)->setForeground(mColor);
-            ui->host_filter->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
-        }
-        idx++;
-    }
-}
-
 void policy::setPolicyToTable()
 {
     resetPolicyTable();
@@ -96,6 +96,7 @@ void policy::setPolicyToTable()
         int end_min = iter->end_time.rightRef(2).toInt();
         QColor mColor(colorList[iter->hostId % colorList.length() - 1]);
 
+        // not hour use minute
         int startRow = start_hour * 6 + start_min / 10;
         int endRow = end_min / 10;
         int columnIdx = iter->day_of_the_week * 5;
@@ -131,7 +132,14 @@ void policy::openPolicyConfig()
         policyConfig = new policy_config(indexList, firstItem->data(Qt::UserRole).toInt());
     }
     policyConfig->setModal(true);
-    policyConfig->exec();
+
+    int result = policyConfig->exec();
+
+    if (result == QDialog::Accepted) {
+        getPolicyFromDatabase();
+        setPolicyToTable();
+        ui->tableWidget->clearSelection();
+    }
 }
 
 policy::policy(QWidget *parent)

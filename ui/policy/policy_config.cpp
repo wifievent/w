@@ -130,8 +130,11 @@ void policy_config::on_applyButton_clicked()
                             )";
             dl = dbConnect.select_query(query.toStdString());
             if (atoi(dl.begin()->argv[0])) {
-                qDebug() << "duplicated";
-                close();
+                QMessageBox::warning(this, tr("Error"),
+                                               tr("The policy time overlaps other policy time.\n"
+                                                  "Please check other polcy time."),
+                                               QMessageBox::Close);
+                return;
             }
         } else {
             query = "SELECT count(p.policy_id) \
@@ -147,8 +150,11 @@ void policy_config::on_applyButton_clicked()
                         OR t.start_time > t.end_time";
             dl = dbConnect.select_query(query.toStdString());
             if (atoi(dl.begin()->argv[0])) {
-                qDebug() << "duplicated";
-                close();
+                QMessageBox::warning(this, tr("Error"),
+                                               tr("The policy time overlaps other policy time.\n"
+                                                  "Please check other polcy time."),
+                                               QMessageBox::Close);
+                return;
             }
         }
     }
@@ -161,8 +167,6 @@ void policy_config::on_applyButton_clicked()
     time_id = atoi(dl.begin()->argv[0]);
 
     if (policy_id) {
-        // TODO: check already exist time
-        // TODO: check duplicated time and policy. if host is same and time is duplicated, merge
         query = "UPDATE policy SET time_id=" + QString::number(time_id) + " WHERE policy_id=" + QString::number(policy_id);
         dbConnect.send_query(query.toStdString());
     } else {
@@ -171,7 +175,7 @@ void policy_config::on_applyButton_clicked()
             dbConnect.send_query(query.toStdString());
         }
     }
-
+    accept();
     close();
 }
 
@@ -197,6 +201,7 @@ void policy_config::on_deleteButton_clicked()
     DB_Connect dbConnect("test.db");
     QString query = "DELETE FROM policy WHERE policy_id=" + QString::number(policy_id);
     dbConnect.send_query(query.toStdString());
+    accept();
     close();
 }
 
