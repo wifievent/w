@@ -29,8 +29,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     this->setWindowTitle(QString::number(policyId));
     ui->applyButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
-    ui->listWidget->setSelectionMode(QAbstractItemView::MultiSelection);
-
+    ui->listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
     getHostListFromDatabase();
 
@@ -91,7 +90,6 @@ void policy_config::on_applyButton_clicked()
 {
     int policy_id = this->windowTitle().toInt();
     int day_of_the_week = ui->dayOfTheWeekGroup->checkedId();
-    qDebug() << policy_id << day_of_the_week;
 
     QString start_time = QString("%1%2")
                                 .arg(ui->start_time->time().hour(), 2, 10, QLatin1Char('0'))
@@ -99,8 +97,8 @@ void policy_config::on_applyButton_clicked()
     QString end_time = QString("%1%2")
                                 .arg(ui->end_time->time().hour(), 2, 10, QLatin1Char('0'))
                                 .arg(ui->end_time->time().minute(), 2, 10, QLatin1Char('0'));
-    qDebug() << start_time << end_time;
 
+    QListWidgetItem *selected_host = ui->listWidget->selectedItems().constFirst();
     QList<QListWidgetItem *> selected_host_list = ui->listWidget->selectedItems();
 
     std::list<Data_List> dl;
@@ -108,7 +106,39 @@ void policy_config::on_applyButton_clicked()
 
     int time_id = 0;
 
-    QString query = "INSERT INTO time VALUES(null, '" + start_time + "', '" + end_time + "', " + QString::number(day_of_the_week) + ")";
+    QString query;
+
+    if (!policy_id) {
+        if (start_time <= end_time) {
+            query = "SELECT count(p.policy_id) \
+                    FROM policy AS p \
+                        JOIN time AS t \
+                            ON t.time_id=p.time_id \
+                    WHERE p.host_id=" + selected_host->data(Qt::UserRole).toString() + " \
+                        AND t.day_of_the_week=" + QString::number(day_of_the_week) + " \
+                        AND (\
+                            (\
+                                ('" + start_time + "' BETWEEN t.start_time AND t.end_time \
+                                    OR t.start_time BETWEEN '" + start_time + "' AND '" + end_time + "') \
+                                AND t.start_time <= t.end_time) \
+                            OR (\
+                                ("
+"                                   ('" + start_time + "' BETWEEN t.start_time AND '2400' \
+                                        OR '" + start_time + "' BETWEEN '0000' AND t.end_time) \
+                                    OR t.start_time BETWEEN '" + start_time + "' AND '" + end_time + "') \
+                                AND t.start_time > t.end_time) \
+                            )";
+            dl = dbConnect.select_query(query.toStdString());
+            if (atoi(dl.begin()->argv[0])) {
+                qDebug() << "duplicated";
+                close();
+            }
+        } else {
+
+        }
+    }
+
+    query = "INSERT INTO time VALUES(null, '" + start_time + "', '" + end_time + "', " + QString::number(day_of_the_week) + ")";
     dbConnect.send_query(query.toStdString());
 
     query = "SELECT seq FROM sqlite_sequence WHERE name='time'";
