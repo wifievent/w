@@ -1,5 +1,4 @@
 #include "policy_config.h"
-#include "policytimeedit.h"
 #include "ui_policy_config.h"
 #include "../app/db-connect/db-connect.h"
 
@@ -31,13 +30,6 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     ui->applyButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
     ui->hostList->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    PolicyTimeEdit *start_time_edit = new PolicyTimeEdit;
-    PolicyTimeEdit *end_time_edit = new PolicyTimeEdit;
-    start_time_edit->setObjectName("startTime");
-    end_time_edit->setObjectName("endTime");
-    ui->startTimeLayout->addWidget(start_time_edit);
-    ui->endTimeLayout->addWidget(end_time_edit);
 
     getHostListFromDatabase();
 
@@ -142,7 +134,22 @@ void policy_config::on_applyButton_clicked()
                 close();
             }
         } else {
-
+            query = "SELECT count(p.policy_id) \
+                    FROM policy AS p \
+                        JOIN time AS t \
+                            ON t.time_id=p.time_id \
+                    WHERE p.host_id=" + selected_host->data(Qt::UserRole).toString() + " \
+                        AND t.day_of_the_week=" + QString::number(day_of_the_week) + " \
+                        AND (\
+                            ('" + start_time + "' BETWEEN t.start_time AND t.end_time \
+                                OR '" + end_time + "' BETWEEN t.start_time AND t.end_time) \
+                            AND t.start_time <= t.end_time) \
+                        OR t.start_time > t.end_time";
+            dl = dbConnect.select_query(query.toStdString());
+            if (atoi(dl.begin()->argv[0])) {
+                qDebug() << "duplicated";
+                close();
+            }
         }
     }
 

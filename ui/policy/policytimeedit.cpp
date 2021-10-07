@@ -3,6 +3,7 @@
 PolicyTimeEdit::PolicyTimeEdit(QWidget *parent) : QTimeEdit(parent)
 {
     setDisplayFormat("hh:mm");
+    setWrapping(true);
 }
 
 void PolicyTimeEdit::stepBy(int steps)
