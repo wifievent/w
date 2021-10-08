@@ -1,9 +1,9 @@
-#include "netblock.h"
-#include "ui_netblock.h"
+#include "netblock_ui.h"
+#include "ui_netblock_ui.h"
 #include "../device-widget/devicewidget.h"
 #include "../policy/policy.h"
 
-NetBlock::NetBlock(QWidget *parent)
+NetBlock_UI::NetBlock_UI(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::NetBlock)
 {
@@ -17,12 +17,12 @@ NetBlock::NetBlock(QWidget *parent)
     ui->tabWidget->addTab(m_policy, "Policy");
 }
 
-NetBlock::~NetBlock()
+NetBlock_UI::~NetBlock_UI()
 {
     delete ui;
 }
 
-void NetBlock::receiveMac(const QString mac)
+void NetBlock_UI::receiveMac(const QString mac)
 {
     qDebug() << "receive message : " << mac;
     ui->tabWidget->setCurrentIndex(1);
