@@ -38,8 +38,8 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     QTime end_time;
     if (!policyId) {
         day_of_the_week = indexList.constFirst().column() / 5;
-        start_time = QTime(indexList.constFirst().row() / 6, indexList.constFirst().row() * 10 % 60);
-        end_time = QTime((indexList.constLast().row() + 1) / 6, (indexList.constLast().row() + 1) * 10 % 60);
+        start_time = QTime(indexList.constFirst().row() / 2, indexList.constFirst().row() * 30 % 60);
+        end_time = QTime((indexList.constLast().row() + 1) / 2, (indexList.constLast().row() + 1) * 30 % 60);
     } else {
         ui->hostList->setDisabled(true);
         ui->dayOfTheWeekLayout->setDisabled(true);
