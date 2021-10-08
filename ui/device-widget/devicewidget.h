@@ -22,7 +22,6 @@ class DeviceWidget : public QWidget
 public:
     DeviceWidget(QWidget *parent = nullptr);
     ~DeviceWidget();
-    void setDummyDB();
     void setDevInfo();
     void setDevTableWidget();
     void initDevListWidget();

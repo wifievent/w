@@ -9,7 +9,6 @@ DeviceWidget::DeviceWidget(QWidget *parent)
     setWindowState(Qt::WindowMaximized);
 
     db_connect = new DB_Connect("test.db");
-    setDummyDB();
     setDevInfo();
     setDevTableWidget();
     initDevListWidget();
@@ -59,62 +58,6 @@ void DeviceWidget::updateDevState()
 void DeviceWidget::slotSelectionChanged()
 {
     initDevListWidget();
-}
-
-void DeviceWidget::setDummyDB()
-{
-    // init for test
-    db_connect->send_query("DROP TABLE IF EXISTS host");
-    db_connect->send_query("DROP TABLE IF EXISTS time");
-    db_connect->send_query("DROP TABLE IF EXISTS policy");
-
-    db_connect->send_query("CREATE TABLE host (\
-    host_id	INTEGER		NOT NULL PRIMARY KEY AUTOINCREMENT,\
-    mac		CHAR(17)	NOT NULL,\
-    last_ip	VARCHAR(15)	NULL,\
-    name	VARCHAR(30)	NULL)");
-
-    db_connect->send_query("CREATE TABLE time (\
-    time_id			INTEGER	NOT NULL PRIMARY KEY AUTOINCREMENT,\
-    start_time		CHAR(4)	NOT NULL,\
-    end_time		CHAR(4)	NOT NULL,\
-    day_of_the_week	TINYINT	NOT NULL)");
-
-    db_connect->send_query("CREATE TABLE policy (\
-    policy_id	INTEGER	NOT NULL PRIMARY KEY AUTOINCREMENT,\
-    host_id		INTEGER	NOT NULL,\
-    time_id		INTEGER	NOT NULL)");
-
-    // insert host table data
-    db_connect->send_query("INSERT INTO host VALUES(1, '40:70:F5:AA:AA:AA', '192.168.1.101', 'Kim Apple')");
-    db_connect->send_query("INSERT INTO host VALUES(2, '70:CE:8C:BB:BB:BB', '192.168.1.102', 'Lee Samsung')");
-    db_connect->send_query("INSERT INTO host VALUES(3, '20:DF:B9:CC:CC:CC', '192.168.1.103', 'Park Google')");
-    db_connect->send_query("INSERT INTO host VALUES(4, '99:11:11:DD:DD:DD', '192.168.1.104', 'Jegal Kakao')");
-
-    // insert time table data
-    db_connect->send_query("INSERT INTO time VALUES(1, '2200', '0830', 1)");
-    db_connect->send_query("INSERT INTO time VALUES(2, '2200', '0830', 2)");
-    db_connect->send_query("INSERT INTO time VALUES(3, '2200', '0830', 3)");
-    db_connect->send_query("INSERT INTO time VALUES(4, '2200', '0830', 4)");
-    db_connect->send_query("INSERT INTO time VALUES(5, '2200', '0830', 5)");
-    db_connect->send_query("INSERT INTO time VALUES(6, '1200', '1500', 1)");
-    db_connect->send_query("INSERT INTO time VALUES(7, '1600', '1800', 2)");
-    db_connect->send_query("INSERT INTO time VALUES(8, '1200', '1800', 3)");
-
-    // insert policy table data
-    db_connect->send_query("INSERT into policy	VALUES(1, 1, 1)");
-    db_connect->send_query("INSERT into policy	VALUES(2, 1, 2)");
-    db_connect->send_query("INSERT into policy	VALUES(3, 1, 3)");
-    db_connect->send_query("INSERT into policy	VALUES(4, 1, 4)");
-    db_connect->send_query("INSERT into policy	VALUES(5, 1, 5)");
-    db_connect->send_query("INSERT into policy	VALUES(6, 1, 6)");
-    db_connect->send_query("INSERT into policy	VALUES(7, 1, 7)");
-    db_connect->send_query("INSERT into policy	VALUES(8, 3, 1)");
-    db_connect->send_query("INSERT into policy	VALUES(9, 3, 2)");
-    db_connect->send_query("INSERT into policy	VALUES(10, 3, 3)");
-    db_connect->send_query("INSERT into policy	VALUES(11, 3, 4)");
-    db_connect->send_query("INSERT into policy	VALUES(12, 3, 5)");
-    db_connect->send_query("INSERT into policy	VALUES(13, 3, 8)");
 }
 
 // Set Device List from DB to Vector
@@ -220,7 +163,7 @@ void DeviceWidget::onEditBtnClicked()
 {
     std::string name_= lineEdit->text().toStdString();
     qDebug() << "lineedit name : " << QString::fromStdString(name_);
-    db_connect->send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + to_string(dinfo.host_id));
+    db_connect->send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + std::to_string(dinfo.host_id));
     ui->devTable->clear();
     clear_devices();
     initDevListWidget();
