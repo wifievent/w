@@ -76,6 +76,7 @@ void FullScan::updateDB(){//update last_ip
             }
             if(tmp == 0) {
                 //different mac -> insert
+                query = "INSERT INTO host(mac, last_ip, name) VALUES('"+std::string(fs_iter->first)+"', '"+ std::string((fs_iter->second).ip_).data() +"', '"+ fs_iter->second.name.data() + "')";
                 db_connect.send_query(query.data());
             }
         }

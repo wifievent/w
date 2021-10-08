@@ -2,8 +2,9 @@
 #include "arppacket.h"
 
 void NetBlock::sendInfect(){//full-scan : is_connect & policy
-    std::map<WMac, Host> fs_map = fs_instance.getFsMap();
-    
+    std::map<WMac, Host> fs_map;
+    fs_map.insert(fs_instance.getFsMap().begin(), fs_instance.getFsMap().end());
+
     Packet& packet_instance = Packet::getInstance();
 
     ARPPacket infect_packet;
@@ -16,6 +17,8 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
         {
             std::lock_guard<std::mutex> lock(m);
             for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
+                GTRACE("nb: %s", std::string(iter->first).data());
+                GTRACE("nb host: %s, connect: %d", std::string(fs_map[iter->first].ip_).data(), fs_map[iter->first].isConnected());
                 if(fs_map[iter->first].isConnected()){//full-scan & policy
                     timer = time(NULL);
                     t = localtime(&timer);

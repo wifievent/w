@@ -28,7 +28,7 @@ int dbCheck() {
 
     dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'block_host'");
     if(dl.size() == 0) {
-        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip, name FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time))");
+        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip, name FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time AND strftime(\"%w\", 'now', 'localtime') = day_of_the_week))");
     }
     Data_List::list_free(dl);
     return 0;
