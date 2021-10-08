@@ -1,30 +1,37 @@
 #pragma once
-#include "net/capture/wpcapdevice.h"
 #include "net/wrtm.h"
-#include "net/wintflist.h"
 #include "net/packet/wpacket.h"
+#include "net/wintflist.h"
 
 #include <typeinfo>
 #include <iostream>
 #include <stdio.h>
-#include <stdlib.h>
 #include <map>
 #include <string>
 #include <thread>
 #include <time.h>
 #include <mutex>
+#include <sys/time.h>
 
-using namespace std;
+#include <stdlib.h>
+#include <unistd.h>
 
 struct EthArp{
-    struct WEthHdr eth;
-    struct WArpHdr arp;
+    WEthHdr eth;
+    WArpHdr arp;
 };
 
 struct Host {
-  char* name;
+  std::string name;
   WMac mac_;
   WIp ip_;
-  int active;
+  struct timeval last;
+
+  bool isConnected() {
+      struct timeval now;
+      gettimeofday(&now, NULL);
+      return now.tv_sec - last.tv_sec < 60;
+  }
 };
-static bool check = true;
+
+void sleepFunc(int msec);

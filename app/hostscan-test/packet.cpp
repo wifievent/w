@@ -2,8 +2,8 @@
 
 Packet::Packet()
 {
-    pcapdevice.open();
+    open();
 }
 Packet::~Packet(){
-
+    close();
 }
