@@ -143,8 +143,6 @@ void DeviceWidget::viewDevState()
 {
     for (int i = 0; i < (int)devices.size(); i ++) {
         if(devices[i].is_connect) {
-            ui->devTable->setItem(i, 0, new QTableWidgetItem(""));
-
             QPushButton *btn = new QPushButton();
             btn->setParent(ui->devTable);
             btn->setStyleSheet("QPushButton { margin: 4px; background-color: blue; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
