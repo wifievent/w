@@ -80,7 +80,7 @@ int DB_Connect::send_query(std::string query) {
     query: 쿼리문
     */
     char* err_msg = 0;    //  에러 메시지 저장 변수
-
+    GTRACE("%s", query.data());
     //  db open
     int rc = sqlite3_open(db_name.data(), &db);
     if(rc != SQLITE_OK) {
@@ -103,5 +103,113 @@ int DB_Connect::send_query(std::string query) {
 
     //  자원해제
     sqlite3_close(db);
+    return 0;
+}
+
+int main(void)
+{
+    DB_Connect db_connect("test.db");
+
+    // //  insert test
+    // db_connect.send_query("INSERT INTO Cars VALUES(9, 'TEST', 52143)");
+
+    // //  select test
+    // std::list<Data_List> dl;
+    // dl = db_connect.select_query("SELECT * FROM Cars");
+
+    // for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+    //     for(int i = 0; i < iter->argc; ++i) {
+    //         printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+    //     }
+    // }
+
+    // Data_List::list_free(dl);
+    
+    // printf("--------------------------------------------------\n");
+
+    // //  update test
+    // db_connect.send_query("UPDATE Cars SET Name = 'PPL' WHERE Id = 9");
+
+    // dl = db_connect.select_query("SELECT * FROM Cars");
+
+    // for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+    //     for(int i = 0; i < iter->argc; ++i) {
+    //         printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+    //     }
+    // }
+
+    // Data_List::list_free(dl);
+
+    // printf("------------------------------------------------\n");
+
+    // //  delete test
+    // db_connect.send_query("DELETE FROM Cars WHERE Id = 9");
+
+    // dl = db_connect.select_query("SELECT * FROM Cars");
+
+    // for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+    //     for(int i = 0; i < iter->argc; ++i) {
+    //         printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+    //     }
+    // }
+
+    // Data_List::list_free(dl);
+    
+    // printf("------------------------------------------------\n");
+
+    // db_connect.send_query("DROP TABLE TEST");
+    // db_connect.send_query("CREATE TABLE TEST (ID int NOT NULL, MAC CHAR(17) NOT NULL)");
+
+    // dl = db_connect.select_query("SELECT * FROM TEST");
+    // printf("size: %d \n", dl.size());
+
+    // // std::list<std::string> value;
+    // db_connect.send_query("INSERT INTO TEST VALUES(1, 'DD:AA')");
+    // db_connect.send_query("INSERT INTO TEST VALUES(2, 'DD:21')");
+
+    // dl = db_connect.select_query("SELECT * FROM TEST");
+
+    // for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+    //     for(int i = 0; i < iter->argc; ++i) {
+    //         printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+    //     }
+    // }
+
+    // //  New Test(Error fix)
+    // Data_List::list_free(dl);
+    // dl = db_connect.select_query("SELECT * FROM policy");
+
+    // for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+    //     for(int i = 0; i < iter->argc; ++i) {
+    //         printf("columns: %s, value: %s \n", iter->column[i], iter->argv[i]);
+    //     }
+    // }
+
+    // Data_List::list_free(dl);
+    std::list<Data_List> dl;
+    dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'host'");
+    if(dl.size() == 0) {
+        db_connect.send_query("CREATE TABLE host (host_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, mac CHAR(17) NOT NULL, last_ip VARCHAR(15) NULL, name VARCHAR(30) NULL)");
+    }
+    Data_List::list_free(dl);
+
+    dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'time'");
+    if(dl.size() == 0) {
+        db_connect.send_query("CREATE TABLE time (time_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, start_time CHAR(4) NOT NULL, end_time CHAR(4) NOT NULL, day_of_the_week TINYINT NOT NULL)");
+    }
+    Data_List::list_free(dl);
+
+    dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'policy'");
+    if(dl.size() == 0) {
+        db_connect.send_query("CREATE TABLE policy (policy_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, host_id INTEGER NOT NULL, time_id INTEGER NOT NULL)");
+    }
+    Data_List::list_free(dl);
+
+    dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'block_host'");
+    if(dl.size() == 0) {
+        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time))");
+    }
+    Data_List::list_free(dl);
+
     return 0;
 }

@@ -23,7 +23,6 @@ protected:
 
 public:
 	WPacket::Result read(WPacket* packet) override;
-
 	WIntf* intf() { return intf_; }
 
 protected:
