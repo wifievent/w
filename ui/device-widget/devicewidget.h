@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QItemSelection>
 #include <QTimer>
+#include <QLineEdit>
+#include <QListWidgetItem>
 #include "dinfo.h"
 #include "../../app/db-connect/db-connect.h"
 #include "../../app/hostscan-test/fullscan.h"
@@ -24,6 +26,7 @@ public:
     void setDevInfo();
     void setDevTableWidget();
     void initDevListWidget();
+    void setListWidgetItem(QString);
     void activateBtn();
     void clear_devices();
     void viewDevState();
@@ -38,6 +41,7 @@ private slots:
     void on_deleteBtn_clicked();
     void slotSelectionChanged();
     void updateDevState();
+    void onEditBtnClicked();
 
 private:
     Ui::DeviceWidget *ui;
@@ -45,6 +49,7 @@ private:
     DB_Connect *db_connect;
     std::vector<dInfo> devices;
     QTimer *timer;
+    QLineEdit *lineEdit;
     // FullScan& fs = FullScan::instance_fs();
 };
 #endif // DEVICEWIDGET_H

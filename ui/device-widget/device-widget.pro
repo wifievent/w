@@ -33,3 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 linux: LIBS *= -lsqlite3 -lpthread -ldl
+
+RESOURCES +=

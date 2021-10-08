@@ -195,20 +195,77 @@ void DeviceWidget::activateBtn()
     ui->deleteBtn->setEnabled(true);
 }
 
+void DeviceWidget::setListWidgetItem(QString str)
+{
+    QWidget *widget = new QWidget();
+    QHBoxLayout *layout = new QHBoxLayout();
+    QLabel *key_label = new QLabel(str + "\t");
+    QLabel *val_label = new QLabel();
+    if(str == "OUI") {
+        val_label->setText(dinfo.oui);
+    }else if(str == "MAC") {
+        val_label->setText(dinfo.mac);
+    }else if(str == "IP") {
+        val_label->setText(dinfo.last_ip);
+    }
+    layout->addWidget(key_label);
+    layout->addWidget(val_label);
+    layout->addStretch();
+    widget->setLayout(layout);
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setSizeHint(widget->sizeHint());
+    ui->devInfo->addItem(item);
+    ui->devInfo->setItemWidget(item, widget);
+}
+
+void DeviceWidget::onEditBtnClicked()
+{
+    std::string name_= lineEdit->text().toStdString();
+    qDebug() << "lineedit name : " << QString::fromStdString(name_);
+    db_connect->send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + to_string(dinfo.host_id));
+    ui->devTable->clear();
+    clear_devices();
+    initDevListWidget();
+    setDevInfo();
+    setDevTableWidget();
+}
+
 // Show the deivce info in the list
 // When click the cell
 void DeviceWidget::on_devTable_cellClicked(int row, int column)
 {
     ui->devInfo->clear();
+    dinfo.host_id = devices[row].host_id;
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
     dinfo.vectorID = row;
 
-    ui->devInfo->addItem("OUI\t" + dinfo.oui);
-    ui->devInfo->addItem("MAC\t" + dinfo.mac);
-    ui->devInfo->addItem("IP\t" + dinfo.last_ip);
-    ui->devInfo->addItem("Name\t" + dinfo.name);
+    setListWidgetItem("OUI");
+    setListWidgetItem("MAC");
+    setListWidgetItem("IP");
+
+    QWidget *n_widget = new QWidget();
+    QHBoxLayout *n_layout = new QHBoxLayout();
+    QLabel *n_label = new QLabel("Name\t");
+    QLineEdit *n_edit = new QLineEdit();
+    QPushButton *n_btn = new QPushButton("Edit");
+    n_edit->setText(dinfo.name);
+    n_layout->addWidget(n_label);
+    n_layout->addWidget(n_edit);
+    n_layout->addWidget(n_btn);
+    n_layout->addStretch();
+    n_widget->setLayout(n_layout);
+
+    QListWidgetItem *n_item = new QListWidgetItem();
+    n_item->setSizeHint(n_widget->sizeHint());
+    ui->devInfo->addItem(n_item);
+    ui->devInfo->setItemWidget(n_item, n_widget);
+
+    lineEdit = n_edit;
+
+    connect(n_btn, SIGNAL(clicked()), this, SLOT(onEditBtnClicked()));
+
     activateBtn();
 }
 
@@ -231,7 +288,7 @@ void DeviceWidget::on_reloadBtn_clicked()
 void DeviceWidget::on_policyBtn_clicked()
 {
     //setDevTableWidget();
-    //initDevListWidget();
+    initDevListWidget();
     emit sendMac(dinfo.name);
 }
 

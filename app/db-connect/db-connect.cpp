@@ -80,7 +80,7 @@ int DB_Connect::send_query(std::string query) {
     query: 쿼리문
     */
     char* err_msg = 0;    //  에러 메시지 저장 변수
-
+    GTRACE("%s", query.data());
     //  db open
     int rc = sqlite3_open(db_name.data(), &db);
     if(rc != SQLITE_OK) {
