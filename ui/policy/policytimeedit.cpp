@@ -1,4 +1,5 @@
 #include "policytimeedit.h"
+#include <QDebug>
 
 PolicyTimeEdit::PolicyTimeEdit(QWidget *parent) : QTimeEdit(parent)
 {
@@ -9,8 +10,9 @@ PolicyTimeEdit::PolicyTimeEdit(QWidget *parent) : QTimeEdit(parent)
 void PolicyTimeEdit::stepBy(int steps)
 {
     if(currentSection() == MinuteSection){
-        setTime(time().addSecs(600));
+        setTime(time().addSecs(steps * 600));
         return;
     }
+
     QTimeEdit::stepBy(steps);
 }
