@@ -3,7 +3,7 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
-
+LIBS += -lcurl
 CONFIG += c++11
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
@@ -14,6 +14,7 @@ DESTDIR = $${PWD}/../../bin
 
 SOURCES += \
     main.cpp \
+    oui.cpp \
     netblock_ui.cpp \
     policy.cpp \
     policy_config.cpp \

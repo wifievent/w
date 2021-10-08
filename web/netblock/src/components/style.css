@@ -1,0 +1,10 @@
+.headerNav {
+    padding-left: 30px;
+}
+
+.mainPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}

@@ -11,30 +11,28 @@ DESTDIR = $${PWD}/../../bin
 include(../../w.pri)
 SOURCES += \
     main.cpp \
-    netblock.cpp \
     ../policy/policy.cpp \
     ../policy/policy_config.cpp \
     ../policy/policyobj.cpp \
     ../device-widget/devicewidget.cpp \
     ../device-widget/dinfo.cpp \
-    ../device-widget/dthread.cpp \
-    ../../app/db-connect/db-connect.cpp
+    ../../app/db-connect/db-connect.cpp \
+    netblock_ui.cpp
 
 HEADERS += \
-    netblock.h \
     ../policy/policy.h \
     ../policy/policy_config.h \
     ../policy/policyobj.h \
     ../device-widget/devicewidget.h \
     ../device-widget/dinfo.h \
-    ../device-widget/dthread.h \
-    ../../app/db-connect/db-connect.h
+    ../../app/db-connect/db-connect.h \
+    netblock_ui.h
 
 FORMS += \
-    netblock.ui \
     ../policy/policy.ui \
     ../device-widget/devicewidget.ui \
-    ../policy/policy_config.ui
+    ../policy/policy_config.ui \
+    netblock_ui.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

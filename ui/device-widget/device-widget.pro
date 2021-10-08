@@ -14,7 +14,6 @@ include(../../w.pri)
 SOURCES += \
     devicewidget.cpp \
     dinfo.cpp \
-    dthread.cpp \
     main.cpp \
     ../../app/db-connect/db-connect.cpp
     ../../app/hostscan-test/fullscan.cpp
@@ -22,7 +21,6 @@ SOURCES += \
 HEADERS += \
     devicewidget.h \
     dinfo.h \
-    dthread.h \
     ../../app/db-connect/db-connect.h
     ../../app/hostscan-test/fullscan.h
 
@@ -35,3 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 linux: LIBS *= -lsqlite3 -lpthread -ldl
+
+RESOURCES +=
