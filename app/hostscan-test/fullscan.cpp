@@ -10,6 +10,23 @@ void FullScan::start(){
     }
 }
 
+void FullScan::setHostMap() {
+    DB_Connect& db_connect = DB_Connect::getInstance();
+    std::list<Data_List> host_list = db_connect.select_query("SELECT * FROM host");
+    for(std::list<Data_List>::iterator iter = host_list.begin(); iter != host_list.end(); ++iter) {
+        Host g;
+        g.mac_ = WMac(iter->argv[1]);
+        g.ip_ = WIp(iter->argv[2]);
+        g.name = std::string(iter->argv[3]);
+        std::lock_guard<std::mutex> lock(fs_map.m);
+        fs_map.insert(std::pair<WMac, Host>(g.mac_, g));
+    }
+    Data_List::list_free(host_list);
+    for(std::map<WMac, Host>::iterator iter = fs_map.begin(); iter != fs_map.end(); ++iter) {
+        GTRACE("mac: %s, ip: %s, name: %s", std::string(iter->second.mac_).data(), std::string(iter->second.ip_).data(), iter->second.name.data());
+    }
+}
+
 void FullScan::scan(){
     ARPPacket arp_packet;
     WMac my_mac;
@@ -49,7 +66,7 @@ void FullScan::updateDB(){//update last_ip
             for(std::list<Data_List>::iterator data_iter = d1.begin(); data_iter != d1.end(); ++data_iter) {
                 if(WMac(data_iter->argv[1]) == fs_iter->first){//same mac
                     if(WIp(data_iter->argv[2]) != fs_iter->second.ip_){//need update
-                        sprintf((char*)query.c_str(), "UPDATE host SET last_ip = '%s' WHERE mac = '%s'", std::string((fs_iter->second).ip_).data(), std::string(fs_iter->first).data());
+                         query = "UPDATE host SET last_ip = '"+std::string((fs_iter->second).ip_)+"' WHERE mac = '"+std::string(fs_iter->first)+"'";
                         db_connect.send_query(query.data());
                     }
                     tmp = 1;
@@ -58,7 +75,7 @@ void FullScan::updateDB(){//update last_ip
             }
             if(tmp == 0) {
                 //different mac -> insert
-                sprintf((char*)query.c_str(), "INSERT INTO host(mac, last_ip, name) VALUES('%s', '%s', '%s')", std::string(fs_iter->first).data(), std::string((fs_iter->second).ip_).data(), fs_iter->second.name.data());
+                query = "INSERT INTO host(mac, last_ip, name) VALUES('"+std::string(fs_iter->first)+"', '"+ std::string((fs_iter->second).ip_).data() +"', '"+ fs_iter->second.name.data() + "')";
                 db_connect.send_query(query.data());
                 GTRACE("update %s", query.data());
             }

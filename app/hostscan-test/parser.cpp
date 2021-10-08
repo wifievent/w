@@ -92,6 +92,7 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
+            GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
             fs.updateHostInfo(g.mac_, g.ip_, g.last);
         }
         else {

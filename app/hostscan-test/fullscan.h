@@ -20,6 +20,7 @@ public:
         return fs;
     }
     bool end_check = true;
+    void setHostMap();
     void start();
     void scan();
     void updateDB();
