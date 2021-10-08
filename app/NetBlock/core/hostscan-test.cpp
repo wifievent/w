@@ -1,7 +1,10 @@
-#include "base/db-connect.h"
-
-int dbCheck() {
-    
+#include <iostream>
+#include <string>
+#include "core.h"
+#include <string>
+#include <iostream>
+int main()
+{
     DB_Connect& db_connect = DB_Connect::getInstance();
     if(db_connect.rc != SQLITE_OK) {
         GTRACE("DB_open Error");
@@ -28,8 +31,15 @@ int dbCheck() {
 
     dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'block_host'");
     if(dl.size() == 0) {
-        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip, name FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time))");
+        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time))");
     }
     Data_List::list_free(dl);
+
+    Core core;
+    core.start();
+    std::cout << "press any key to close" <<std::endl;
+    std::string s;
+    std::getline(std::cin,s);
+    core.stop();
     return 0;
 }

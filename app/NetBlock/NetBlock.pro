@@ -3,7 +3,6 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
-LIBS += -lcurl
 CONFIG += c++11
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
@@ -13,45 +12,45 @@ DESTDIR = $${PWD}/../../bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    oui.cpp \
+    device/devicewidget.cpp \
+    device/dinfo.cpp \
+    policy/db_policy.cpp \
+    policy/policy.cpp \
+    policy/policy_config.cpp \
+    policy/policyobj.cpp \
     netblock_ui.cpp \
-    policy.cpp \
-    policy_config.cpp \
-    policyobj.cpp \
-    devicewidget.cpp \
-    dinfo.cpp \
-    dthread.cpp \
-    arppacket.cpp \
-    core.cpp \
-    fullscan.cpp \
-    netblock.cpp \
-    packet.cpp \
-    parser.cpp \
-    pch.cpp
+    core/arppacket.cpp \
+    core/core.cpp \
+    core/fullscan.cpp \
+    core/netblock.cpp \
+    core/packet.cpp \
+    core/parser.cpp \
+    core/pch.cpp \
+    main.cpp
+
 
 HEADERS += \
+    device/devicewidget.h \
+    device/dinfo.h \
+    policy/db_policy.h \
+    policy/policy.h \
+    policy/policy_config.h \
+    policy/policyobj.h \
     netblock_ui.h \
-    policy.h \
-    policy_config.h \
-    policyobj.h \
-    devicewidget.h \
-    dinfo.h \
-    dthread.h \
-    arppacket.h \
-    core.h \
-    fullscan.h \
-    netblock.h \
-    packet.h \
-    parser.h \
-    pch.h \
+    core/arppacket.h \
+    core/core.h \
+    core/fullscan.h \
+    core/netblock.h \
+    core/packet.h \
+    core/parser.h \
+    core/pch.h \
     db_check.h
 
 FORMS += \
-    netblock_ui.ui \
-    policy.ui \
-    devicewidget.ui \
-    policy_config.ui
+    device/devicewidget.ui \
+    policy/policy.ui \
+    policy/policy_config.ui \
+    netblock_ui.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -4,10 +4,12 @@
 #include <QWidget>
 #include <QDebug>
 #include <QItemSelection>
-#include "dthread.h"
+#include <QTimer>
+#include <QLineEdit>
+#include <QListWidgetItem>
 #include "dinfo.h"
 #include "base/db-connect.h"
-#include "fullscan.h"
+#include "../core/fullscan.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class DeviceWidget; }
@@ -20,18 +22,16 @@ class DeviceWidget : public QWidget
 public:
     DeviceWidget(QWidget *parent = nullptr);
     ~DeviceWidget();
-    std::vector<dInfo> devices;
-    void setDummyDB();
     void setDevInfo();
     void setDevTableWidget();
     void initDevListWidget();
+    void setListWidgetItem(QString);
     void activateBtn();
     void clear_devices();
-    void setDevState();
     void viewDevState();
 
-//signals:
-    void itemSelectionChanged();
+signals:
+    void sendMac(const QString mac);
 
 private slots:
     void on_devTable_cellClicked(int row, int column);
@@ -39,12 +39,16 @@ private slots:
     void on_policyBtn_clicked();
     void on_deleteBtn_clicked();
     void slotSelectionChanged();
+    void updateDevState();
+    void onEditBtnClicked();
 
 private:
     Ui::DeviceWidget *ui;
     dInfo dinfo;
     DB_Connect& db_connect = DB_Connect::getInstance();
-    DThread *dthread;
-    FullScan& fs = FullScan::getInstance();
+    std::vector<dInfo> devices;
+    QTimer *timer;
+    QLineEdit *lineEdit;
+    FullScan& fs_instance = FullScan::getInstance();
 };
 #endif // DEVICEWIDGET_H

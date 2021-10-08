@@ -6,8 +6,8 @@
 #include <QtWidgets>
 #include <QDebug>
 #include <QMap>
-#include "policyobj.h"
 #include "base/db-connect.h"
+#include "policyobj.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class policy; }
@@ -26,7 +26,7 @@ public:
         ROW_SIZE=6
     };
 
-    DB_Connect& dbConnect = DB_Connect::getInstance();
+    DB_Connect& db_connect = DB_Connect::getInstance();
     PolicyObj policyObj;
     QVector<PolicyObj> policyList;
     QList<QListWidgetItem *> selectedHost;

@@ -1,5 +1,6 @@
 #pragma once
 #include <mutex>
+#include <time.h>
 #include "packet.h"
 #include "base/db-connect.h"
 
@@ -20,6 +21,7 @@ public:
         return fs;
     }
     bool end_check = true;
+    void setHostMap();
     void start();
     void scan();
     void updateDB();

@@ -54,7 +54,7 @@ void policy::getPolicyFromDatabase(QString where)
 {
     policyList.clear();
     std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT p.policy_id, t.start_time, t.end_time, t.day_of_the_week, h.host_id, h.name FROM policy AS p JOIN time as t ON t.time_id=p.time_id JOIN host AS h ON h.host_id=p.host_id " + where.toStdString() + " ORDER BY t.day_of_the_week ASC");
+    dl = db_connect.select_query("SELECT p.policy_id, t.start_time, t.end_time, t.day_of_the_week, h.host_id, h.name FROM policy AS p JOIN time as t ON t.time_id=p.time_id JOIN host AS h ON h.host_id=p.host_id " + where.toStdString() + " ORDER BY t.day_of_the_week ASC");
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         for(int i = 0; i < iter->argc / 6; ++i) {
             policyObj.reset();
@@ -72,7 +72,7 @@ void policy::getPolicyFromDatabase(QString where)
 void policy::getHostFromDatabase()
 {
     std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT host_id, name FROM host");
+    dl = db_connect.select_query("SELECT host_id, name FROM host");
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {

@@ -34,7 +34,7 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
                 }
             }
         }
-        sleep(30);
+        sleepFunc(3000);
     }
 }
 
@@ -72,7 +72,7 @@ void NetBlock::updateMap(){
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
-        if(t->tm_min % 10 != 0 || t->tm_sec != 0) {
+        if(t->tm_min % 2 != 0 || t->tm_sec != 0) {
             continue;
         }
         GTRACE("updateMap: h: %d, m: %d, s: %d", t->tm_hour, t->tm_min, t->tm_sec);
@@ -83,6 +83,8 @@ void NetBlock::updateMap(){
                 sendRecover(iter_old->second);
             }
         }
+        GTRACE("old: %d, new: %d", nb_map.size(), new_nb_map.size());
+
         {
             std::lock_guard<std::mutex> lock(m);
             if(new_nb_map.size() > 0){

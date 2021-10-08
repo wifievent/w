@@ -1,13 +1,12 @@
 #include "netblock_ui.h"
-#include "core.h"
 #include "db_check.h"
+#include "core/core.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
-    int db_check = dbCheck();
-
+    dbCheck();
     Core core;
     core.start();
     QApplication a(argc, argv);

@@ -4,10 +4,10 @@
 
 void policy_config::getHostFromDatabase()
 {
-    DB_Connect& dbConnect = DB_Connect::getInstance();
+    DB_Connect& db_connect = DB_Connect::getInstance();
 
     std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT host_id, name FROM host");
+    dl = db_connect.select_query("SELECT host_id, name FROM host");
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
@@ -42,10 +42,10 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     getHostFromDatabase();
 
     if (policyId != 0) {
-        DB_Connect& dbConnect = DB_Connect::getInstance();
+        DB_Connect& db_connect = DB_Connect::getInstance();
 
         std::list<Data_List> dl;
-        dl = dbConnect.select_query("SELECT host_id FROM policy WHERE policy_id= " + QString::number(policyId).toStdString());
+        dl = db_connect.select_query("SELECT host_id FROM policy WHERE policy_id= " + QString::number(policyId).toStdString());
 
         for (std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
             for (int i = 0; i < iter->argc; i++) {
@@ -100,13 +100,13 @@ void policy_config::on_applyButton_clicked()
 
     QList<QString>timeIdList;
     std::list<Data_List> dl;
-    DB_Connect& dbConnect = DB_Connect::getInstance();
+    DB_Connect& db_connect = DB_Connect::getInstance();
     for (QList<int>::iterator iter = checked_day_of_week.begin(); iter != checked_day_of_week.end(); ++iter) {
         QString query = "INSERT INTO time VALUES(null, '" + start_time + "', '" + end_time + "', " + QString::number(*iter) + ")";
-        dbConnect.send_query(query.toStdString());
+        db_connect.send_query(query.toStdString());
         query = "SELECT seq FROM sqlite_sequence WHERE name='time'";
 
-        dl = dbConnect.select_query(query.toStdString());
+        dl = db_connect.select_query(query.toStdString());
         for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
             timeIdList.append(QString(iter->argv[0]));
         }
@@ -115,7 +115,7 @@ void policy_config::on_applyButton_clicked()
     for (QList<QListWidgetItem *>::iterator host = selected_host_list.begin(); host != selected_host_list.end(); ++host) {
         for (QList<QString>::iterator time = timeIdList.begin(); time != timeIdList.end(); ++time) {
             QString query = "INSERT INTO policy VALUES(null, " + (*host)->data(Qt::UserRole).toString() + ", " + *time + ")";
-            dbConnect.send_query(query.toStdString());
+            db_connect.send_query(query.toStdString());
         }
     }
 
