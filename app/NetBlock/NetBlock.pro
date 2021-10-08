@@ -5,8 +5,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TEMPLATE = app
 LIBS += -lcurl
 CONFIG += c++11
-CONFIG -= app_bundle
-CONFIG -= qt
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
 
@@ -16,8 +14,8 @@ DESTDIR = $${PWD}/../../bin
 
 SOURCES += \
     main.cpp \
-    netblock.cpp \
     oui.cpp \
+    netblock_ui.cpp \
     policy.cpp \
     policy_config.cpp \
     policyobj.cpp \
@@ -27,14 +25,13 @@ SOURCES += \
     arppacket.cpp \
     core.cpp \
     fullscan.cpp \
-    hostscan-test.cpp \
     netblock.cpp \
     packet.cpp \
     parser.cpp \
     pch.cpp
 
 HEADERS += \
-    netblock.h \
+    netblock_ui.h \
     policy.h \
     policy_config.h \
     policyobj.h \
@@ -51,7 +48,7 @@ HEADERS += \
     db_check.h
 
 FORMS += \
-    netblock.ui \
+    netblock_ui.ui \
     policy.ui \
     devicewidget.ui \
     policy_config.ui

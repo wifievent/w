@@ -3,9 +3,9 @@
 #include "devicewidget.h"
 #include "policy.h"
 
-NetBlock::NetBlock(QWidget *parent)
+NetBlock_UI::NetBlock_UI(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::NetBlock)
+    , ui(new Ui::NetBlock_UI)
 {
     ui->setupUi(this);
 
@@ -16,7 +16,7 @@ NetBlock::NetBlock(QWidget *parent)
     ui->tabWidget->addTab(m_policy, "Policy");
 }
 
-NetBlock::~NetBlock()
+NetBlock_UI::~NetBlock_UI()
 {
     delete ui;
 }
