@@ -20,7 +20,7 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
                     timer = time(NULL);
                     t = localtime(&timer);
 
-                    GTRACE("<sendarp>");
+                    GTRACE("\n\n\n<sendarp>");
                     GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
                     GTRACE("%s",std::string(iter->first).data());
                     GTRACE("%s",std::string((iter->second).ip_).data());
@@ -40,7 +40,7 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
 
 void NetBlock::sendRecover(Host host) {
     ARPPacket recover_packet;
-    recover_packet.makeArppacket(host.mac_, recover_packet.intf_g->mac(), host.mac_, host.ip_, recover_packet.intf_g->ip());
+    recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
     recover_packet.send(3);
 }
 

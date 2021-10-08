@@ -66,7 +66,7 @@ void FullScan::updateDB(){//update last_ip
             for(std::list<Data_List>::iterator data_iter = d1.begin(); data_iter != d1.end(); ++data_iter) {
                 if(WMac(data_iter->argv[1]) == fs_iter->first){//same mac
                     if(WIp(data_iter->argv[2]) != fs_iter->second.ip_){//need update
-                         query = "UPDATE host SET last_ip = '"+std::string((fs_iter->second).ip_)+"' WHERE mac = '"+std::string(fs_iter->first)+"'";
+                        query = "UPDATE host SET last_ip = '"+std::string((fs_iter->second).ip_)+"' WHERE mac = '"+std::string(fs_iter->first)+"'";
                         db_connect.send_query(query.data());
                     }
                     tmp = 1;
