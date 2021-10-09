@@ -35,22 +35,18 @@ public:
     int setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor policyColor, int policyCnt, int policyId);
     void getPolicyFromDatabase(QString where = "");
     void setPolicyToTable();
-    void getHostFromDatabase();
 
 private slots:
-
     void on_addPolicyButton_clicked();
-
     void on_tableWidget_cellDoubleClicked();
-
     void openPolicyConfig();
-
     void on_host_filter_itemSelectionChanged();
-
     void on_tableWidget_itemSelectionChanged();
+    void getHostFromDatabase();
 
 private:
     Ui::policy *ui;
     QStringList colorList = { "#ff6b6b", "#339af0", "#51cf66", "#ff922b", "#cc5de8" };
+    QTimer *timer;
 };
 #endif // POLICY_H

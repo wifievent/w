@@ -52,6 +52,8 @@ int policy::setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor 
 
 void policy::getHostFromDatabase()
 {
+    ui->host_filter->clear();
+
     std::list<Data_List> dl;
     dl = dbConnect.select_query("SELECT host_id, name FROM host");
 
@@ -164,6 +166,11 @@ policy::policy(QWidget *parent)
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
     ui->tableWidget->resizeRowsToContents();
+
+    timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(getHostFromDatabase()));
+    timer->start(10000);
 
     getHostFromDatabase();
     getPolicyFromDatabase();
