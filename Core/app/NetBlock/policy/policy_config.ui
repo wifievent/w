@@ -15,125 +15,162 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="day_of_week_form">
-     <item>
-      <widget class="QCheckBox" name="day_of_week_0">
-       <property name="text">
-        <string>Sun</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_1">
-       <property name="text">
-        <string>Mon</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_2">
-       <property name="text">
-        <string>Tue</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_3">
-       <property name="text">
-        <string>Wed</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_4">
-       <property name="text">
-        <string>Thu</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_5">
-       <property name="text">
-        <string>Fri</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="day_of_week_6">
-       <property name="text">
-        <string>Sat</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="dayOfTheWeekLayout">
+     <property name="title">
+      <string>Day Of The Week</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_0">
+        <property name="text">
+         <string>Sun</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_1">
+        <property name="text">
+         <string>Mon</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_2">
+        <property name="text">
+         <string>Tue</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_3">
+        <property name="text">
+         <string>Wed</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_4">
+        <property name="text">
+         <string>Thu</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_5">
+        <property name="text">
+         <string>Fri</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="dayOfTheWeekButton_6">
+        <property name="text">
+         <string>Sat</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">dayOfTheWeekGroup</string>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <layout class="QHBoxLayout" name="timeLayout">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QVBoxLayout" name="startTimeLayout">
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="start_time_label">
-           <property name="text">
-            <string>Start Time</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTimeEdit" name="start_time">
-           <property name="time">
-            <time>
-             <hour>0</hour>
-             <minute>0</minute>
-             <second>0</second>
-            </time>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLabel" name="start_time_label">
+         <property name="text">
+          <string>Start Time</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QLabel" name="end_time_label">
-           <property name="text">
-            <string>End Time</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTimeEdit" name="end_time">
-           <property name="time">
-            <time>
-             <hour>12</hour>
-             <minute>0</minute>
-             <second>0</second>
-            </time>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="PolicyTimeEdit" name="start_time">
+         <property name="displayFormat">
+          <string>hh:mm</string>
+         </property>
+         <property name="time">
+          <time>
+           <hour>0</hour>
+           <minute>0</minute>
+           <second>0</second>
+          </time>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="endTimeLayout">
+       <item>
+        <widget class="QLabel" name="end_time_label">
+         <property name="text">
+          <string>End Time</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PolicyTimeEdit" name="end_time">
+         <property name="displayFormat">
+          <string>hh:mm</string>
+         </property>
+         <property name="time">
+          <time>
+           <hour>12</hour>
+           <minute>0</minute>
+           <second>0</second>
+          </time>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
+    <layout class="QHBoxLayout" name="hostListLayout">
      <item>
-      <widget class="QListWidget" name="listWidget"/>
+      <widget class="QListWidget" name="hostList"/>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
+    <layout class="QHBoxLayout" name="buttonLayout">
      <item>
       <widget class="QPushButton" name="applyButton">
        <property name="text">
@@ -159,6 +196,16 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PolicyTimeEdit</class>
+   <extends>QTimeEdit</extends>
+   <header>policy/policytimeedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="dayOfTheWeekGroup"/>
+ </buttongroups>
 </ui>
