@@ -8,3 +8,12 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.modal {
+    text-align: center;
+  }
+  
+  .modal-dialog {
+    max-width: none;
+    display: inline-block;
+  }
