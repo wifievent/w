@@ -2,8 +2,7 @@
 #include "arppacket.h"
 
 void NetBlock::sendInfect(){//full-scan : is_connect & policy
-    std::map<WMac, Host> fs_map;
-    fs_map.insert(fs_instance.getFsMap().begin(), fs_instance.getFsMap().end());
+    std::map<WMac, Host> fs_map = fs_instance.getFsMap();
 
     Packet& packet_instance = Packet::getInstance();
 
@@ -17,13 +16,11 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
         {
             std::lock_guard<std::mutex> lock(m);
             for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-                GTRACE("nb: %s", std::string(iter->first).data());
-                GTRACE("nb host: %s, connect: %d", std::string(fs_map[iter->first].ip_).data(), fs_map[iter->first].isConnected());
                 if(fs_map[iter->first].isConnected()){//full-scan & policy
                     timer = time(NULL);
                     t = localtime(&timer);
 
-                    GTRACE("<sendarp>");
+                    GTRACE("\n\n\n<sendarp>");
                     GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
                     GTRACE("%s",std::string(iter->first).data());
                     GTRACE("%s",std::string((iter->second).ip_).data());
@@ -37,13 +34,13 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
                 }
             }
         }
-        sleepFunc(3000);
+        sleep(30);
     }
 }
 
 void NetBlock::sendRecover(Host host) {
     ARPPacket recover_packet;
-    recover_packet.makeArppacket(host.mac_, recover_packet.intf_g->mac(), host.mac_, host.ip_, recover_packet.intf_g->ip());
+    recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
     recover_packet.send(3);
 }
 
@@ -53,7 +50,7 @@ void NetBlock::getBlockHostMap(){
     std::list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
     new_nb_map.clear();
-    
+
     for(std::list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
         d2 = db_connect.select_query("SELECT * FROM block_host");
         for(std::list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
@@ -75,7 +72,7 @@ void NetBlock::updateMap(){
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
-        if(t->tm_min % 2 != 0 || t->tm_sec != 0) {
+        if(t->tm_min % 10 != 0 || t->tm_sec != 0) {
             continue;
         }
         GTRACE("updateMap: h: %d, m: %d, s: %d", t->tm_hour, t->tm_min, t->tm_sec);
@@ -86,8 +83,6 @@ void NetBlock::updateMap(){
                 sendRecover(iter_old->second);
             }
         }
-        GTRACE("old: %d, new: %d", nb_map.size(), new_nb_map.size());
-
         {
             std::lock_guard<std::mutex> lock(m);
             if(new_nb_map.size() > 0){
