@@ -67,7 +67,7 @@ void policy::getHostFromDatabase()
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         for(int j = 0; j < iter->argc / 2; j++) {
             QListWidgetItem *host_filter_item = new QListWidgetItem(iter->argv[1 + j * 2]);
-            QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
+            QColor mColor(colorList[(atoi(iter->argv[0 + j * 2]) - 1) % (colorList.length() - 1)]);
             host_filter_item->setForeground(mColor);
             host_filter_item->setData(Qt::UserRole, iter->argv[0 + j * 2]);
             ui->host_filter->addItem(host_filter_item);
@@ -115,7 +115,7 @@ void policy::setPolicyToTable()
         int start_min = iter->start_time.rightRef(2).toInt();
         int end_hour = iter->end_time.leftRef(2).toInt();
         int end_min = iter->end_time.rightRef(2).toInt();
-        QColor mColor(colorList[iter->hostId % colorList.length() - 1]);
+        QColor mColor(colorList[(iter->hostId - 1) % (colorList.length() - 1)]);
 
         int startRow = start_hour * 2 + start_min / 30;
         int endRow = startRow + (end_hour - start_hour) * 2 + abs(end_min - start_min) / 30;
