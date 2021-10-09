@@ -5,7 +5,7 @@ import { Modal, Button } from "react-bootstrap";
 const AdModal = ({ show, handleClose }) => {
   return (
     <div>
-      <Modal show={show} onHide={handleClose}>
+      <Modal size="lg" show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Download NetBlock and Support us</Modal.Title>
         </Modal.Header>
