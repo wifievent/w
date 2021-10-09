@@ -6,7 +6,7 @@
 #include <QtWidgets>
 #include <QDebug>
 #include <QMap>
-#include "../app/db-connect/db-connect.h"
+#include "base/db-connect.h"
 #include "policyobj.h"
 
 QT_BEGIN_NAMESPACE
@@ -26,7 +26,7 @@ public:
         ROW_SIZE=6
     };
 
-    DB_Connect dbConnect = DB_Connect("test.db");
+    DB_Connect& dbConnect = DB_Connect::getInstance();
     PolicyObj policyObj;
     QVector<PolicyObj> policyList;
     QList<QListWidgetItem *> selectedHost;

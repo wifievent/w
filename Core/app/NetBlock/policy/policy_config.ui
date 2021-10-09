@@ -200,7 +200,7 @@
   <customwidget>
    <class>PolicyTimeEdit</class>
    <extends>QTimeEdit</extends>
-   <header>policytimeedit.h</header>
+   <header>policy/policytimeedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

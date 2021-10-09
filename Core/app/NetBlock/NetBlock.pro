@@ -18,6 +18,7 @@ SOURCES += \
     policy/policy.cpp \
     policy/policy_config.cpp \
     policy/policyobj.cpp \
+    policy/policytimeedit.cpp \
     netblock_ui.cpp \
     core/arppacket.cpp \
     core/core.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     policy/policy.h \
     policy/policy_config.h \
     policy/policyobj.h \
+    policy/policytimeedit.h \
     netblock_ui.h \
     core/arppacket.h \
     core/core.h \

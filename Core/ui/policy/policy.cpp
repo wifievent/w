@@ -224,4 +224,3 @@ void policy::on_tableWidget_itemSelectionChanged()
         ui->tableWidget->clearSelection();
     }
 }
-

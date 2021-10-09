@@ -1,6 +1,6 @@
 #include "policy_config.h"
 #include "ui_policy_config.h"
-#include "../app/db-connect/db-connect.h"
+#include "base/db-connect.h"
 
 void policy_config::getHostListFromDatabase()
 {
