@@ -1,6 +1,6 @@
 #include "devicewidget.h"
 #include "ui_devicewidget.h"
-
+#include "../core/oui.h"
 DeviceWidget::DeviceWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::DeviceWidget)
@@ -65,15 +65,15 @@ void DeviceWidget::setDevInfo()
     dl = db_connect.select_query("SELECT * FROM host");
 
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for(int i = 0; i < iter->argc / 4; ++i) {
-            dInfo tmp;
-            tmp.host_id = atoi(iter->argv[0 + i * 4]);
-            tmp.mac = iter->argv[1 + i * 4];
-            tmp.last_ip = iter->argv[2 + i * 4];
-            tmp.name = iter->argv[3 + i * 4];
-            // tmp.is_connect = FullScan::isConnect(tmp.mac.toStdString());
-            devices.push_back(tmp);
-        }
+        dInfo tmp;
+        tmp.host_id = stoi(iter->argv[0]);
+        tmp.mac = QString::fromStdString(iter->argv[1]);
+        tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
+        tmp.last_ip = QString::fromStdString(iter->argv[2]);
+        tmp.name = QString::fromStdString(iter->argv[3]);
+        tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
+        // tmp.is_connect = FullScan::isConnect(tmp.mac.toStdString());
+        devices.push_back(tmp);
     }
 
     Data_List::list_free(dl);
@@ -174,6 +174,7 @@ void DeviceWidget::onEditBtnClicked()
 void DeviceWidget::on_devTable_cellClicked(int row, int column)
 {
     ui->devInfo->clear();
+    dinfo.oui = devices[row].oui;
     dinfo.host_id = devices[row].host_id;
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;

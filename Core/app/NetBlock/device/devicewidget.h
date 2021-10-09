@@ -10,6 +10,7 @@
 #include "dinfo.h"
 #include "base/db-connect.h"
 #include "../core/fullscan.h"
+#include "../core/oui.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class DeviceWidget; }
