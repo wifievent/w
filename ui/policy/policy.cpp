@@ -52,6 +52,12 @@ int policy::setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor 
 
 void policy::getHostFromDatabase()
 {
+    QVariantList selectedId;
+    if (selectedHost.length()) {
+        for (QList<QListWidgetItem *>::iterator iter = selectedHost.begin(); iter != selectedHost.end(); ++iter) {
+            selectedId.append((*iter)->data(Qt::UserRole));
+        }
+    }
     ui->host_filter->clear();
 
     std::list<Data_List> dl;
@@ -65,6 +71,12 @@ void policy::getHostFromDatabase()
             host_filter_item->setForeground(mColor);
             host_filter_item->setData(Qt::UserRole, iter->argv[0 + j * 2]);
             ui->host_filter->addItem(host_filter_item);
+
+            for (QVariantList::iterator iter = selectedId.begin(); iter != selectedId.end(); ++iter) {
+                if (host_filter_item->data(Qt::UserRole).toString() == (*iter).toString()) {
+                    host_filter_item->setSelected(true);
+                }
+            }
         }
         idx++;
     }
