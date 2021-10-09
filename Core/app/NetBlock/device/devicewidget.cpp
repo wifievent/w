@@ -69,6 +69,7 @@ void DeviceWidget::setDevInfo()
             dInfo tmp;
             tmp.host_id = atoi(iter->argv[0 + i * 4]);
             tmp.mac = iter->argv[1 + i * 4];
+            tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
             tmp.last_ip = iter->argv[2 + i * 4];
             tmp.name = iter->argv[3 + i * 4];
             tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
@@ -175,6 +176,7 @@ void DeviceWidget::onEditBtnClicked()
 void DeviceWidget::on_devTable_cellClicked(int row, int column)
 {
     ui->devInfo->clear();
+    dinfo.oui = devices[row].oui;
     dinfo.host_id = devices[row].host_id;
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
