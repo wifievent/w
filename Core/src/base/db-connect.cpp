@@ -68,7 +68,7 @@ int DB_Connect::callback(void* dl, int ac, char** av, char** c) {
 //  send_query 함수
 int DB_Connect::send_query(std::string query) {
     /*
-    query: 쿼리문
+    query: 쿼리문 dsfsd
     */
     char* err_msg = 0;    //  에러 메시지 저장 변수
     int result = 0;
