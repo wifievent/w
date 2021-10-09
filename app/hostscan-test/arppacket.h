@@ -11,8 +11,8 @@ public:
     EthArp packet;
     ARPPacket();
     ~ARPPacket();
-    WIp mac_ip;
-    WIntf* intf_g;//gateway info
+    WIp gate_ip;
+    WMac gate_mac;//gateway info
     void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     void send(int cnt);
 };
