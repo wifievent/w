@@ -16,11 +16,11 @@ public:
     QString name;
 
     void reset() {
-      policyId = -1;
+      policyId = 0;
       start_time = nullptr;
       end_time = nullptr;
       day_of_the_week = -1;
-      hostId = -1;
+      hostId = 0;
       name = nullptr;
     };
 };
