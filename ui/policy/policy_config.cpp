@@ -11,12 +11,10 @@ void policy_config::getHostListFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for(int j = 0; j < iter->argc / 2; j++) {
-            QColor mColor(colorList[atoi(iter->argv[0 + j * 2]) - 1]);
-            ui->hostList->addItem(iter->argv[1 + j * 2]);
-            ui->hostList->item(idx)->setForeground(mColor);
-            ui->hostList->item(idx)->setData(Qt::UserRole, iter->argv[0 + j * 2]);
-        }
+        QColor mColor(colorList[(atoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        ui->hostList->addItem(iter->argv[1]);
+        ui->hostList->item(idx)->setForeground(mColor);
+        ui->hostList->item(idx)->setData(Qt::UserRole, iter->argv[0]);
         idx++;
     }
 }

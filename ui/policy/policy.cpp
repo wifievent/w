@@ -65,17 +65,15 @@ void policy::getHostFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for(int j = 0; j < iter->argc / 2; j++) {
-            QListWidgetItem *host_filter_item = new QListWidgetItem(iter->argv[1 + j * 2]);
-            QColor mColor(colorList[(atoi(iter->argv[0 + j * 2]) - 1) % (colorList.length() - 1)]);
-            host_filter_item->setForeground(mColor);
-            host_filter_item->setData(Qt::UserRole, iter->argv[0 + j * 2]);
-            ui->host_filter->addItem(host_filter_item);
+        QListWidgetItem *host_filter_item = new QListWidgetItem(iter->argv[1]);
+        QColor mColor(colorList[(atoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        host_filter_item->setForeground(mColor);
+        host_filter_item->setData(Qt::UserRole, iter->argv[0]);
+        ui->host_filter->addItem(host_filter_item);
 
-            for (QVariantList::iterator iter = selectedId.begin(); iter != selectedId.end(); ++iter) {
-                if (host_filter_item->data(Qt::UserRole).toString() == (*iter).toString()) {
-                    host_filter_item->setSelected(true);
-                }
+        for (QVariantList::iterator iter = selectedId.begin(); iter != selectedId.end(); ++iter) {
+            if (host_filter_item->data(Qt::UserRole).toString() == (*iter).toString()) {
+                host_filter_item->setSelected(true);
             }
         }
         idx++;
@@ -94,17 +92,16 @@ void policy::getPolicyFromDatabase(QString where)
                                     ON h.host_id=p.host_id \
                                 " + where.toStdString() + " ORDER BY t.day_of_the_week ASC");
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        for(int i = 0; i < iter->argc / 6; ++i) {
-            policyObj.reset();
-            policyObj.policyId = atoi(iter->argv[0 + i * 5]);
-            policyObj.start_time = iter->argv[1 + i * 5];
-            policyObj.end_time = iter->argv[2 + i * 5];
-            policyObj.day_of_the_week = atoi(iter->argv[3 + i * 5]);
-            policyObj.hostId = atoi(iter->argv[4 + i * 5]);
-            policyObj.name = iter->argv[5 + i * 5];
-            policyList.append(policyObj);
-        }
+        policyObj.reset();
+        policyObj.policyId = atoi(iter->argv[0]);
+        policyObj.start_time = iter->argv[1];
+        policyObj.end_time = iter->argv[2];
+        policyObj.day_of_the_week = atoi(iter->argv[3]);
+        policyObj.hostId = atoi(iter->argv[4]);
+        policyObj.name = iter->argv[5];
+        policyList.append(policyObj);
     }
+    Data_List::list_free(dl);
 }
 
 void policy::setPolicyToTable()
