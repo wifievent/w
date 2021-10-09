@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <vector>
 #include <list>
 #include <iostream>
 #include <mutex>
@@ -11,8 +12,8 @@
 
 struct Data_List {
     int argc;
-    char** argv;
-    char** column;
+    std::vector<std::string> argv;
+    std::vector<std::string> column;
 
     static void list_free(std::list<Data_List> data);
 };

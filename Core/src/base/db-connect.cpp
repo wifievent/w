@@ -2,14 +2,7 @@
 
 //  동적할당한 메모리 해제함수
 void Data_List::list_free(std::list<Data_List> data) {
-    for(std::list<Data_List>::iterator iter = data.begin(); iter != data.end(); ++iter) {
-        for(int i = 0; i < iter->argc; ++i) {
-            free(iter->argv[i]);
-            free(iter->column[i]);
-        }
-        free(iter->argv);
-        free(iter->column);
-    }
+
 }
 
 //  DB_Connect 생성자
@@ -61,13 +54,9 @@ int DB_Connect::callback(void* dl, int ac, char** av, char** c) {
     //  결과를 저장할 변수
     Data_List data;
     data.argc = ac;
-    data.argv = (char**)malloc(ac * sizeof(char*));
-    data.column = (char**)malloc(ac * sizeof(char*));
     for(int i = 0; i < ac; ++i) {
-        data.argv[i] = (char*)malloc((strlen(av[i]) + 1));
-        data.column[i] = (char*)malloc((strlen(c[i]) + 1));
-        strncpy(data.argv[i], av[i], strlen(av[i]) + 1);
-        strncpy(data.column[i], c[i], strlen(c[i]) + 1);
+        data.argv.push_back(av[i]);
+        data.column.push_back(c[i]);
     }
     //  결과를 저장
     std::list<Data_List>* data_list = (std::list<Data_List>*)dl;
