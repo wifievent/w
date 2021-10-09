@@ -16,7 +16,6 @@ SOURCES += \
     core/oui.cpp \
     device/devicewidget.cpp \
     device/dinfo.cpp \
-    policy/db_policy.cpp \
     policy/policy.cpp \
     policy/policy_config.cpp \
     policy/policyobj.cpp \
@@ -37,7 +36,6 @@ HEADERS += \
     core/oui.h \
     device/devicewidget.h \
     device/dinfo.h \
-    policy/db_policy.h \
     policy/policy.h \
     policy/policy_config.h \
     policy/policyobj.h \
