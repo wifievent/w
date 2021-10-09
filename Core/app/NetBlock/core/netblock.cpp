@@ -43,7 +43,7 @@ void NetBlock::sendInfect(){//full-scan : is_connect & policy
 
 void NetBlock::sendRecover(Host host) {
     ARPPacket recover_packet;
-    recover_packet.makeArppacket(host.mac_, recover_packet.intf_g->mac(), host.mac_, host.ip_, recover_packet.intf_g->ip());
+    recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
     recover_packet.send(3);
 }
 

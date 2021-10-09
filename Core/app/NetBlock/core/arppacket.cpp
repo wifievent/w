@@ -4,8 +4,9 @@ ARPPacket::ARPPacket()
 {
     WNetInfo& wnetinfo = WNetInfo::instance();
     WIntfList& intflist = wnetinfo.intfList();
-    mac_ip = packet_instance.intf()->gateway();
-    intf_g = intflist.findByIp(mac_ip);
+    gate_ip = packet_instance.intf()->gateway();
+    std::string str = packet_instance.intf()->name();
+    gate_mac = intflist.getMac((char*)str.data());
 };
 
 ARPPacket::~ARPPacket(){};

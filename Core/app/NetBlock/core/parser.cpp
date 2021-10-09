@@ -109,10 +109,10 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
             //infection
             std::map<WMac,Host>::iterator iter;
             for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-                if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip_ == arp_packet.intf_g->ip()) {//gateway
+                if(packet.arpHdr_->tip() == iter->second.ip_ && packet.arpHdr_->sip() == packet_instance.intf()->gateway()) {//gateway
                     break;
                 }
-                else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == arp_packet.intf_g->ip()) { //infected device
+                else if(packet.arpHdr_->sip() == iter->second.ip_ && packet.arpHdr_->tip() == packet_instance.intf()->gateway()) { //infected device
                     break;
                 }
             }
@@ -123,12 +123,12 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
                     my_mac = packet_instance.intf()->mac();
                 }
                 // Infect gateway
-                arp_packet.makeArppacket(arp_packet.intf_g->mac(), my_mac, arp_packet.intf_g->mac(), arp_packet.intf_g->ip(), packet.arpHdr_->tip());
+                arp_packet.makeArppacket(arp_packet.gate_mac, my_mac, arp_packet.gate_mac, arp_packet.gate_ip, packet.arpHdr_->tip());
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 arp_packet.send(3);
 
                 // Infect Host
-                arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.intf_g->ip());
+                arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.gate_ip);
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 arp_packet.send(3);
             }
