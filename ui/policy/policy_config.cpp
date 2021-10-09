@@ -33,7 +33,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
 
     getHostListFromDatabase();
 
-    int day_of_the_week;
+    int day_of_the_week = -1;
     QTime start_time;
     QTime end_time;
     if (!policyId) {
@@ -69,7 +69,7 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     }
 
     QList<QAbstractButton *> dayOfTheWeekList = ui->dayOfTheWeekGroup->buttons();
-    for (QAbstractButton *itm : dayOfTheWeekList) {
+    for (QAbstractButton *itm : qAsConst(dayOfTheWeekList)) {
         int day_id = itm->objectName().split('_').last().toInt();
         ui->dayOfTheWeekGroup->setId(itm, day_id);
         if (day_id == day_of_the_week) {
