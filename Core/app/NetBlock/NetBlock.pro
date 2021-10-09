@@ -3,6 +3,7 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
+LIBS += -lcurl
 CONFIG += c++11
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
@@ -23,6 +24,7 @@ SOURCES += \
     core/core.cpp \
     core/fullscan.cpp \
     core/netblock.cpp \
+    core/oui.cpp \
     core/packet.cpp \
     core/parser.cpp \
     core/pch.cpp \
@@ -41,6 +43,7 @@ HEADERS += \
     core/core.h \
     core/fullscan.h \
     core/netblock.h \
+    core/oui.h \
     core/packet.h \
     core/parser.h \
     core/pch.h \
