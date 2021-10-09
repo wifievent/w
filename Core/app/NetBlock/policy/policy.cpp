@@ -65,10 +65,10 @@ void policy::getHostFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        QListWidgetItem *host_filter_item = new QListWidgetItem(iter->argv[1]);
-        QColor mColor(colorList[(atoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        QListWidgetItem *host_filter_item = new QListWidgetItem(QString::fromStdString(iter->argv[1]));
+        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
         host_filter_item->setForeground(mColor);
-        host_filter_item->setData(Qt::UserRole, iter->argv[0]);
+        host_filter_item->setData(Qt::UserRole, QString::fromStdString(iter->argv[0]));
         ui->host_filter->addItem(host_filter_item);
 
         for (QVariantList::iterator iter = selectedId.begin(); iter != selectedId.end(); ++iter) {
@@ -93,12 +93,12 @@ void policy::getPolicyFromDatabase(QString where)
                                 " + where.toStdString() + " ORDER BY t.day_of_the_week ASC");
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         policyObj.reset();
-        policyObj.policyId = atoi(iter->argv[0]);
-        policyObj.start_time = iter->argv[1];
-        policyObj.end_time = iter->argv[2];
-        policyObj.day_of_the_week = atoi(iter->argv[3]);
-        policyObj.hostId = atoi(iter->argv[4]);
-        policyObj.name = iter->argv[5];
+        policyObj.policyId = stoi(iter->argv[0]);
+        policyObj.start_time = QString::fromStdString(iter->argv[1]);
+        policyObj.end_time = QString::fromStdString(iter->argv[2]);
+        policyObj.day_of_the_week = stoi(iter->argv[3]);
+        policyObj.hostId = stoi(iter->argv[4]);
+        policyObj.name = QString::fromStdString(iter->argv[5]);
         policyList.append(policyObj);
     }
     Data_List::list_free(dl);
