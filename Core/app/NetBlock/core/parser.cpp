@@ -79,6 +79,8 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
     if(packet.ethHdr_->smac_ == my_mac) {return false;}
 
+    GTRACE("mac: %s, ip: %s", std::string(packet.ethHdr_->smac()).data(), std::string(packet.arpHdr_->sip()).data());
+
     if((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway)
     {
         g.mac_ = packet.ethHdr_->smac();//get mac
@@ -87,9 +89,10 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         GTRACE("<full scan>");
         GTRACE("%s", std::string(g.mac_).data());
         GTRACE("%s", std::string(g.ip_).data());
-        
+
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
+            GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
             fs.updateHostInfo(g.mac_, g.ip_, g.last);
         }
         else {
@@ -105,6 +108,7 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
     if(parse(packet)) {
         ARPPacket arp_packet;
 
+        GTRACE("next-parse: %d", packet.arpHdr_->op()==packet.arpHdr_->Request);
         if(packet.arpHdr_->op()==packet.arpHdr_->Request){//request
             //infection
             std::map<WMac,Host>::iterator iter;
@@ -116,7 +120,9 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
                     break;
                 }
             }
+            GTRACE("list");
             if(iter != nb_map.end()) {
+                GTRACE("have nb list");
                 WMac my_mac;
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
@@ -126,7 +132,6 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
                 arp_packet.makeArppacket(arp_packet.gate_mac, my_mac, arp_packet.gate_mac, arp_packet.gate_ip, packet.arpHdr_->tip());
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 arp_packet.send(3);
-
                 // Infect Host
                 arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.gate_ip);
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);

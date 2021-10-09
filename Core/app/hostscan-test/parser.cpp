@@ -30,11 +30,14 @@ bool DHCPParser::parse(WPacket& packet)
         }
         else if(opt->type_ == 12)//get name
         {
-            g.name = (char*)malloc(sizeof(char) * opt->len_);
+            char* tmp = (char*)malloc(sizeof(char) * opt->len_);
             for(int i = 0; i < opt->len_; ++i)
             {
-                g.name[i] = *(&opt->len_ + 1 + i);
+                GTRACE("%c",*(&opt->len_ + 1 + i));
+                tmp[i] = *(&opt->len_ + 1 + i);
             }
+            g.name = std::string(tmp);
+
         }
     }
 
