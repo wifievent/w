@@ -12,7 +12,7 @@
 #include <time.h>
 #include <mutex>
 #include <sys/time.h>
-
+#include <QString>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -33,5 +33,3 @@ struct Host {
       return now.tv_sec - last.tv_sec < 60;
   }
 };
-
-void sleepFunc(int msec);

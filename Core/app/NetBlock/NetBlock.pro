@@ -27,7 +27,6 @@ SOURCES += \
     core/oui.cpp \
     core/packet.cpp \
     core/parser.cpp \
-    core/pch.cpp \
     main.cpp
 
 

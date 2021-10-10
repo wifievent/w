@@ -8,4 +8,4 @@ struct MemoryStruct {
 };
 
 std::string UrlEncode(const std::string &s);
-char* oui_db(WMac mac);
+QString oui_db(WMac mac);

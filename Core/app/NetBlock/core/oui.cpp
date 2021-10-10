@@ -1,5 +1,4 @@
 #include "oui.h"
-
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
   size_t realsize = size * nmemb;
@@ -43,7 +42,7 @@ std::string UrlEncode(const std::string &s)
     return escaped;
 }
 
-char* oui_db(WMac mac){
+QString oui_db(WMac mac){
     CURL *curl;
     CURLcode res;
     struct MemoryStruct chunk;
@@ -64,6 +63,11 @@ char* oui_db(WMac mac){
         fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
       curl_easy_cleanup(curl);
+      GTRACE("%s",chunk.memory);
+      QString tmp = QString(chunk.memory);
+      if(tmp == "{\"errors\":{\"detail\":\"Not Found\"}}"){
+          return nullptr;
+      }
       return chunk.memory;
     }
 }

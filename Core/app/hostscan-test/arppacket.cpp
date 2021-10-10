@@ -28,11 +28,12 @@ void ARPPacket::makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip)
     packet.arp.tip_ = htonl(tip);
 }
 
-void ARPPacket::send(int cnt) {
+void ARPPacket::send(int cnt)
+{
     wpacket.buf_.data_ = reinterpret_cast<byte*>(&packet);
     wpacket.buf_.size_ = sizeof(EthArp);
     for(int i =0; i<cnt; i++) {
         packet_instance.write(wpacket.buf_);
-        sleepFunc(3);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3));
     }
 }
