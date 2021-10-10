@@ -141,11 +141,15 @@ void policy::openPolicyConfig()
 {
     policy_config *policyConfig;
     QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
-    QTableWidgetItem *firstItem = ui->tableWidget->item(indexList.constFirst().row(), indexList.constFirst().column());
-    if (firstItem == nullptr) {
-        policyConfig = new policy_config(indexList);
+    if (!indexList.isEmpty()) {
+        QTableWidgetItem *firstItem = ui->tableWidget->item(indexList.constFirst().row(), indexList.constFirst().column());
+        if (firstItem == nullptr) {
+            policyConfig = new policy_config(indexList);
+        } else {
+            policyConfig = new policy_config(indexList, firstItem->data(Qt::UserRole).toInt());
+        }
     } else {
-        policyConfig = new policy_config(indexList, firstItem->data(Qt::UserRole).toInt());
+        policyConfig = new policy_config(indexList);
     }
     policyConfig->setModal(true);
 
