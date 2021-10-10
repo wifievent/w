@@ -9,11 +9,20 @@
     align-items: center;
 }
 
+.btnDesc {
+  display: block;
+  padding: 20px 0 30px 0;
+}
+
+.desc {
+  padding: 50px;
+}
+
 .modal {
     text-align: center;
   }
   
-  .modal-dialog {
+.modal-dialog {
     max-width: none;
     display: inline-block;
   }

@@ -1,12 +1,12 @@
 import React from "react";
 import Contents from "../components/Contents";
-import DownloadButton from "../components/DownloadButton";
+import MainDownloadButton from "../components/MainDownloadButton";
 
 const MainPage = () => {
   return (
     <div className="mainPage">
       <Contents></Contents>
-      <DownloadButton></DownloadButton>
+      <MainDownloadButton />
     </div>
   );
 };
