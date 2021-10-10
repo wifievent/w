@@ -36,5 +36,3 @@ struct Host {
       return now.tv_sec - last.tv_sec < 60;
   }
 };
-
-void sleepFunc(int msec);

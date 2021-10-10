@@ -87,6 +87,7 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         g.mac_ = packet.ethHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);
+        GTRACE("LAST = %d",g.last);
         GTRACE("<full scan>");
         GTRACE("%s", std::string(g.mac_).data());
         GTRACE("%s", std::string(g.ip_).data());
