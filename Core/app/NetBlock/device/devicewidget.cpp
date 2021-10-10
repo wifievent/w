@@ -60,10 +60,8 @@ void DeviceWidget::setDevInfo()
         dInfo tmp;
         tmp.host_id = stoi(iter->argv[0]);
         tmp.mac = QString::fromStdString(iter->argv[1]);
-
         if(tmp.oui==nullptr)
             tmp.oui = oui_db(WMac(tmp.mac.toStdString()));
-
         tmp.last_ip = QString::fromStdString(iter->argv[2]);
         tmp.name = QString::fromStdString(iter->argv[3]);
         tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
