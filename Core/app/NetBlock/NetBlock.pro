@@ -13,7 +13,6 @@ DESTDIR = $${PWD}/../../bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    core/oui.cpp \
     device/devicewidget.cpp \
     device/dinfo.cpp \
     policy/policy.cpp \
@@ -33,7 +32,6 @@ SOURCES += \
 
 
 HEADERS += \
-    core/oui.h \
     device/devicewidget.h \
     device/dinfo.h \
     policy/policy.h \
