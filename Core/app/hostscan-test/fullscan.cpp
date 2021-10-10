@@ -3,31 +3,37 @@
 
 void FullScan::start(){
     while(end_check) {
-        GTRACE("test1");
+        GTRACE("scan");
         scan();
         updateDB();
         sleepFunc(3000);
     }
 }
 
-void FullScan::setHostMap() {
+void FullScan::setHostMap()
+{
     DB_Connect& db_connect = DB_Connect::getInstance();
     std::list<Data_List> host_list = db_connect.select_query("SELECT * FROM host");
+
     for(std::list<Data_List>::iterator iter = host_list.begin(); iter != host_list.end(); ++iter) {
         Host g;
         g.mac_ = WMac(iter->argv[1]);
         g.ip_ = WIp(iter->argv[2]);
         g.name = std::string(iter->argv[3]);
+
+        struct timeval now;
+        gettimeofday(&now, NULL);
+        now.tv_sec -= 60;
+        g.last = now;
+
         std::lock_guard<std::mutex> lock(fs_map.m);
         fs_map.insert(std::pair<WMac, Host>(g.mac_, g));
     }
     Data_List::list_free(host_list);
-    for(std::map<WMac, Host>::iterator iter = fs_map.begin(); iter != fs_map.end(); ++iter) {
-        GTRACE("mac: %s, ip: %s, name: %s", std::string(iter->second.mac_).data(), std::string(iter->second.ip_).data(), iter->second.name.data());
-    }
 }
 
-void FullScan::scan(){
+void FullScan::scan()
+{
     ARPPacket arp_packet;
     WMac my_mac;
     WIp my_ip;
@@ -77,13 +83,10 @@ void FullScan::updateDB(){//update last_ip
                 //different mac -> insert
                 query = "INSERT INTO host(mac, last_ip, name) VALUES('"+std::string(fs_iter->first)+"', '"+ std::string((fs_iter->second).ip_).data() +"', '"+ fs_iter->second.name.data() + "')";
                 db_connect.send_query(query.data());
-                GTRACE("update %s", query.data());
             }
         }
     }
-    GTRACE("Error Check");
     Data_List::list_free(d1);
-    GTRACE("Error Check");
 }
 
 void FullScan::updateHostInfo(WMac mac_, WIp ip_, struct timeval last_) {
@@ -97,11 +100,11 @@ void FullScan::addHost(std::pair<WMac,Host> host) {
     fs_map.insert(host);
 }
 
-// bool FullScan::isConnect(std::string mac) {
-//     WMac wmac(mac);
-//     std::lock_guard<std::mutex> lock(fs_map.m);
-//     return fs_map[wmac].isConnected();
-// }
+bool FullScan::isConnect(std::string mac) {
+    WMac wmac(mac);
+    std::lock_guard<std::mutex> lock(fs_map.m);
+    return fs_map[wmac].isConnected();
+}
 
 void FullScan::delHost(std::string mac) {
     WMac wmac(mac);

@@ -1,7 +1,7 @@
 #include "core.h"
 
 void Core::start(){
-    fs_instance.setHostMap();
+    fs_instance.setHostMap(); //update fs_map
     recv_ = std::thread(&Core::receivePacket, this);       // only receive-packet
     fs_scan = std::thread(&FullScan::start, &fs_instance);  // update fs_map
     nb_update = std::thread(&NetBlock::updateMap, &nb);
