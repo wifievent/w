@@ -17,6 +17,7 @@ SOURCES += \
 HEADERS += \
     arppacket.h \
     core.h \
+    db_check.h \
     fullscan.h \
     netblock.h \
     packet.h \

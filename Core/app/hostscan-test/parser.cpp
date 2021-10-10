@@ -35,7 +35,7 @@ bool DHCPParser::parse(WPacket& packet)
                 tmp[i] = *(&opt->len_ + 1 + i);
             }
             g.name = std::string(tmp);
-
+            free(tmp);
         }
     }
 
@@ -90,7 +90,7 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         GTRACE("<full scan>");
         GTRACE("%s", std::string(g.mac_).data());
         GTRACE("%s", std::string(g.ip_).data());
-        
+        GTRACE("%d",g.last);
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
             GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
