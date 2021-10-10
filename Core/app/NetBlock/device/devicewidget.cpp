@@ -242,7 +242,7 @@ void DeviceWidget::on_deleteBtn_clicked()
 
     // Delete Data of host table
     // fsmap -> delete req
-    // fs.delHost(mac_);
+    fs_instance.delHost(mac_);
     db_connect.send_query("DELETE FROM host WHERE host_id = " + std::to_string(host_id_));
 
     ui->devInfo->clear();
