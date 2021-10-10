@@ -39,14 +39,6 @@ void DeviceWidget::updateDevState()
 {
     for(int i = 0; i < (int)devices.size(); i++) {
         bool check = fs_instance.isConnect(devices[i].mac.toStdString());
-
-        /*
-        if((check = FullScan::isConnect(devices[i].mac.toStdString())) == NULL){
-            qDebug() << "[" << i << "] devices.mac check : NULL";
-            continue;
-        }
-        */
-
         devices[i].is_connect = check;
     }
     viewDevState();
@@ -71,8 +63,7 @@ void DeviceWidget::setDevInfo()
         tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
         tmp.last_ip = QString::fromStdString(iter->argv[2]);
         tmp.name = QString::fromStdString(iter->argv[3]);
-        tmp.oui = QString(oui_db(WMac(tmp.mac.toStdString())));
-        // tmp.is_connect = FullScan::isConnect(tmp.mac.toStdString());
+        tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
         devices.push_back(tmp);
     }
 
@@ -106,7 +97,6 @@ void DeviceWidget::setDevTableWidget()
     ui->devTable->setColumnCount(3);
     ui->devTable->setHorizontalHeaderLabels(colHeader);
     ui->devTable->setRowCount(devices.size());
-
     viewDevState();
     for(int i = 0; i < (int)devices.size(); i++) {
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
@@ -159,14 +149,11 @@ void DeviceWidget::setListWidgetItem(QString str)
 
 void DeviceWidget::onEditBtnClicked()
 {
-    std::string name_= lineEdit->text().toStdString();
-    qDebug() << "lineedit name : " << QString::fromStdString(name_);
+    dinfo.name = lineEdit->text();
+    lineEdit->setText(dinfo.name);
+    std::string name_= dinfo.name.toStdString();
     db_connect.send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + std::to_string(dinfo.host_id));
-    ui->devTable->clear();
-    clear_devices();
-    initDevListWidget();
-    setDevInfo();
-    setDevTableWidget();
+    ui->devTable->setItem(dinfo.vectorID, 2, new QTableWidgetItem(dinfo.name));
 }
 
 // Show the deivce info in the list
@@ -203,9 +190,7 @@ void DeviceWidget::on_devTable_cellClicked(int row, int column)
     ui->devInfo->setItemWidget(n_item, n_widget);
 
     lineEdit = n_edit;
-
     connect(n_btn, SIGNAL(clicked()), this, SLOT(onEditBtnClicked()));
-
     activateBtn();
 }
 
