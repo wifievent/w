@@ -92,7 +92,7 @@ void DeviceWidget::viewDevState()
         }else {
             QPushButton *btn = new QPushButton();
             btn->setParent(ui->devTable);
-            btn->setStyleSheet("QPushButton { margin: 4px; background-color: red; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
+            btn->setStyleSheet("QPushButton { margin: 4px; background-color: gray; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
             ui->devTable->setCellWidget(i, 0, btn);
         }
     }
