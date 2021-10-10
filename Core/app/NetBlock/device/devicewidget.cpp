@@ -39,14 +39,6 @@ void DeviceWidget::updateDevState()
 {
     for(int i = 0; i < (int)devices.size(); i++) {
         bool check = fs_instance.isConnect(devices[i].mac.toStdString());
-
-        /*
-        if((check = FullScan::isConnect(devices[i].mac.toStdString())) == NULL){
-            qDebug() << "[" << i << "] devices.mac check : NULL";
-            continue;
-        }
-        */
-
         devices[i].is_connect = check;
     }
     viewDevState();
@@ -74,7 +66,7 @@ void DeviceWidget::setDevInfo()
 
         tmp.last_ip = QString::fromStdString(iter->argv[2]);
         tmp.name = QString::fromStdString(iter->argv[3]);
-        // tmp.is_connect = FullScan::isConnect(tmp.mac.toStdString());
+        tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
         devices.push_back(tmp);
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
@@ -95,7 +87,7 @@ void DeviceWidget::viewDevState()
         }else {
             QPushButton *btn = new QPushButton();
             btn->setParent(ui->devTable);
-            btn->setStyleSheet("QPushButton { margin: 4px; background-color: red; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
+            btn->setStyleSheet("QPushButton { margin: 4px; background-color: gray; width: 20px; border-color: black; border-width: 1px; border-radius: 10px; }");
             ui->devTable->setCellWidget(i, 0, btn);
         }
     }
@@ -109,7 +101,6 @@ void DeviceWidget::setDevTableWidget()
     ui->devTable->setColumnCount(3);
     ui->devTable->setHorizontalHeaderLabels(colHeader);
     ui->devTable->setRowCount(devices.size());
-
     viewDevState();
     for(int i = 0; i < (int)devices.size(); i++) {
         ui->devTable->setItem(i, 1, new QTableWidgetItem(devices[i].last_ip));
@@ -162,14 +153,11 @@ void DeviceWidget::setListWidgetItem(QString str)
 
 void DeviceWidget::onEditBtnClicked()
 {
-    std::string name_= lineEdit->text().toStdString();
-    qDebug() << "lineedit name : " << QString::fromStdString(name_);
+    dinfo.name = lineEdit->text();
+    lineEdit->setText(dinfo.name);
+    std::string name_= dinfo.name.toStdString();
     db_connect.send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + std::to_string(dinfo.host_id));
-    ui->devTable->clear();
-    clear_devices();
-    initDevListWidget();
-    setDevInfo();
-    setDevTableWidget();
+    ui->devTable->setItem(dinfo.vectorID, 2, new QTableWidgetItem(dinfo.name));
 }
 
 // Show the deivce info in the list
@@ -206,9 +194,7 @@ void DeviceWidget::on_devTable_cellClicked(int row, int column)
     ui->devInfo->setItemWidget(n_item, n_widget);
 
     lineEdit = n_edit;
-
     connect(n_btn, SIGNAL(clicked()), this, SLOT(onEditBtnClicked()));
-
     activateBtn();
 }
 
