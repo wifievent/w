@@ -25,6 +25,7 @@ SOURCES += \
     core/core.cpp \
     core/fullscan.cpp \
     core/netblock.cpp \
+    core/oui.cpp \
     core/packet.cpp \
     core/parser.cpp \
     core/pch.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     core/core.h \
     core/fullscan.h \
     core/netblock.h \
+    core/oui.h \
     core/packet.h \
     core/parser.h \
     core/pch.h \
