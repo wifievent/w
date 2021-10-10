@@ -11,10 +11,11 @@ void policy_config::getHostListFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        QColor mColor(colorList[(atoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
-        ui->hostList->addItem(iter->argv[1]);
+        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
+        ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
         ui->hostList->item(idx)->setForeground(mColor);
-        ui->hostList->item(idx)->setData(Qt::UserRole, iter->argv[0]);
+        ui->hostList->item(idx)->setData(Qt::UserRole, stoi(iter->argv[0]));
         idx++;
     }
 }
@@ -48,16 +49,16 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
         dl = dbConnect.select_query("SELECT p.host_id, t.start_time, t.end_time, t.day_of_the_week FROM policy AS p JOIN time AS t ON t.time_id=p.time_id WHERE p.policy_id= " + QString::number(policyId).toStdString());
 
         for (std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-            day_of_the_week = atoi(iter->argv[3]);
+            day_of_the_week = stoi(iter->argv[3]);
 
-            int start_hour = QString(iter->argv[1]).leftRef(2).toInt();
-            int start_minute = QString(iter->argv[1]).rightRef(2).toInt();
-            int end_hour = QString(iter->argv[2]).leftRef(2).toInt();
-            int end_minute = QString(iter->argv[2]).rightRef(2).toInt();
+            int start_hour = QString::fromStdString(iter->argv[1]).leftRef(2).toInt();
+            int start_minute = QString::fromStdString(iter->argv[1]).rightRef(2).toInt();
+            int end_hour = QString::fromStdString(iter->argv[2]).leftRef(2).toInt();
+            int end_minute = QString::fromStdString(iter->argv[2]).rightRef(2).toInt();
             start_time = QTime(start_hour, start_minute);
             end_time = QTime(end_hour, end_minute);
 
-            int host_id = atoi(iter->argv[0]);
+            int host_id = stoi(iter->argv[0]);
             for (int j = 0; j < ui->hostList->count(); j++) {
                 if (ui->hostList->item(j)->data(Qt::UserRole) == host_id) {
                     ui->hostList->item(j)->setSelected(true);
@@ -127,7 +128,7 @@ void policy_config::on_applyButton_clicked()
                                 AND t.start_time > t.end_time) \
                             )";
             dl = dbConnect.select_query(query.toStdString());
-            if (atoi(dl.begin()->argv[0])) {
+            if (stoi(dl.begin()->argv[0])) {
                 QMessageBox::warning(this, tr("Error"),
                                                tr("The policy time overlaps other policy time.\n"
                                                   "Please check other polcy time."),
@@ -147,7 +148,7 @@ void policy_config::on_applyButton_clicked()
                             AND t.start_time <= t.end_time) \
                         OR t.start_time > t.end_time";
             dl = dbConnect.select_query(query.toStdString());
-            if (atoi(dl.begin()->argv[0])) {
+            if (stoi(dl.begin()->argv[0])) {
                 QMessageBox::warning(this, tr("Error"),
                                                tr("The policy time overlaps other policy time.\n"
                                                   "Please check other polcy time."),
@@ -162,7 +163,7 @@ void policy_config::on_applyButton_clicked()
 
     query = "SELECT seq FROM sqlite_sequence WHERE name='time'";
     dl = dbConnect.select_query(query.toStdString());
-    time_id = atoi(dl.begin()->argv[0]);
+    time_id = stoi(dl.begin()->argv[0]);
 
     if (policy_id) {
         query = "UPDATE policy SET time_id=" + QString::number(time_id) + " WHERE policy_id=" + QString::number(policy_id);

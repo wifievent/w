@@ -249,4 +249,3 @@ void DeviceWidget::on_deleteBtn_clicked()
     ui->devTable->clear();
     setDevTableWidget();
 }
-

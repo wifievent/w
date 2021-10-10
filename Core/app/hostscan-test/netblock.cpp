@@ -3,15 +3,15 @@
 
 void NetBlock::sendInfect(){//full-scan : is_connect & policy
     std::map<WMac, Host> fs_map = fs_instance.getFsMap();
-    
     Packet& packet_instance = Packet::getInstance();
-
     ARPPacket infect_packet;
 
     time_t timer;
     struct tm* t;
 
     while(end_check) {
+        nb_map = fs_map;
+        gtrace("SIZE = %d",nb_map.size());
         if(nb_map.size() == 0) { continue; }
         {
             std::lock_guard<std::mutex> lock(m);
@@ -50,7 +50,7 @@ void NetBlock::getBlockHostMap(){
     std::list<Data_List> d1,d2;
     d1 = db_connect.select_query("SELECT * FROM time");
     new_nb_map.clear();
-    
+
     for(std::list<Data_List>::iterator iter = d1.begin(); iter != d1.end(); ++iter) {
         d2 = db_connect.select_query("SELECT * FROM block_host");
         for(std::list<Data_List>::iterator iter2 = d2.begin(); iter2 != d2.end(); ++iter2) {
