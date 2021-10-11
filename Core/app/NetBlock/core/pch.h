@@ -1,4 +1,5 @@
 #pragma once
+#include <QtGlobal>
 #include "net/wrtm.h"
 #include "net/packet/wpacket.h"
 #include "net/wintflist.h"
