@@ -2,12 +2,13 @@
 #include "fullscan.h"
 #include "pch.h"
 
-class NetBlock
+class NetBlock : WObj
 {
 private:
     std::map<WMac,Host> nb_map, new_nb_map;
     FullScan& fs_instance = FullScan::getInstance();
     std::mutex m;
+    int nb_time = 30000;
 public:
     bool end_check = true;
     NetBlock(){};
@@ -26,4 +27,6 @@ public:
     void getBlockHostMap();
     void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
     std::map<WMac, Host> getNbMap() { return nb_map; }
+    void load(Json::Value& json) override;
+    void save(Json::Value& json) override;
 };

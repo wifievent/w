@@ -134,7 +134,7 @@ license you like.
 
 #include <cstring>
 #include <memory>
-
+#include <chrono>
 #pragma pack(push, 8)
 
 namespace Json {
@@ -335,6 +335,7 @@ extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
 namespace Json {
 using Int = int;
 using UInt = unsigned int;
+
 #if defined(JSON_NO_INT64)
 using LargestInt = int;
 using LargestUInt = unsigned int;
