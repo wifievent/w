@@ -7,7 +7,7 @@ void FullScan::start()
         GTRACE("scan");
         scan();
         updateDB();
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));//sleep 3s
+        std::this_thread::sleep_for(std::chrono::milliseconds(fs_time));//sleep 3s
     }
 }
 
@@ -118,4 +118,11 @@ void FullScan::delHost(std::string mac)
     WMac wmac(mac);
     std::lock_guard<std::mutex> lock(fs_map.m);
     fs_map.erase(wmac);
+}
+void FullScan::load(Json::Value& json) {
+    json["fs_time"] >> fs_time;
+}
+
+void FullScan::save(Json::Value& json) {
+    json["fs_time"] << fs_time;
 }
