@@ -12,5 +12,6 @@ public:
         static Packet packet;
         return packet;
     }
+    std::thread t;
     std::mutex m;
 };

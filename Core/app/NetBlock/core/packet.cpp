@@ -1,5 +1,4 @@
 #include "packet.h"
-
 Packet::Packet()
 {
     open();
