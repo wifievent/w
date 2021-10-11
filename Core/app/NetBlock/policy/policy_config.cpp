@@ -11,8 +11,7 @@ void policy_config::getHostListFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
-        ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
+        QColor mColor(colorList[idx % colorList.length()]);
         ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
         ui->hostList->item(idx)->setForeground(mColor);
         ui->hostList->item(idx)->setData(Qt::UserRole, stoi(iter->argv[0]));
@@ -32,13 +31,16 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
 
     getHostListFromDatabase();
 
-    int day_of_the_week = -1;
-    QTime start_time;
-    QTime end_time;
+    QTime now = QTime::currentTime();
+    int day_of_the_week = QDate::currentDate().dayOfWeek() % 7;;
+    QTime start_time = QTime(now.hour(), now.minute() - now.minute() % 10);
+    QTime end_time = start_time.addSecs(600);
     if (!policyId) {
-        day_of_the_week = indexList.constFirst().column() / 5;
-        start_time = QTime(indexList.constFirst().row() / 2, indexList.constFirst().row() * 30 % 60);
-        end_time = QTime((indexList.constLast().row() + 1) / 2, (indexList.constLast().row() + 1) * 30 % 60);
+        if (!indexList.isEmpty()) {
+            day_of_the_week = indexList.constFirst().column() / 5;
+            start_time = QTime(indexList.constFirst().row() / 2, indexList.constFirst().row() * 30 % 60);
+            end_time = QTime((indexList.constLast().row() + 1) / 2, (indexList.constLast().row() + 1) * 30 % 60);
+        }
     } else {
         ui->hostList->setDisabled(true);
         ui->dayOfTheWeekLayout->setDisabled(true);
