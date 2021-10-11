@@ -2,8 +2,7 @@
 #include "net/wrtm.h"
 #include "net/packet/wpacket.h"
 #include "net/wintflist.h"
-
-#include <x86_64-linux-gnu/curl/curl.h>
+#include "base/wobj.h"
 #include <typeinfo>
 #include <iostream>
 #include <stdio.h>
@@ -13,7 +12,6 @@
 #include <time.h>
 #include <mutex>
 #include <sys/time.h>
-
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -31,8 +29,6 @@ struct Host {
   bool isConnected() {
       struct timeval now;
       gettimeofday(&now, NULL);
-      gtrace("%d",now.tv_sec);
-      gtrace("%d",last.tv_sec);
       return now.tv_sec - last.tv_sec < 60;
   }
 };

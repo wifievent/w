@@ -24,13 +24,13 @@ SOURCES += \
     core/core.cpp \
     core/fullscan.cpp \
     core/netblock.cpp \
-    core/oui.cpp \
     core/packet.cpp \
     core/parser.cpp \
     main.cpp
 
 
 HEADERS += \
+    core/oui.h \
     device/devicewidget.h \
     device/dinfo.h \
     policy/policy.h \
@@ -42,7 +42,6 @@ HEADERS += \
     core/core.h \
     core/fullscan.h \
     core/netblock.h \
-    core/oui.h \
     core/packet.h \
     core/parser.h \
     core/pch.h \

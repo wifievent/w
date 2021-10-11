@@ -1,11 +1,4 @@
-#pragma once
+#ifndef OUI_H
+#define OUI_H
 
-#include "pch.h"
-
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-std::string UrlEncode(const std::string &s);
-QString oui_db(WMac mac);
+#endif // OUI_H
