@@ -11,26 +11,27 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
     struct tm* t;
 
     while(end_check) {
+        //GTRACE("%d",nb_map.size());
+        std::lock_guard<std::mutex> lock(m);
         if(nb_map.size() == 0) { continue; }
-        {
-            std::lock_guard<std::mutex> lock(m);
-            for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-                if(fs_instance.isConnect(std::string(iter->first))){//full-scan & policy
-                    timer = time(NULL);
-                    t = localtime(&timer);
+        for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
+            GTRACE("1: %d",nb_map.size());
+            if(fs_instance.isConnect(std::string(iter->first))){//full-scan & policy
+                GTRACE("2 : %d",nb_map.size());
+                timer = time(NULL);
+                t = localtime(&timer);
 
-                    GTRACE("<sendarp>");
-                    GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
-                    GTRACE("%s",std::string(iter->first).data());
-                    GTRACE("%s",std::string((iter->second).ip_).data());
+                GTRACE("<sendarp>");
+                GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
+                GTRACE("%s",std::string(iter->first).data());
+                GTRACE("%s",std::string((iter->second).ip_).data());
 
-                    {
-                        std::lock_guard<std::mutex> lock(packet_instance.m);
-                        infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
-                    }
-                    infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                    infect_packet.send(3);
+                {
+                    std::lock_guard<std::mutex> lock(packet_instance.m);
+                    infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
                 }
+                infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
+                infect_packet.send(3);
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(nb_time));//sleep 30s
@@ -62,8 +63,6 @@ void NetBlock::getBlockHostMap()
         }
         new_nb_map.insert(std::pair<WMac, Host>(g.mac_, g));
     }
-    Data_List::list_free(d1);
-    Data_List::list_free(d2);
 }
 
 void NetBlock::updateMap()
@@ -74,24 +73,25 @@ void NetBlock::updateMap()
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
-
-        if(t->tm_min % 10 != 0 || t->tm_sec != 0) {
+        int cnt = 0;
+        if(t->tm_min % db_min != 0 || t->tm_sec != 0) {
             continue;
         }
+        if(cnt++ == 0) {
+            GTRACE("updateMap: h: %d, m: %d, s: %d", t->tm_hour, t->tm_min, t->tm_sec);
+            getBlockHostMap();//update NBmap
 
-        GTRACE("updateMap: h: %d, m: %d, s: %d", t->tm_hour, t->tm_min, t->tm_sec);
-        getBlockHostMap();//update NBmap
-
-        for(std::map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
-            if(new_nb_map.find(iter_old->first) == new_nb_map.end()) { //finish policy
-                sendRecover(iter_old->second);
+            for(std::map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
+                if(new_nb_map.find(iter_old->first) == new_nb_map.end()) { //finish policy
+                    sendRecover(iter_old->second);
+                }
             }
-        }
-        {
-            std::lock_guard<std::mutex> lock(m);
-            if(new_nb_map.size() > 0) {
-                nb_map.clear();
-                nb_map.swap(new_nb_map);
+            {
+                std::lock_guard<std::mutex> lock(m);
+                if(new_nb_map.size() > 0) {
+                    nb_map.clear();
+                    nb_map.swap(new_nb_map);
+                }
             }
         }
     }
@@ -99,8 +99,10 @@ void NetBlock::updateMap()
 
 void NetBlock::load(Json::Value& json) {
     json["nb_time"] >> nb_time;
+    json["db_min"] >> db_min;
 }
 
 void NetBlock::save(Json::Value& json) {
     json["nb_time"] << nb_time;
+    json["db_min"] << db_min;
 }

@@ -13,7 +13,7 @@ private:
     };
     FSMap fs_map;
     Packet& packet_instance = Packet::getInstance();
-    int fs_time = 3000;
+    int fs_time = 10000;
     FullScan(){};
     ~FullScan(){};
 public:

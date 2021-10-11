@@ -2,7 +2,7 @@
 
 //  동적할당한 메모리 해제함수
 void Data_List::list_free(std::list<Data_List> data) {
-
+    (void)data;
 }
 
 //  DB_Connect 생성자

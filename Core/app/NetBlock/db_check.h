@@ -1,7 +1,6 @@
 #include "base/db-connect.h"
 
 int dbCheck() {
-    
     DB_Connect& db_connect = DB_Connect::getInstance();
     if(db_connect.rc != SQLITE_OK) {
         GTRACE("DB_open Error");
