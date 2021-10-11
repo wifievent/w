@@ -6,10 +6,10 @@ INCLUDEPATH *= $${PWD}/src
 #
 # link library
 #
-LIBS *= -L$${PWD}/bin -lw -pthread -lsqlite3
+LIBS *= -L$${PWD}/bin -lw -pthread
 
 !CONFIG(W_BUILD) {
-	PRE_TARGETDEPS *= $${PWD}/bin/libw.a
+   PRE_TARGETDEPS *= $${PWD}/bin/libw.a
 }
 
 #
@@ -23,20 +23,16 @@ macx: DEFINES *= WOS_MAC
 # pcap
 #
 win32 {
-	INCLUDEPATH *= $${PWD}/../npcap/include
-	LIBS *= -L$${PWD}/../npcap/Lib/x64
-	LIBS *= -lwpcap -lpacket -lws2_32 -liphlpapi
+        INCLUDEPATH *= $${PWD}/../../npcap/include
+        LIBS *= -L$${PWD}/../../npcap/Lib/x64
+        LIBS *= -lwpcap -lpacket -lws2_32 -liphlpapi
 }
 
-linux: LIBS *= -lpcap
 
-#
-# sqlite
-#
-#win32 {
-#	INCLUDEPATH *= $${PWD}/../npcap/include
-#	LIBS *= -L$${PWD}/../npcap/Lib/x64
-#	LIBS *= -lwpcap -lpacket -lws2_32 -liphlpapi
-#}
+linux: LIBS *= -lpthread -ldl -lpcap
 
-linux: LIBS *= -lsqlite3 -lpthread -ldl
+win32: LIBS += -L$$PWD/../../curl/lib/ -lcurl
+
+INCLUDEPATH += $$PWD/../../curl/include
+DEPENDPATH += $$PWD/../../curl/include
+
