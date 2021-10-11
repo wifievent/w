@@ -33,7 +33,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 }
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30000));//sleep 30s
+        std::this_thread::sleep_for(std::chrono::milliseconds(nb_time));//sleep 30s
     }
 }
 
@@ -95,4 +95,12 @@ void NetBlock::updateMap()
             }
         }
     }
+}
+
+void NetBlock::load(Json::Value& json) {
+    json["nb_time"] >> nb_time;
+}
+
+void NetBlock::save(Json::Value& json) {
+    json["nb_time"] << nb_time;
 }

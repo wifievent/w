@@ -4,7 +4,7 @@
 #include "packet.h"
 #include "base/db-connect.h"
 
-class FullScan
+class FullScan : WObj
 {
 private:
     class FSMap : public std::map<WMac, Host> {
@@ -13,6 +13,7 @@ private:
     };
     FSMap fs_map;
     Packet& packet_instance = Packet::getInstance();
+    int fs_time = 3000;
     FullScan(){};
     ~FullScan(){};
 public:
@@ -30,4 +31,6 @@ public:
     void addHost(std::pair<WMac,Host> host);
     bool isConnect(std::string mac);
     void delHost(std::string mac);
+    void load(Json::Value& json) override;
+    void save(Json::Value& json) override;
 };
