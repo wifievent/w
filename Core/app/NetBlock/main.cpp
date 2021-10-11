@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     core.start();
     QApplication a(argc, argv);
     NetBlock_UI w;
+    w.readSettings();
     w.show();
     a.exec();
     core.stop();
