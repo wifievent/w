@@ -2,6 +2,7 @@
 #include "net/wrtm.h"
 #include "net/packet/wpacket.h"
 #include "net/wintflist.h"
+#include "base/wobj.h"
 #include <x86_64-linux-gnu/curl/curl.h>
 #include <typeinfo>
 #include <iostream>

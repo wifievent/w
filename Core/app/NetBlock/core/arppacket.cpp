@@ -34,6 +34,14 @@ void ARPPacket::send(int cnt)
     wpacket.buf_.size_ = sizeof(EthArp);
     for(int i =0; i<cnt; i++) {
         packet_instance.write(wpacket.buf_);
-        std::this_thread::sleep_for(std::chrono::milliseconds(3));
+        std::this_thread::sleep_for(std::chrono::milliseconds(send_time));
     }
+}
+
+void ARPPacket::load(Json::Value& json) {
+    json["send_time"] >> send_time;
+}
+
+void ARPPacket::save(Json::Value& json) {
+    json["send_time"] << send_time;
 }
