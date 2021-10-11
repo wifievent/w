@@ -54,7 +54,7 @@ void DeviceWidget::slotSelectionChanged()
 void DeviceWidget::setDevInfo()
 {
     std::list<Data_List> dl;
-    dl = db_connect.select_query("SELECT * FROM host");
+    dl = db_connect.select_query("SELECT * FROM host ORDER BY last_ip");
 
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         dInfo tmp;

@@ -14,11 +14,13 @@ class NetBlock_UI : public QMainWindow
 public:
     NetBlock_UI(QWidget *parent = nullptr);
     ~NetBlock_UI();
+    void readSettings();
 
 public slots:
     void receiveMac(const QString mac);
 
 private:
+    void closeEvent(QCloseEvent*);
     Ui::NetBlock *ui;
 };
 #endif // NETBLOCK_UI_H
