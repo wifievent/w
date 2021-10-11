@@ -66,7 +66,7 @@ void policy::getHostFromDatabase()
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
         QListWidgetItem *host_filter_item = new QListWidgetItem(QString::fromStdString(iter->argv[1]));
-        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        QColor mColor(colorList[idx % colorList.length()]);
         host_filter_item->setForeground(mColor);
         host_filter_item->setData(Qt::UserRole, QString::fromStdString(iter->argv[0]));
         ui->host_filter->addItem(host_filter_item);
@@ -107,12 +107,13 @@ void policy::getPolicyFromDatabase(QString where)
 void policy::setPolicyToTable()
 {
     resetPolicyTable();
+    int idx = 0;
     for (QVector<PolicyObj>::iterator iter = policyList.begin(); iter != policyList.end(); ++iter) {
         int start_hour = iter->start_time.leftRef(2).toInt();
         int start_min = iter->start_time.rightRef(2).toInt();
         int end_hour = iter->end_time.leftRef(2).toInt();
         int end_min = iter->end_time.rightRef(2).toInt();
-        QColor mColor(colorList[(iter->hostId - 1) % (colorList.length() - 1)]);
+        QColor mColor(colorList[idx % colorList.length()]);
 
         int startRow = start_hour * 2 + start_min / 30;
         int endRow = startRow + (end_hour - start_hour) * 2 + abs(end_min - start_min) / 30;
@@ -134,6 +135,7 @@ void policy::setPolicyToTable()
                                      setItmPolicy(ui->tableWidget, 0, iter->day_of_the_week * 5, mColor, 0, iter->policyId),
                                      end_hour * 2 + end_min / 30, 1);
         }
+        idx++;
     }
 }
 

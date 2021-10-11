@@ -11,7 +11,7 @@ void policy_config::getHostListFromDatabase()
 
     int idx = 0;
     for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % (colorList.length() - 1)]);
+        QColor mColor(colorList[idx % colorList.length()]);
         ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
         ui->hostList->item(idx)->setForeground(mColor);
         ui->hostList->item(idx)->setData(Qt::UserRole, stoi(iter->argv[0]));
