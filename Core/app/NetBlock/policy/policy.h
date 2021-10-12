@@ -32,7 +32,7 @@ public:
     QList<QListWidgetItem *> selectedHost;
     int checkOverlapCell(int startRow, int lastRow, int columnIdx);
     void resetPolicyTable();
-    int setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor policyColor, int policyCnt, int policyId);
+    void setItmPolicy(int row, int column, QColor policyColor, int policyId);
     void getPolicyFromDatabase(QString where = "");
     void setPolicyToTable();
 
@@ -46,7 +46,7 @@ private slots:
 
 private:
     Ui::policy *ui;
-    QStringList colorList = { "#adb5bd", "#ff6b6b", "#f06595", "#cc5de8", "#845ef7", "#5c7cfa", "#339af0", "#22b8cf", "#20c997", "#51cf66", "#94d82d", "#fcc419", "#ff922b" };
+    QStringList colorList = { "#fa5252", "#be4bdb", "#4c6ef5", "#82c91e", "#ffa8a8", "#e599f7", "#91a7ff", "#c0eb75", "#c92a2a", "#862e9c", "#862e9c", "#5c940d" };
     QTimer *timer;
 };
 #endif // POLICY_H

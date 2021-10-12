@@ -18,7 +18,6 @@ std::vector<std::string> split(std::string input, char delimiter) {
 }
 
 int dbCheck() {
-    
     DB_Connect& db_connect = DB_Connect::getInstance();
     if(db_connect.rc != SQLITE_OK) {
         GTRACE("DB_open Error");
@@ -42,7 +41,7 @@ int dbCheck() {
 
     dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'block_host'");
     if(dl.size() == 0) {
-        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip, name FROM host WHERE host_id = (SELECT host_id from policy where time_id = (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time AND strftime(\"%w\", 'now', 'localtime') = day_of_the_week))");
+        db_connect.send_query("CREATE VIEW block_host as SELECT mac, last_ip, name FROM host WHERE host_id in (SELECT host_id from policy where time_id in (select time_id from time where strftime(\"%H%M\", 'now', 'localtime') BETWEEN start_time AND end_time AND strftime(\"%w\", 'now', 'localtime') = day_of_the_week))");
     }
 
     dl = db_connect.select_query("SELECT name FROM sqlite_master WHERE name = 'oui'");
