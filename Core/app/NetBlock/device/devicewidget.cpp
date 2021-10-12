@@ -59,11 +59,12 @@ void DeviceWidget::setDevInfo()
         dInfo tmp;
         tmp.host_id = stoi(iter->argv[0]);
         tmp.mac = QString::fromStdString(iter->argv[1]);
+        if(tmp.oui==nullptr)
+            tmp.oui = oui_db(tmp.mac.toStdString(), db_connect);
         tmp.last_ip = QString::fromStdString(iter->argv[2]);
         tmp.name = QString::fromStdString(iter->argv[3]);
         tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
         devices.push_back(tmp);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     Data_List::list_free(dl);
@@ -153,6 +154,7 @@ void DeviceWidget::onEditBtnClicked()
     std::string name_= dinfo.name.toStdString();
     db_connect.send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + std::to_string(dinfo.host_id));
     ui->devTable->setItem(dinfo.vectorID, 2, new QTableWidgetItem(dinfo.name));
+    devices[dinfo.vectorID].name = dinfo.name;
 }
 
 // Show the deivce info in the list
