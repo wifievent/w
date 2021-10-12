@@ -5,4 +5,5 @@
 #include "base/db-connect.h"
 
 QString oui_db(std::string, DB_Connect&);
+
 #endif
