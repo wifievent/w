@@ -32,7 +32,7 @@ public:
     QList<QListWidgetItem *> selectedHost;
     int checkOverlapCell(int startRow, int lastRow, int columnIdx);
     void resetPolicyTable();
-    int setItmPolicy(QTableWidget *tableWidget, int row, int column, QColor policyColor, int policyCnt, int policyId);
+    void setItmPolicy(int row, int column, QColor policyColor, int policyId);
     void getPolicyFromDatabase(QString where = "");
     void setPolicyToTable();
 
