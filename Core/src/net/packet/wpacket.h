@@ -54,8 +54,8 @@ public:
 
 public:
     void clear() {
-        ts_.tvSec = 0;
-        ts_.tvUsec = 0;
+        ts_.tv_sec = 0;
+        ts_.tv_usec = 0;
         buf_.clear();
         ethHdr_ = nullptr;
         arpHdr_ = nullptr;
