@@ -5,13 +5,13 @@
 class Core : WObj
 {
 private:
-    Packet& packet_instance = Packet::getInstance();
-    FullScan& fs_instance = FullScan::getInstance();
+    Packet& packetInstance = Packet::getInstance();
+    FullScan& fsInstance = FullScan::getInstance();
     NetBlock nb;
     DHCPParser dhcp;
     ARPParser arp;
     ARPPacket packet;
-    std::thread recv_, fs_scan, nb_update, infect_;
+    std::thread recv_, fsScan, nbUpdate, infect_;
     WPcapDevice device;
     WPacket packet_;
 
