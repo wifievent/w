@@ -1,5 +1,6 @@
 #include "devicewidget.h"
 #include "ui_devicewidget.h"
+#include "../core/oui.h"
 DeviceWidget::DeviceWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::DeviceWidget)
@@ -59,8 +60,7 @@ void DeviceWidget::setDevInfo()
         dInfo tmp;
         tmp.host_id = stoi(iter->argv[0]);
         tmp.mac = QString::fromStdString(iter->argv[1]);
-        if(tmp.oui==nullptr)
-            tmp.oui = oui_db(tmp.mac.toStdString(), db_connect);
+        tmp.oui = oui_db(tmp.mac.toStdString(), db_connect);
         tmp.last_ip = QString::fromStdString(iter->argv[2]);
         tmp.name = QString::fromStdString(iter->argv[3]);
         tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
@@ -168,6 +168,7 @@ void DeviceWidget::on_devTable_cellClicked(int row, int column)
     dinfo.mac = devices[row].mac;
     dinfo.last_ip = devices[row].last_ip;
     dinfo.name = devices[row].name;
+    dinfo.oui = devices[row].oui;
     dinfo.vectorID = row;
 
     setListWidgetItem("OUI");
