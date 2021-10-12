@@ -9,7 +9,7 @@ private:
     FullScan& fs_instance = FullScan::getInstance();
     std::mutex m;
     int nbTime = 10000;
-    int dbMin = 5;
+    int dbMin = 1;
 public:
     bool end_check = true;
     NetBlock(){};

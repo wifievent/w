@@ -75,7 +75,7 @@ void NetBlock::updateMap()
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
-        if(t->tm_min % 1 != 0 || t->tm_sec != 0) {
+        if(t->tm_min % dbMin != 0 || t->tm_sec != 0) {
             cnt = 0;
             continue;
         }
