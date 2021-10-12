@@ -1,19 +1,17 @@
 #pragma once
 #include "fullscan.h"
-#include "pch.h"
 
 class NetBlock : WObj
 {
 private:
     std::map<WMac,Host> nbMap, newNbMap;
     FullScan& fsInstance = FullScan::getInstance();
+    Packet& packet_instance = Packet::getInstance();
     std::mutex m;
     int nbTime = 10000;
     int dbMin = 1;
+    int sendRecoverNum = 3;
 public:
-    bool end_check = true;
-    NetBlock(){};
-    ~NetBlock(){};
     enum Week{
         Sunday = 0,
         Monday = 1,
@@ -23,8 +21,15 @@ public:
         Friday = 5,
         Saturday = 6,
     };
+    int sendInfectNum = 3;
+    bool end_check = true;
+    NetBlock(){};
+    ~NetBlock(){};
+
     void sendInfect();//no sleep
     void sendRecover(Host host);
+    void sendRelay(WPacket& packet);
+
     void getBlockHostMap();
     void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
     std::map<WMac, Host> getNbMap() { return nbMap; }

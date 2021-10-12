@@ -57,6 +57,5 @@ int dbCheck() {
             db_connect.send_query(q);
         }
     }
-    Data_List::list_free(dl);
     return 0;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "fullscan.h"
+#include "netblock.h"
 #include "packet.h"
 
 class Parser
@@ -10,6 +10,7 @@ public:
     FullScan& fs = FullScan::getInstance();
     Packet& packet_instance = Packet::getInstance();
     Host g;
+    NetBlock nb;
     virtual bool parse(WPacket& packet) = 0;
 };
 

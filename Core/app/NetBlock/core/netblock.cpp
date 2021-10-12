@@ -4,7 +4,6 @@
 void NetBlock::sendInfect()//full-scan : is_connect & policy
 {
     std::map<WMac, Host> fs_map = fsInstance.getFsMap();
-    Packet& packet_instance = Packet::getInstance();
     ARPPacket infect_packet;
 
     time_t timer;
@@ -28,7 +27,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                     infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                infect_packet.send(1);
+                infect_packet.send(sendInfectNum);
                 GTRACE("\n!!!");
 
                 {
@@ -36,7 +35,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                     infect_packet.makeArppacket(infect_packet.gate_mac, packet_instance.intf()->mac(), infect_packet.gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                infect_packet.send(1);
+                infect_packet.send(sendInfectNum);
                 GTRACE("\n@@@");
             }
         }
@@ -48,7 +47,7 @@ void NetBlock::sendRecover(Host host)
 {
     ARPPacket recover_packet;
     recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
-    recover_packet.send(3);
+    recover_packet.send(sendRecoverNum);
 }
 
 void NetBlock::getBlockHostMap()
@@ -99,12 +98,23 @@ void NetBlock::updateMap()
     }
 }
 
+void NetBlock::sendRelay(WPacket& packet)
+{
+    if(packet.ethHdr_->smac()==packet.ethHdr_->dmac()) {
+        packet_instance.write(&packet);
+    }
+}
+
 void NetBlock::load(Json::Value& json) {
     json["nb_time"] >> nbTime;
     json["db_min"] >> dbMin;
+    json["sendInfectNum"] >> sendInfectNum;
+    json["sendRecoverNum"] >> sendRecoverNum;
 }
 
 void NetBlock::save(Json::Value& json) {
     json["nb_time"] << nbTime;
     json["db_min"] << dbMin;
+    json["sendInfectNum"] << sendInfectNum;
+    json["sendRecoverNum"] << sendRecoverNum;
 }

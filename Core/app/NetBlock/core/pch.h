@@ -27,10 +27,11 @@ struct Host {
   WMac mac_;
   WIp ip_;
   struct timeval last;
+  int connect_time = 180;
 
   bool isConnected() {
       struct timeval now;
       gettimeofday(&now, NULL);
-      return now.tv_sec - last.tv_sec < 60;
+      return now.tv_sec - last.tv_sec < connect_time;
   }
 };
