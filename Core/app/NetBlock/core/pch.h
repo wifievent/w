@@ -31,6 +31,6 @@ struct Host {
   bool isConnected() {
       struct timeval now;
       gettimeofday(&now, NULL);
-      return now.tv_sec - last.tv_sec < 60;
+      return now.tvSec - last.tvSec < 60;
   }
 };
