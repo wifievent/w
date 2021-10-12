@@ -57,7 +57,7 @@ void FullScan::scan()
     for(uint32_t ip = beginIp; ip != endIp; ++ip) {
         if(WIp(ip) == gateway) { continue; }
         arp_packet.packet.arp.tip_ = htonl(WIp(ip));
-        arp_packet.send(3);//send packet
+        arp_packet.send(1);//send packet
     }
 }
 
