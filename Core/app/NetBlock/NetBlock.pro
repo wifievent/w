@@ -22,6 +22,7 @@ SOURCES += \
     netblock_ui.cpp \
     core/arppacket.cpp \
     core/core.cpp \
+    core/oui.cpp \
     core/fullscan.cpp \
     core/netblock.cpp \
     core/packet.cpp \
