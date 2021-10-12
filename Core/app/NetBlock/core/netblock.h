@@ -8,7 +8,8 @@ private:
     std::map<WMac,Host> nb_map, new_nb_map;
     FullScan& fs_instance = FullScan::getInstance();
     std::mutex m;
-    int nb_time = 30000;
+    int nbTime = 10000;
+    int dbMin = 5;
 public:
     bool end_check = true;
     NetBlock(){};
