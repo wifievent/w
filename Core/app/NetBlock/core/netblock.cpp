@@ -3,7 +3,7 @@
 
 void NetBlock::sendInfect()//full-scan : is_connect & policy
 {
-    std::map<WMac, Host> fs_map = fs_instance.getFsMap();
+    std::map<WMac, Host> fs_map = fsInstance.getFsMap();
     Packet& packet_instance = Packet::getInstance();
     ARPPacket infect_packet;
 
@@ -12,9 +12,9 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
     while(end_check) {
         std::lock_guard<std::mutex> lock(m);
-        if(nb_map.size() == 0) { continue; }
-        for(std::map<WMac,Host>::iterator iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
-            if(fs_instance.isConnect(std::string(iter->first))){//full-scan & policy
+        if(nbMap.size() == 0) { continue; }
+        for(std::map<WMac,Host>::iterator iter = nbMap.begin(); iter != nbMap.end(); ++iter) {
+            if(fsInstance.isConnect(std::string(iter->first))){//full-scan & policy
                 timer = time(NULL);
                 t = localtime(&timer);
 
@@ -56,14 +56,14 @@ void NetBlock::getBlockHostMap()
     DB_Connect& db_connect = DB_Connect::getInstance();
     Host g;
     std::list<Data_List> d1;
-    new_nb_map.clear();
+    newNbMap.clear();
 
     d1 = db_connect.select_query("SELECT * FROM block_host");
     for(std::list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
         g.mac_ = WMac(iter2->argv[0]);
         g.ip_ = WIp(iter2->argv[1]);
         g.name = iter2->argv[2];
-        new_nb_map.insert(std::pair<WMac, Host>(g.mac_, g));
+        newNbMap.insert(std::pair<WMac, Host>(g.mac_, g));
     }
 }
 
@@ -83,16 +83,16 @@ void NetBlock::updateMap()
             GTRACE("\n<updateMap: h: %d, m: %d, s: %d>", t->tm_hour, t->tm_min, t->tm_sec);
             getBlockHostMap();//update NBmap
 
-            for(std::map<WMac, Host>::iterator iter_old = nb_map.begin(); iter_old != nb_map.end(); ++iter_old) {
-                if(new_nb_map.find(iter_old->first) == new_nb_map.end()) { //finish policy
+            for(std::map<WMac, Host>::iterator iter_old = nbMap.begin(); iter_old != nbMap.end(); ++iter_old) {
+                if(newNbMap.find(iter_old->first) == newNbMap.end()) { //finish policy
                     sendRecover(iter_old->second);
                 }
             }
             {
                 std::lock_guard<std::mutex> lock(m);
-                if(new_nb_map.size() > 0) {
-                    nb_map.clear();
-                    nb_map.swap(new_nb_map);
+                if(newNbMap.size() > 0) {
+                    nbMap.clear();
+                    nbMap.swap(newNbMap);
                 }
             }
         }

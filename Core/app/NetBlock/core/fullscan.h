@@ -11,9 +11,9 @@ private:
     public:
         std::mutex m;
     };
-    FSMap fs_map;
-    Packet& packet_instance = Packet::getInstance();
-    int fs_time = 10000;
+    FSMap fsMap;
+    Packet& packetInstance = Packet::getInstance();
+    int fsTime = 10000;
     FullScan(){};
     ~FullScan(){};
 public:
@@ -26,7 +26,7 @@ public:
     void start();
     void scan();
     void updateDB();
-    std::map<WMac,Host>& getFsMap(){ return fs_map; }
+    std::map<WMac,Host>& getFsMap(){ return fsMap; }
     void updateHostInfo(WMac mac_, WIp ip_, struct timeval last_);
     void addHost(std::pair<WMac,Host> host);
     bool isConnect(std::string mac);
