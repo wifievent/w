@@ -22,6 +22,4 @@ public:
     void start();//fullscan(connection) -> receive_packet
     void stop();//program end
     void receivePacket();
-    void load(Json::Value& json) override;
-    void save(Json::Value& json) override;
 };

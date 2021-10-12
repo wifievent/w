@@ -14,4 +14,6 @@ public:
     }
     std::thread t;
     std::mutex m;
+    void load(Json::Value& json) override;
+    void save(Json::Value& json) override;
 };

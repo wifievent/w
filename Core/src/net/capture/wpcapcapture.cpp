@@ -75,7 +75,7 @@ WPacket::Result WPcapCapture::write(WBuf buf) {
 WPacket::Result WPcapCapture::write(WPacket* packet) {
 	// qDebug() << packet->buf_.size_; // gilgil temp 2021.07.12
 	WPacket::Result res;
-    gtrace("%d",mtu_);
+    gtrace("mtu_ : %d",mtu_);
 	if (mtu_ != 0 && packet->buf_.size_ > sizeof(WEthHdr) + mtu_ && packet->tcpHdr_ != nullptr)
 		res = writeMtuSplit(packet, mtu_);
 	else

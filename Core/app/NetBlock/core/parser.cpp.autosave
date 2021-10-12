@@ -79,7 +79,6 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     if(packet.ethHdr_->smac() == my_mac) {
         if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
             GTRACE("\n\nWOWOWOW");
-            packet_instance.mtu_ = 1500;
             packet_instance.write(&packet);
         }
         return false;

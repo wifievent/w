@@ -5,16 +5,16 @@ Core::Core()
 
     if(WJson::loadFromFile("netblock.json",jv)){
 
-        load(jv["core"]);
+        packetInstance.load(jv["packet"]);
         fsInstance.load(jv["fs"]);
         nb.load(jv["nb"]);
-        packet.load(jv["packet"]);
+        packet.load(jv["arppacket"]);
     }
 
-    save(jv["core"]);
+    packetInstance.save(jv["packet"]);
     fsInstance.save(jv["fs"]);
     nb.save(jv["nb"]);
-    packet.save(jv["packet"]);
+    packet.save(jv["arppacket"]);
     WJson::saveToFile("netblock.json",jv);
 };
 
@@ -34,13 +34,11 @@ void Core::receivePacket()//every packet receiving
         std::lock_guard<std::mutex> lock(packetInstance.m);
         my_mac = packetInstance.intf()->mac();
     }
+    packetInstance.mtu_ = 1500;
     while(end_check) {
         if(packetInstance.read(&packet_) == WPacket::Result::Ok){ //if packet is ok
-            if(packet_.ethHdr_->smac() != my_mac) { // packet I sent
-                dhcp.parse(packet_);
-                arp.parse(packet_, nb.getNbMap());
-                nb.sendRelay(packet_);
-            }
+            arp.parse(packet_, nb.getNbMap());
+            dhcp.parse(packet_);
         }
     }
 }
@@ -59,12 +57,4 @@ void Core::stop()
     infect_.join();
 }
 
-void Core::load(Json::Value& json)
-{
-    device << json["pcapDevice"];
-}
 
-void Core::save(Json::Value& json)
-{
-    device >> json["pcapDevice"];
-}

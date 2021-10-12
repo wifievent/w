@@ -14,7 +14,7 @@ private:
 
     FSMap fsMap;
     Packet& packetInstance = Packet::getInstance();
-    int fsTime = 10000;
+    int fsTime = 30000;
     int sendCountPerIp = 3;
     int sendCountForNextIp = 10;
 
