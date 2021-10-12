@@ -24,7 +24,7 @@ void FullScan::setHostMap()
 
         struct timeval now;
         gettimeofday(&now, NULL);
-        now.tvSec -= 60;
+        now.tv_sec -= 60;
         g.last = now;
 
         std::lock_guard<std::mutex> lock(fsMap.m);
