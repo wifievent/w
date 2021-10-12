@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
     Core core;
     core.start();
     QApplication a(argc, argv);
+    QIcon icon(":/image/logo/logo.ico");
+    a.setWindowIcon(icon);
     NetBlock_UI w;
     w.readSettings();
     w.show();
