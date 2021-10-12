@@ -7,6 +7,8 @@ LIBS += -lcurl
 CONFIG += c++11
 include(../../w.pri)
 DESTDIR = $${PWD}/../../bin
+RESOURCES = image.qrc
+win32:RC_ICONS += logo.ico
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -58,3 +60,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    image.qrc
