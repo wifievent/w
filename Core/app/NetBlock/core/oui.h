@@ -1,11 +1,6 @@
 #pragma once
 
 #include "pch.h"
+#include "base/db-connect.h"
 
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-std::string UrlEncode(const std::string &s);
-QString oui_db(WMac mac);
+QString oui_db(std::string, DB_Connect&);
