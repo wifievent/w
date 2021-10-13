@@ -2,6 +2,35 @@
 #include "ui_policy.h"
 #include "policyconfig.h"
 
+Policy::Policy(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::Policy)
+{
+    ui->setupUi(this);
+
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    ui->tableWidget->resizeRowsToContents();
+
+    ui->addButton->setDisabled(true);
+    ui->editButton->setDisabled(true);
+    ui->deleteButton->setDisabled(true);
+
+    timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(getHostListFromDatabase()));
+    timer->start(10000);
+
+    getHostListFromDatabase();
+    getPolicyFromDatabase();
+    setPolicyToTable();
+}
+
+Policy::~Policy()
+{
+    delete ui;
+}
+
 void Policy::resetPolicyTable()
 {
     for(int i = 0; i < ui->tableWidget->rowCount(); i++) {
@@ -19,6 +48,7 @@ void Policy::setItmPolicy(int row, int column, int policyId, int span)
         ui->tableWidget->setSpan(row, column, span, 1);
 
     QTableWidgetItem *itm = new QTableWidgetItem();
+    itm->setBackground(Qt::gray);
     ui->tableWidget->setItem(row, column, itm);
     itm->setData(Qt::UserRole, policyId);
 }
@@ -90,16 +120,7 @@ void Policy::openPolicyConfig()
 {
     PolicyConfig *policyConfig;
     QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
-    if (!indexList.isEmpty()) {
-        QTableWidgetItem *firstItem = ui->tableWidget->item(indexList.constFirst().row(), indexList.constFirst().column());
-        if (firstItem == nullptr) {
-            policyConfig = new PolicyConfig(indexList);
-        } else {
-            policyConfig = new PolicyConfig(indexList, firstItem->data(Qt::UserRole).toInt());
-        }
-    } else {
-        policyConfig = new PolicyConfig(indexList);
-    }
+    policyConfig = new PolicyConfig(indexList, selectedPolicyId);
 
     policyConfig->setModal(true);
 
@@ -112,49 +133,60 @@ void Policy::openPolicyConfig()
     }
 }
 
-Policy::Policy(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Policy)
+void Policy::on_hostFilter_activated()
 {
-    ui->setupUi(this);
-
-    ui->splitter->setStretchFactor(0, 5);
-    ui->splitter->setStretchFactor(1, 1);
-
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tableWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);
-    ui->tableWidget->resizeRowsToContents();
-
-    timer = new QTimer(this);
-
-    connect(timer, SIGNAL(timeout()), this, SLOT(getHostListFromDatabase()));
-    timer->start(10000);
-
-    getHostListFromDatabase();
-    getPolicyFromDatabase();
+    selectedHostId = ui->hostFilter->currentData().toInt();
+    hostFilterCondition = "WHERE h.host_id=" + QString::number(selectedHostId);
+    getPolicyFromDatabase(hostFilterCondition);
     setPolicyToTable();
 }
 
-Policy::~Policy()
-{
-    delete ui;
-}
 
-void Policy::on_addPolicyButton_clicked()
+void Policy::on_addButton_clicked()
 {
     openPolicyConfig();
 }
 
-void Policy::on_tableWidget_cellDoubleClicked()
+
+void Policy::on_editButton_clicked()
 {
     openPolicyConfig();
 }
 
-void Policy::on_hostFilter_activated(int index)
+void Policy::on_deleteButton_clicked()
 {
-    selectedHostId = ui->hostFilter->currentData().toInt();
-    QString hostFilterCondition = "WHERE h.host_id=" + QString::number(selectedHostId);
-        getPolicyFromDatabase(hostFilterCondition);
-        setPolicyToTable();
+    QString query = "DELETE FROM policy WHERE policy_id=" + QString::number(selectedPolicyId);
+    dbConnect.send_query(query.toStdString());
+    getPolicyFromDatabase(hostFilterCondition);
+    setPolicyToTable();
+    ui->tableWidget->clearSelection();
+}
+
+
+void Policy::on_tableWidget_itemSelectionChanged()
+{
+    QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
+    if (indexList.size() > 1 && indexList.constFirst().column() != indexList.constLast().column()) {
+        ui->tableWidget->clearSelection();
+    }
+    if (!indexList.isEmpty()) {
+        ui->addButton->setDisabled(false);
+
+        QTableWidgetItem *firstItem = ui->tableWidget->item(indexList.constFirst().row(), indexList.constFirst().column());
+        if (firstItem != nullptr) {
+            selectedPolicyId = firstItem->data(Qt::UserRole).toInt();
+            ui->editButton->setDisabled(false);
+            ui->deleteButton->setDisabled(false);
+            return;
+        }
+        selectedPolicyId = 0;
+        ui->editButton->setDisabled(true);
+        ui->deleteButton->setDisabled(true);
+        return;
+    }
+    selectedPolicyId = 0;
+    ui->addButton->setDisabled(true);
+    ui->editButton->setDisabled(true);
+    ui->deleteButton->setDisabled(true);
 }
 

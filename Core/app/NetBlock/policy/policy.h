@@ -29,6 +29,8 @@ public:
     PolicyObj policyObj;
     QVector<PolicyObj> policyList;
     int selectedHostId = 0;
+    int selectedPolicyId = 0;
+    QString hostFilterCondition = "";
 
     void resetPolicyTable();
     void setItmPolicy(int row, int column, int policyId, int span);
@@ -36,11 +38,17 @@ public:
     void setPolicyToTable();
 
 private slots:
-    void on_addPolicyButton_clicked();
-    void on_tableWidget_cellDoubleClicked();
     void openPolicyConfig();
     void getHostListFromDatabase();
-    void on_hostFilter_activated(int index);
+    void on_hostFilter_activated();
+
+    void on_addButton_clicked();
+
+    void on_editButton_clicked();
+
+    void on_deleteButton_clicked();
+
+    void on_tableWidget_itemSelectionChanged();
 
 private:
     Ui::Policy *ui;

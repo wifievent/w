@@ -6,6 +6,7 @@
 #include <QtWidgets>
 #include <QDebug>
 #include "policyobj.h"
+#include "base/db-connect.h"
 
 namespace Ui {
 class PolicyConfig;
@@ -16,10 +17,11 @@ class PolicyConfig : public QDialog
     Q_OBJECT
 
 public:
-    explicit PolicyConfig(QModelIndexList indexList, int policyId = 0, QDialog *parent = nullptr);
+    explicit PolicyConfig(QModelIndexList indexList, int policyId, QDialog *parent = nullptr);
     ~PolicyConfig();
 
     PolicyObj policy_obj;
+    DB_Connect& dbConnect = DB_Connect::getInstance();
 
     void getHostListFromDatabase();
 

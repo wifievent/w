@@ -1,23 +1,5 @@
 #include "policyconfig.h"
 #include "ui_policyconfig.h"
-#include "base/db-connect.h"
-
-void PolicyConfig::getHostListFromDatabase()
-{
-    DB_Connect& dbConnect = DB_Connect::getInstance();
-
-    std::list<Data_List> dl;
-    dl = dbConnect.select_query("SELECT host_id, name FROM host");
-
-    int idx = 0;
-    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
-        QColor mColor(colorList[(stoi(iter->argv[0]) - 1) % colorList.length()]);
-        ui->hostList->addItem(QString::fromStdString(iter->argv[1]));
-        ui->hostList->item(idx)->setBackground(mColor);
-        ui->hostList->item(idx)->setData(Qt::UserRole, stoi(iter->argv[0]));
-        idx++;
-    }
-}
 
 PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *parent) :
     QDialog(parent),
@@ -39,19 +21,20 @@ PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *par
     QTime start_time = QTime(now.hour(), now.minute() - now.minute() % 10);
     QTime end_time = start_time.addSecs(600);
     if (!policyId) {
-        if (!indexList.isEmpty()) {
-            day_of_the_week = indexList.constFirst().column() / 5;
-            start_time = QTime(indexList.constFirst().row() / 2, indexList.constFirst().row() * 30 % 60);
-            end_time = QTime((indexList.constLast().row() + 1) / 2, (indexList.constLast().row() + 1) * 30 % 60);
-        }
+        day_of_the_week = indexList.constFirst().column();
+        start_time = QTime(indexList.constFirst().row(), 0);
+        end_time = QTime(indexList.constLast().row() + 1, 0);
     } else {
         ui->hostList->setDisabled(true);
         ui->dayOfTheWeekLayout->setDisabled(true);
         ui->deleteButton->setDisabled(false);
 
-        DB_Connect& dbConnect = DB_Connect::getInstance();
         std::list<Data_List> dl;
-        dl = dbConnect.select_query("SELECT p.host_id, t.start_time, t.end_time, t.day_of_the_week FROM policy AS p JOIN time AS t ON t.time_id=p.time_id WHERE p.policy_id= " + QString::number(policyId).toStdString());
+        dl = dbConnect.select_query("SELECT p.host_id, t.start_time, t.end_time, t.day_of_the_week \
+                                    FROM policy AS p \
+                                        JOIN time AS t \
+                                        ON t.time_id=p.time_id \
+                                    WHERE p.policy_id= " + QString::number(policyId).toStdString());
 
         for (std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
             day_of_the_week = stoi(iter->argv[3]);
@@ -90,6 +73,21 @@ PolicyConfig::~PolicyConfig()
     delete ui;
 }
 
+void PolicyConfig::getHostListFromDatabase()
+{
+    std::list<Data_List> dl;
+    dl = dbConnect.select_query("SELECT host_id, name FROM host");
+
+    for(std::list<Data_List>::iterator iter = dl.begin(); iter != dl.end(); ++iter) {
+        int hostId = stoi(iter->argv[0]);
+        QString name = QString::fromStdString(iter->argv[1]);
+
+        QListWidgetItem *hostListItem = new QListWidgetItem(name);
+        hostListItem->setData(Qt::UserRole, hostId);
+        ui->hostList->addItem(hostListItem);
+    }
+}
+
 void PolicyConfig::on_applyButton_clicked()
 {
     int policy_id = this->windowTitle().toInt();
@@ -106,7 +104,6 @@ void PolicyConfig::on_applyButton_clicked()
     QList<QListWidgetItem *> selected_host_list = ui->hostList->selectedItems();
 
     std::list<Data_List> dl;
-    DB_Connect& dbConnect = DB_Connect::getInstance();
 
     int time_id = 0;
 
@@ -202,7 +199,6 @@ void PolicyConfig::on_hostList_itemSelectionChanged()
 void PolicyConfig::on_deleteButton_clicked()
 {
     int policy_id = this->windowTitle().toInt();
-    DB_Connect& dbConnect = DB_Connect::getInstance();
     QString query = "DELETE FROM policy WHERE policy_id=" + QString::number(policy_id);
     dbConnect.send_query(query.toStdString());
     accept();
