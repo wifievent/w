@@ -36,19 +36,15 @@ public:
     void setItmPolicy(int row, int column, int policyId, int span);
     void getPolicyFromDatabase(QString where = "");
     void setPolicyToTable();
+    void getHostListFromDatabase();
+    void openPolicyConfig();
 
 private slots:
-    void openPolicyConfig();
-    void getHostListFromDatabase();
-    void on_hostFilter_activated();
-
     void on_addButton_clicked();
-
     void on_editButton_clicked();
-
     void on_deleteButton_clicked();
-
     void on_tableWidget_itemSelectionChanged();
+    void on_hostFilter_currentIndexChanged(int index);
 
 private:
     Ui::Policy *ui;
