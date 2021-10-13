@@ -54,34 +54,33 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
 
     ARPPacket arppacket_;
     if(packet.ethHdr_->type() != WEthHdr::Arp) { return false; }
-    if(packet.arpHdr_->sip() == arppacket_.gate_ip){
+    GTRACE("MAC = %s, IP = %s",std::string(packet.ethHdr_->smac()).data(),std::string(packet.arpHdr_->sip()).data());
+    if(packet.arpHdr_->sip() == arppacket_.gate_ip) {
         nbInstance.setGateMac(packet.ethHdr_->smac());
         GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
         return false;
     }
 
     //relay
-    if(packet.ethHdr_->dmac() == my_mac) {
-        if(packet.arpHdr_->tip() == gateway) { //packet from target
-            #ifdef Q_OS_WIN
-            if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
-                packet.ethHdr_->dmac() = nbInstance.getGateMac();
-                packet_instance.write(&packet);
-            }
-            #endif
-            #ifdef Q_OS_LINUX
-            if(nbInstance.nbMap.find(packet.ethHdr_->smac()) == nbInstance.nbMap.end()) {//not infection target
-                GTRACE("\n\nWOWOWOW");
-                packet.ethHdr_->dmac() = nbInstance.getGateMac();
-                packet_instance.write(&packet);
-            }
-            #endif
+    if(packet.ethHdr_->dmac() == my_mac && packet.arpHdr_->tip() == gateway) {
+        #ifdef Q_OS_WIN
+        if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
+            packet.ethHdr_->dmac() = nbInstance.getGateMac();
+            packet_instance.write(&packet);
         }
+        #endif
+
+        #ifdef Q_OS_LINUX
+        if(nbInstance.nbMap.find(packet.ethHdr_->smac()) == nbInstance.nbMap.end()) {//not infection target
+            GTRACE("\n\nWOWOWOW");
+            packet.ethHdr_->dmac() = nbInstance.getGateMac();
+            packet_instance.write(&packet);
+        }
+        #endif
         return false;
     }
 
     GTRACE("-----------<full scan>");
-    GTRACE("%s", std::string(packet.arpHdr_->sip()).data());
     if((packet.arpHdr_->sip() & mask) == (gateway & mask)) {
         g.mac_ = packet.arpHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
