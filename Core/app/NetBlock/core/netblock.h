@@ -34,6 +34,7 @@ public:
     void sendRecover(Host host);
     void sendRelay(WPacket& packet);
 
+
     void getBlockHostMap();
     void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
     std::map<WMac, Host> getNbMap() { return nbMap; }

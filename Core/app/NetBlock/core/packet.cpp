@@ -3,9 +3,11 @@ Packet::Packet()
 {
     open();
 }
+
 Packet::~Packet(){
     close();
 }
+
 void Packet::load(Json::Value& json)
 {
     json["pcapDevice"] >> this->intfName_;
