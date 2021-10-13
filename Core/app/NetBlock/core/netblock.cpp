@@ -4,7 +4,6 @@
 void NetBlock::sendInfect()//full-scan : is_connect & policy
 {
     std::map<WMac, Host> fs_map = fsInstance.getFsMap();
-    Packet& packet_instance = Packet::getInstance();
     ARPPacket infect_packet;
 
     time_t timer;
@@ -12,6 +11,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
     while(end_check) {
         std::lock_guard<std::mutex> lock(m);
+
         if(nbMap.size() == 0) { continue; }
         for(std::map<WMac,Host>::iterator iter = nbMap.begin(); iter != nbMap.end(); ++iter) {
             if(fsInstance.isConnect(std::string(iter->first))){//full-scan & policy
@@ -28,27 +28,26 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                     infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                infect_packet.send(1);
-                GTRACE("\n!!!");
+                infect_packet.send(sendInfectNum);
 
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
-                    infect_packet.makeArppacket(infect_packet.gate_mac, packet_instance.intf()->mac(), infect_packet.gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
+                    GTRACE("------------------gate_mac = %s---------------------\n\n",std::string(gate_mac).data());
+                    infect_packet.makeArppacket(gate_mac, packet_instance.intf()->mac(), gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                infect_packet.send(1);
-                GTRACE("\n@@@");
+                infect_packet.send(sendInfectNum);
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 30s
+        std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 10s
     }
 }
 
 void NetBlock::sendRecover(Host host)
 {
     ARPPacket recover_packet;
-    recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
-    recover_packet.send(3);
+    recover_packet.makeArppacket(host.mac_, gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
+    recover_packet.send(sendRecoverNum);
 }
 
 void NetBlock::getBlockHostMap()
@@ -61,6 +60,7 @@ void NetBlock::getBlockHostMap()
     d1 = db_connect.select_query("SELECT * FROM block_host");
     for(std::list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
         g.mac_ = WMac(iter2->argv[0]);
+        GTRACE("g.mac:%s\n\n",iter2->argv[0].data());
         g.ip_ = WIp(iter2->argv[1]);
         g.name = iter2->argv[2];
         newNbMap.insert(std::pair<WMac, Host>(g.mac_, g));
@@ -80,7 +80,7 @@ void NetBlock::updateMap()
             continue;
         }
         if(cnt++ == 0) {
-            GTRACE("\n<updateMap: h: %d, m: %d, s: %d>", t->tm_hour, t->tm_min, t->tm_sec);
+            GTRACE("<updateMap: h: %d, m: %d, s: %d>\n", t->tm_hour, t->tm_min, t->tm_sec);
             getBlockHostMap();//update NBmap
 
             for(std::map<WMac, Host>::iterator iter_old = nbMap.begin(); iter_old != nbMap.end(); ++iter_old) {
@@ -102,9 +102,13 @@ void NetBlock::updateMap()
 void NetBlock::load(Json::Value& json) {
     json["nb_time"] >> nbTime;
     json["db_min"] >> dbMin;
+    json["sendInfectNum"] >> sendInfectNum;
+    json["sendRecoverNum"] >> sendRecoverNum;
 }
 
 void NetBlock::save(Json::Value& json) {
     json["nb_time"] << nbTime;
     json["db_min"] << dbMin;
+    json["sendInfectNum"] << sendInfectNum;
+    json["sendRecoverNum"] << sendRecoverNum;
 }

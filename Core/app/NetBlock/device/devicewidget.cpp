@@ -66,8 +66,6 @@ void DeviceWidget::setDevInfo()
         tmp.is_connect = fs_instance.isConnect(tmp.mac.toStdString());
         devices.push_back(tmp);
     }
-
-    Data_List::list_free(dl);
 }
 
 // Set the device's state in the table widget

@@ -7,7 +7,7 @@ class Core : WObj
 private:
     Packet& packetInstance = Packet::getInstance();
     FullScan& fsInstance = FullScan::getInstance();
-    NetBlock nb;
+    NetBlock& nbInstance = NetBlock::getInstance();
     DHCPParser dhcp;
     ARPParser arp;
     ARPPacket packet;
@@ -22,6 +22,4 @@ public:
     void start();//fullscan(connection) -> receive_packet
     void stop();//program end
     void receivePacket();
-    void load(Json::Value& json) override;
-    void save(Json::Value& json) override;
 };
