@@ -28,6 +28,11 @@ win32 {
         LIBS *= -lwpcap -lpacket -lws2_32 -liphlpapi
 }
 
+#
+# debug and release
+#
+CONFIG(debug, debug|release) DEFINES *= _DEBUG
+CONFIG(release, debug|release) DEFINES *= _RELEASE
 
 linux: LIBS *= -lpthread -ldl -lpcap
 
