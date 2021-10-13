@@ -50,9 +50,13 @@ void Core::stop()
     for(std::map<WMac,Host>::iterator iter = fsInstance.getFsMap().begin(); iter != fsInstance.getFsMap().end(); ++iter) {
         nbInstance.sendRecover(iter->second);
     }
+    GTRACE("Before recv_.join");
     recv_.join();
+    GTRACE("Before fsScan.join");
     fsScan.join();
+    GTRACE("Before nbUpdate.join");
     nbUpdate.join();
+    GTRACE("Before infect_.join");
     infect_.join();
 }
 

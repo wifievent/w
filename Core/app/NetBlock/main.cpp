@@ -4,8 +4,21 @@
 
 #include <QApplication>
 
+const char* version()
+{
+    return
+#ifdef _DEBUG
+#include "../../version.txt"
+    " Debug Build(" __DATE__ " " __TIME__ ")";
+#else // RELEASE
+#include "../../version.txt"
+    " Release Build(" __DATE__ " " __TIME__ ")";
+#endif // _DEBUG
+}
+
 int main(int argc, char *argv[])
 {
+    GTRACE("NetBlock Started %s",version());
     dbCheck();
     Core core;
     core.start();
@@ -17,5 +30,6 @@ int main(int argc, char *argv[])
     w.show();
     a.exec();
     core.stop();
+    GTRACE("NetBlock Finished");
     return 0;
 }

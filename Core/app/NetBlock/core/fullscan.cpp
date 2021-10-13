@@ -7,7 +7,10 @@ void FullScan::start()
         GTRACE("scan");
         scan();
         updateDB();
-        std::this_thread::sleep_for(std::chrono::milliseconds(fsTime));//sleep 10s
+        for(int i =0; i<fsTime; i++){
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            if(!end_check)break;
+        }
     }
 }
 

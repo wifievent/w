@@ -71,11 +71,11 @@ void NetBlock::updateMap()
 {
     time_t timer;
     struct tm* t;
-    int cnt = 0;
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
         if(t->tm_min % dbMin != 0 || t->tm_sec != 0) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
             continue;
         }
 
@@ -94,7 +94,11 @@ void NetBlock::updateMap()
                 nbMap.swap(newNbMap);
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50000));//sleep 50s
+        for(int i = 0;i <50; i++){
+            std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
+            if(!end_check) break;
+        }
+
     }
 }
 
