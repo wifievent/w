@@ -6,7 +6,7 @@ class ARPPacket : WObj
 protected:
     Packet& packet_instance = Packet::getInstance();
     WPacket wpacket;
-    NetBlock nb;
+    NetBlock& nbInstance = NetBlock::getInstance();
     int send_time = 3;
 public:
     bool end_check = true;
