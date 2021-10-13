@@ -7,13 +7,13 @@ Core::Core()
 
         packetInstance.load(jv["packet"]);
         fsInstance.load(jv["fs"]);
-        nb.load(jv["nb"]);
+        nbInstance.load(jv["nb"]);
         packet.load(jv["arppacket"]);
     }
 
     packetInstance.save(jv["packet"]);
     fsInstance.save(jv["fs"]);
-    nb.save(jv["nb"]);
+    nbInstance.save(jv["nb"]);
     packet.save(jv["arppacket"]);
     WJson::saveToFile("netblock.json",jv);
 };
@@ -23,8 +23,8 @@ void Core::start()
     fsInstance.setHostMap();
     recv_ = std::thread(&Core::receivePacket, this);       // only receive-packet
     fsScan = std::thread(&FullScan::start, &fsInstance);  // update fs_map
-    nbUpdate = std::thread(&NetBlock::updateMap, &nb);
-    infect_ = std::thread(&NetBlock::sendInfect, &nb);
+    nbUpdate = std::thread(&NetBlock::updateMap, &nbInstance);
+    infect_ = std::thread(&NetBlock::sendInfect, &nbInstance);
 }
 
 void Core::receivePacket()//every packet receiving
@@ -37,7 +37,7 @@ void Core::receivePacket()//every packet receiving
     packetInstance.mtu_ = 1500;
     while(end_check) {
         if(packetInstance.read(&packet_) == WPacket::Result::Ok){ //if packet is ok
-            arp.parse(packet_, nb.getNbMap());
+            arp.parse(packet_, nbInstance.nbMap);
             dhcp.parse(packet_);
         }
     }
@@ -47,9 +47,9 @@ void Core::stop()
 {
     end_check = false;
     fsInstance.end_check = false;
-    nb.end_check = false;
+    nbInstance.end_check = false;
     for(std::map<WMac,Host>::iterator iter = fsInstance.getFsMap().begin(); iter != fsInstance.getFsMap().end(); ++iter) {
-        nb.sendRecover(iter->second);
+        nbInstance.sendRecover(iter->second);
     }
     recv_.join();
     fsScan.join();

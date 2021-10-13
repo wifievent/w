@@ -7,7 +7,7 @@ class Core : WObj
 private:
     Packet& packetInstance = Packet::getInstance();
     FullScan& fsInstance = FullScan::getInstance();
-    NetBlock nb;
+    NetBlock& nbInstance = NetBlock::getInstance();
     DHCPParser dhcp;
     ARPParser arp;
     ARPPacket packet;

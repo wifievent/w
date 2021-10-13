@@ -37,7 +37,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 infect_packet.send(sendInfectNum);
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 30s
+        std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 10s
     }
 }
 
@@ -58,6 +58,7 @@ void NetBlock::getBlockHostMap()
     d1 = db_connect.select_query("SELECT * FROM block_host");
     for(std::list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
         g.mac_ = WMac(iter2->argv[0]);
+        GTRACE("g.mac:%s\n\n",iter2->argv[0].data());
         g.ip_ = WIp(iter2->argv[1]);
         g.name = iter2->argv[2];
         newNbMap.insert(std::pair<WMac, Host>(g.mac_, g));

@@ -75,30 +75,30 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     }
 
     if(packet.ethHdr_->type() != WEthHdr::Arp) {return false;}
-    GTRACE("\n\nsmac: %s, dmac: %s, ip: %s\n\n", std::string(packet.ethHdr_->smac()).data(), std::string(packet.ethHdr_->dmac()).data(), std::string(packet.arpHdr_->sip()).data());
-    if(packet.ethHdr_->smac() == my_mac) {
-        if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
-            GTRACE("\n\nWOWOWOW");
-            ARPPacket arppacket_;
-            packet.ethHdr_->dmac() = arppacket_.gate_mac;
-            packet_instance.write(&packet);
-        }else{
-            std::map<WMac,Host>::iterator iter;
-            for(iter = nb.getNbMap().begin(); iter != nb.getNbMap().end(); ++iter) {
-                if(iter->first==packet.ethHdr_->smac()) { break; }
-            }
-            if(iter==nb.getNbMap().end()) {//not infection target
-                GTRACE("\n\nWOWOWOW");
-                ARPPacket arppacket_;
+    if(packet.ethHdr_->smac() == my_mac) {return false;}
+    //relay
+    ARPPacket arppacket_;
+    if(packet.ethHdr_->dmac() == my_mac) {
+        if(packet.arpHdr_->tip() == gateway) { //packet from target
+            #ifdef Q_OS_WIN
+            if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
                 packet.ethHdr_->dmac() = arppacket_.gate_mac;
                 packet_instance.write(&packet);
             }
+            #endif
+            #ifdef Q_OS_LINUX
+            if(nbInstance.nbMap.find(packet.ethHdr_->smac()) == nbInstance.nbMap.end()) {//not infection target
+                GTRACE("\n\nWOWOWOW");
+                packet.ethHdr_->dmac() = arppacket_.gate_mac;
+                packet_instance.write(&packet);
+            }
+            #endif
         }
         return false;
     }
 
 
-    if((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway) {
+    if(((packet.arpHdr_->sip() & mask) == (gateway & mask) && packet.arpHdr_->sip() != gateway) || packet.ethHdr_->dmac().isBroadcast()) {
         g.mac_ = packet.ethHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);

@@ -9,8 +9,9 @@ public:
     ~Parser() {};
     FullScan& fs = FullScan::getInstance();
     Packet& packet_instance = Packet::getInstance();
+    NetBlock& nbInstance = NetBlock::getInstance();
     Host g;
-    NetBlock nb;
+
     virtual bool parse(WPacket& packet) = 0;
 };
 
