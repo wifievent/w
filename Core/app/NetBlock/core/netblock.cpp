@@ -28,7 +28,6 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 infect_packet.send(sendInfectNum);
-                GTRACE("\n!!!");
 
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
@@ -36,7 +35,6 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 infect_packet.send(sendInfectNum);
-                GTRACE("\n@@@");
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 30s
@@ -79,7 +77,7 @@ void NetBlock::updateMap()
             continue;
         }
         if(cnt++ == 0) {
-            GTRACE("\n<updateMap: h: %d, m: %d, s: %d>", t->tm_hour, t->tm_min, t->tm_sec);
+            GTRACE("<updateMap: h: %d, m: %d, s: %d>\n", t->tm_hour, t->tm_min, t->tm_sec);
             getBlockHostMap();//update NBmap
 
             for(std::map<WMac, Host>::iterator iter_old = nbMap.begin(); iter_old != nbMap.end(); ++iter_old) {

@@ -1,11 +1,12 @@
 #pragma once
 #include "packet.h"
-
+#include "netblock.h"
 class ARPPacket : WObj
 {
 protected:
     Packet& packet_instance = Packet::getInstance();
     WPacket wpacket;
+    NetBlock nb;
     int send_time = 3;
 public:
     bool end_check = true;

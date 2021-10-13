@@ -79,8 +79,20 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     if(packet.ethHdr_->smac() == my_mac) {
         if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
             GTRACE("\n\nWOWOWOW");
-            packet_instance.mtu_ = 1500;
+            ARPPacket arppacket_;
+            packet.ethHdr_->dmac() = arppacket_.gate_mac;
             packet_instance.write(&packet);
+        }else{
+            std::map<WMac,Host>::iterator iter;
+            for(iter = nb.getNbMap().begin(); iter != nb.getNbMap().end(); ++iter) {
+                if(iter->first==packet.ethHdr_->smac()) { break; }
+            }
+            if(iter==nb.getNbMap().end()) {//not infection target
+                GTRACE("\n\nWOWOWOW");
+                ARPPacket arppacket_;
+                packet.ethHdr_->dmac() = arppacket_.gate_mac;
+                packet_instance.write(&packet);
+            }
         }
         return false;
     }
