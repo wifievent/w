@@ -7,6 +7,7 @@ private:
     FullScan& fsInstance = FullScan::getInstance();
     Packet& packet_instance = Packet::getInstance();
     std::mutex m;
+    WMac gate_mac;
     int nbTime = 10000;
     int dbMin = 1;
     int sendRecoverNum = 3;
@@ -33,7 +34,8 @@ public:
     void sendInfect();//no sleep
     void sendRecover(Host host);
     void sendRelay(WPacket& packet);
-
+    void setGateMac(WMac mac){gate_mac = mac;}
+    WMac getGateMac(){return gate_mac;}
 
     void getBlockHostMap();
     void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute

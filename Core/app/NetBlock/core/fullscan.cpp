@@ -54,7 +54,6 @@ void FullScan::scan()
 
     //find all ip connected to the network
     for(uint32_t ip = beginIp; ip != endIp; ++ip) {
-        if(WIp(ip) == gateway) { continue; }
         arp_packet.packet.arp.tip_ = htonl(WIp(ip));
         arp_packet.send(sendCountPerIp);//send packet -> json화 sendCountPerIp
         std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp)); //짧은 시간으로 sendCountForNextIp
@@ -97,6 +96,8 @@ void FullScan::updateHostInfo(WMac mac_, WIp ip_, struct timeval last_)
     std::lock_guard<std::mutex> lock(fsMap.m);
     fsMap[mac_].ip_ = ip_;
     fsMap[mac_].last = last_;
+    GTRACE("ip = %s",std::string(ip_).data());
+    GTRACE("time = %d",last_.tv_sec);
 }
 
 void FullScan::addHost(std::pair<WMac,Host> host)
