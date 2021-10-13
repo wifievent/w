@@ -33,6 +33,7 @@ win32 {
 #
 CONFIG(debug, debug|release) DEFINES *= _DEBUG
 CONFIG(release, debug|release) DEFINES *= _RELEASE
+CONFIG *= c++11 force_debug_info
 
 linux: LIBS *= -lpthread -ldl -lpcap
 
