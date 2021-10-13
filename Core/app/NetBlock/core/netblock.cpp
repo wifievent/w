@@ -11,6 +11,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
     while(end_check) {
         std::lock_guard<std::mutex> lock(m);
+
         if(nbMap.size() == 0) { continue; }
         for(std::map<WMac,Host>::iterator iter = nbMap.begin(); iter != nbMap.end(); ++iter) {
             if(fsInstance.isConnect(std::string(iter->first))){//full-scan & policy
@@ -31,7 +32,8 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
-                    infect_packet.makeArppacket(infect_packet.gate_mac, packet_instance.intf()->mac(), infect_packet.gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
+                    GTRACE("------------------gate_mac = %s---------------------\n\n",std::string(gate_mac).data());
+                    infect_packet.makeArppacket(gate_mac, packet_instance.intf()->mac(), gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 infect_packet.send(sendInfectNum);
@@ -44,7 +46,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 void NetBlock::sendRecover(Host host)
 {
     ARPPacket recover_packet;
-    recover_packet.makeArppacket(host.mac_, recover_packet.gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
+    recover_packet.makeArppacket(host.mac_, gate_mac, host.mac_, host.ip_, recover_packet.gate_ip);
     recover_packet.send(sendRecoverNum);
 }
 

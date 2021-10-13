@@ -2,18 +2,6 @@
 
 ARPPacket::ARPPacket()
 {
-    WNetInfo& wnetinfo = WNetInfo::instance();
-    WIntfList& intflist = wnetinfo.intfList();
-    gate_ip = packet_instance.intf()->gateway();
-    std::string str = packet_instance.intf()->name();
-#ifdef Q_OS_LINUX
-    gate_mac = intflist.getMac((char*)str.data());
-#endif
-#ifdef Q_OS_WIN
-    WIntf* tmp = intflist.findByName(str);
-    gate_mac = tmp->mac();
-    GTRACE("%s",std::string(gate_mac).data());
-#endif
 };
 
 ARPPacket::~ARPPacket(){};

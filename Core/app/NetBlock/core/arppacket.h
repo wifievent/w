@@ -13,8 +13,7 @@ public:
     EthArp packet;
     ARPPacket();
     ~ARPPacket();
-    WIp gate_ip;
-    WMac gate_mac;//gateway info
+    const WIp gate_ip = packet_instance.intf()->gateway();
     void makeArppacket(WMac dmac, WMac smac, WMac tmac,WIp tip, WIp sip);
     void send(int cnt);
     void load(Json::Value& json) override;

@@ -3,8 +3,7 @@ Core::Core()
 {
     Json::Value jv;
 
-    if(WJson::loadFromFile("netblock.json",jv)){
-
+    if(WJson::loadFromFile("netblock.json",jv)) {
         packetInstance.load(jv["packet"]);
         fsInstance.load(jv["fs"]);
         nbInstance.load(jv["nb"]);
