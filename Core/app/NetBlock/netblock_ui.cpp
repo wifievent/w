@@ -11,7 +11,7 @@ NetBlock_UI::NetBlock_UI(QWidget *parent)
     //setWindowState(Qt::WindowMaximized);
 
     DeviceWidget *device_widget = new DeviceWidget(this);
-    policy *m_policy = new policy();
+    Policy *m_policy = new Policy();
 
     ui->tabWidget->addTab(device_widget, "Device");
     ui->tabWidget->addTab(m_policy, "Policy");
