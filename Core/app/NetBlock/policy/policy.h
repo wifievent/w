@@ -1,7 +1,7 @@
 #ifndef POLICY_H
 #define POLICY_H
 
-#include <QDialog>
+#include <QWidget>
 #include <QtCore>
 #include <QtWidgets>
 #include <QDebug>
@@ -10,29 +10,28 @@
 #include "policyobj.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class policy; }
+namespace Ui { class Policy; }
 QT_END_NAMESPACE
 
-class policy : public QDialog
+class Policy : public QWidget
 {
     Q_OBJECT
 
 public:
-    policy(QWidget *parent = nullptr);
-    ~policy();
+    Policy(QWidget *parent = nullptr);
+    ~Policy();
 
-    enum TABLE_INFO {
-        COLUMN_SIZE=5,
-        ROW_SIZE=6
+    enum MINUTE {
+        HOUR=60,
     };
 
     DB_Connect& dbConnect = DB_Connect::getInstance();
     PolicyObj policyObj;
     QVector<PolicyObj> policyList;
-    QList<QListWidgetItem *> selectedHost;
-    int checkOverlapCell(int startRow, int lastRow, int columnIdx);
+    int selectedHostId = 0;
+
     void resetPolicyTable();
-    void setItmPolicy(int row, int column, QColor policyColor, int policyId);
+    void setItmPolicy(int row, int column, int policyId, int span);
     void getPolicyFromDatabase(QString where = "");
     void setPolicyToTable();
 
@@ -40,13 +39,11 @@ private slots:
     void on_addPolicyButton_clicked();
     void on_tableWidget_cellDoubleClicked();
     void openPolicyConfig();
-    void on_host_filter_itemSelectionChanged();
-    void on_tableWidget_itemSelectionChanged();
-    void getHostFromDatabase();
+    void getHostListFromDatabase();
+    void on_hostFilter_activated(int index);
 
 private:
-    Ui::policy *ui;
-    QStringList colorList = { "#fa5252", "#be4bdb", "#4c6ef5", "#82c91e", "#ffa8a8", "#e599f7", "#91a7ff", "#c0eb75", "#c92a2a", "#862e9c", "#862e9c", "#5c940d" };
+    Ui::Policy *ui;
     QTimer *timer;
 };
 #endif // POLICY_H

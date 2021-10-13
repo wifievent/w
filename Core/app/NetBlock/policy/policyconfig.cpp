@@ -1,8 +1,8 @@
-#include "policy_config.h"
-#include "ui_policy_config.h"
+#include "policyconfig.h"
+#include "ui_policyconfig.h"
 #include "base/db-connect.h"
 
-void policy_config::getHostListFromDatabase()
+void PolicyConfig::getHostListFromDatabase()
 {
     DB_Connect& dbConnect = DB_Connect::getInstance();
 
@@ -19,12 +19,15 @@ void policy_config::getHostListFromDatabase()
     }
 }
 
-policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *parent) :
+PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *parent) :
     QDialog(parent),
-    ui(new Ui::policy_config)
+    ui(new Ui::PolicyConfig)
 {
     ui->setupUi(this);
-    this->setWindowTitle(QString::number(policyId));
+    if (QString::number(policyId) == 0)
+        this->setWindowTitle("New");
+    else
+        this->setWindowTitle(QString::number(policyId));
     ui->applyButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
     ui->hostList->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -82,12 +85,12 @@ policy_config::policy_config(QModelIndexList indexList, int policyId, QWidget *p
     ui->end_time->setTime(end_time);
 }
 
-policy_config::~policy_config()
+PolicyConfig::~PolicyConfig()
 {
     delete ui;
 }
 
-void policy_config::on_applyButton_clicked()
+void PolicyConfig::on_applyButton_clicked()
 {
     int policy_id = this->windowTitle().toInt();
     int day_of_the_week = ui->dayOfTheWeekGroup->checkedId();
@@ -180,12 +183,12 @@ void policy_config::on_applyButton_clicked()
     close();
 }
 
-void policy_config::on_cancelButton_clicked()
+void PolicyConfig::on_cancelButton_clicked()
 {
     close();
 }
 
-void policy_config::on_hostList_itemSelectionChanged()
+void PolicyConfig::on_hostList_itemSelectionChanged()
 {
     if (ui->hostList->selectedItems().length()) {
         ui->applyButton->setEnabled(true);
@@ -196,7 +199,7 @@ void policy_config::on_hostList_itemSelectionChanged()
     }
 }
 
-void policy_config::on_deleteButton_clicked()
+void PolicyConfig::on_deleteButton_clicked()
 {
     int policy_id = this->windowTitle().toInt();
     DB_Connect& dbConnect = DB_Connect::getInstance();

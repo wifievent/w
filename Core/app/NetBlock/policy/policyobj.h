@@ -2,27 +2,29 @@
 #define POLICYOBJ_H
 
 #include <QtCore>
-#include <QtWidgets>
 
 class PolicyObj
 {
-public:
-    PolicyObj();
+protected:
     int policyId;
-    QString start_time;
-    QString end_time;
-    int day_of_the_week;
+    QString startTime;
+    QString endTime;
+    int dayOfTheWeek;
     int hostId;
     QString name;
 
-    void reset() {
-      policyId = 0;
-      start_time = nullptr;
-      end_time = nullptr;
-      day_of_the_week = -1;
-      hostId = 0;
-      name = nullptr;
-    };
+public:
+    PolicyObj();
+    ~PolicyObj();
+
+    void reset();
+    void set(std::vector<std::string> row);
+    int getPolicyId();
+    QString getStartTime();
+    QString getEndTime();
+    int getDayOfTheWeek();
+    int getHostId();
+    QString getName();
 };
 
 #endif // POLICYOBJ_H

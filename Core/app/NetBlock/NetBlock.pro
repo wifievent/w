@@ -18,7 +18,7 @@ SOURCES += \
     device/devicewidget.cpp \
     device/dinfo.cpp \
     policy/policy.cpp \
-    policy/policy_config.cpp \
+    policy/policyconfig.cpp \
     policy/policyobj.cpp \
     policy/policytimeedit.cpp \
     netblock_ui.cpp \
@@ -37,7 +37,7 @@ HEADERS += \
     device/devicewidget.h \
     device/dinfo.h \
     policy/policy.h \
-    policy/policy_config.h \
+    policy/policyconfig.h \
     policy/policyobj.h \
     policy/policytimeedit.h \
     netblock_ui.h \
@@ -53,8 +53,8 @@ HEADERS += \
 FORMS += \
     device/devicewidget.ui \
     policy/policy.ui \
-    policy/policy_config.ui \
-    netblock_ui.ui
+    netblock_ui.ui \
+    policy/policyconfig.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

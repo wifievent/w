@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>policy_config</class>
- <widget class="QDialog" name="policy_config">
+ <class>PolicyConfig</class>
+ <widget class="QDialog" name="PolicyConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
