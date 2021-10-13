@@ -16,11 +16,6 @@ Policy::Policy(QWidget *parent)
     ui->editButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
 
-    timer = new QTimer(this);
-
-    connect(timer, SIGNAL(timeout()), this, SLOT(getHostListFromDatabase()));
-    timer->start(10000);
-
     getHostListFromDatabase();
     getPolicyFromDatabase();
     setPolicyToTable();
@@ -55,6 +50,8 @@ void Policy::setItmPolicy(int row, int column, int policyId, int span)
 
 void Policy::getHostListFromDatabase()
 {
+    int hostId = selectedHostId;
+
     ui->hostFilter->clear();
 
     std::list<Data_List> dl;
@@ -66,8 +63,9 @@ void Policy::getHostListFromDatabase()
         ui->hostFilter->addItem(name, hostId);
     }
 
-    if (selectedHostId)
-        ui->hostFilter->setCurrentIndex(ui->hostFilter->findData(selectedHostId));
+    if (hostId) {
+        ui->hostFilter->setCurrentIndex(ui->hostFilter->findData(hostId));
+    }
 }
 
 void Policy::getPolicyFromDatabase(QString where)
@@ -133,15 +131,6 @@ void Policy::openPolicyConfig()
     }
 }
 
-void Policy::on_hostFilter_activated()
-{
-    selectedHostId = ui->hostFilter->currentData().toInt();
-    hostFilterCondition = "WHERE h.host_id=" + QString::number(selectedHostId);
-    getPolicyFromDatabase(hostFilterCondition);
-    setPolicyToTable();
-}
-
-
 void Policy::on_addButton_clicked()
 {
     openPolicyConfig();
@@ -188,5 +177,14 @@ void Policy::on_tableWidget_itemSelectionChanged()
     ui->addButton->setDisabled(true);
     ui->editButton->setDisabled(true);
     ui->deleteButton->setDisabled(true);
+}
+
+
+void Policy::on_hostFilter_currentIndexChanged(int index)
+{
+    selectedHostId = ui->hostFilter->currentData().toInt();
+    hostFilterCondition = "WHERE h.host_id=" + QString::number(selectedHostId);
+    getPolicyFromDatabase(hostFilterCondition);
+    setPolicyToTable();
 }
 

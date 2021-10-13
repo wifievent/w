@@ -32,6 +32,8 @@ public:
 
 signals:
     void sendMac(const QString mac);
+    void sendHostSelect(const int hostId);
+    void sendReload();
 
 private slots:
     void on_devTable_cellClicked(int row, int column);

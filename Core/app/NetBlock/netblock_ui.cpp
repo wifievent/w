@@ -10,11 +10,11 @@ NetBlock_UI::NetBlock_UI(QWidget *parent)
     ui->setupUi(this);
     //setWindowState(Qt::WindowMaximized);
 
-    DeviceWidget *device_widget = new DeviceWidget(this);
-    Policy *m_policy = new Policy();
+    device_widget = new DeviceWidget(this);
+    policy = new Policy();
 
     ui->tabWidget->addTab(device_widget, "Device");
-    ui->tabWidget->addTab(m_policy, "Policy");
+    ui->tabWidget->addTab(policy, "Policy");
 }
 
 NetBlock_UI::~NetBlock_UI()
@@ -51,4 +51,15 @@ void NetBlock_UI::receiveMac(const QString mac)
 {
     qDebug() << "receive message : " << mac;
     ui->tabWidget->setCurrentIndex(1);
+}
+
+void NetBlock_UI::receiveHostSelect(const int hostId)
+{
+    policy->selectedHostId = hostId;
+    policy->getHostListFromDatabase();
+}
+
+void NetBlock_UI::receiveReload()
+{
+    policy->getHostListFromDatabase();
 }

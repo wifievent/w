@@ -28,6 +28,8 @@ DeviceWidget::DeviceWidget(QWidget *parent)
     connect(ui->policyBtn, SIGNAL(clicked()), this, SLOT(on_policyBtn_clicked()));
     // connect the child's "sendMac" signal to the parent's "receiveMac" slot
     connect(this, SIGNAL(sendMac(QString)), parent, SLOT(receiveMac(QString)));
+    connect(this, SIGNAL(sendHostSelect(int)), parent, SLOT(receiveHostSelect(int)));
+    connect(this, SIGNAL(sendReload()), parent, SLOT(receiveReload()));
 }
 
 DeviceWidget::~DeviceWidget()
@@ -153,6 +155,7 @@ void DeviceWidget::onEditBtnClicked()
     db_connect.send_query("UPDATE host SET name='" + name_ + "' WHERE host_id=" + std::to_string(dinfo.host_id));
     ui->devTable->setItem(dinfo.vectorID, 2, new QTableWidgetItem(dinfo.name));
     devices[dinfo.vectorID].name = dinfo.name;
+    emit sendReload();
 }
 
 // Show the deivce info in the list
@@ -209,11 +212,13 @@ void DeviceWidget::on_reloadBtn_clicked()
     initDevListWidget();
     setDevInfo();
     setDevTableWidget();
+    emit sendReload();
 }
 
 void DeviceWidget::on_policyBtn_clicked()
 {
     //setDevTableWidget();
+    emit sendHostSelect(dinfo.host_id);
     initDevListWidget();
     emit sendMac(dinfo.name);
 }
@@ -234,4 +239,5 @@ void DeviceWidget::on_deleteBtn_clicked()
     ui->devInfo->clear();
     ui->devTable->clear();
     setDevTableWidget();
+    emit sendReload();
 }
