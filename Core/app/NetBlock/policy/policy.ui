@@ -168,37 +168,37 @@
      </row>
      <column>
       <property name="text">
-       <string>일</string>
+       <string>Sun</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>월</string>
+       <string>Mon</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>화</string>
+       <string>Tue</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>수</string>
+       <string>Wed</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>목</string>
+       <string>Thu</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>금</string>
+       <string>Fri</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>토</string>
+       <string>Sat</string>
       </property>
      </column>
     </widget>
