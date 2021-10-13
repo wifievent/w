@@ -17,13 +17,13 @@ class PolicyConfig : public QDialog
     Q_OBJECT
 
 public:
-    explicit PolicyConfig(QModelIndexList indexList, int policyId, QDialog *parent = nullptr);
+    explicit PolicyConfig(QModelIndexList indexList, int policyId, int hostId, QDialog *parent = nullptr);
     ~PolicyConfig();
 
     PolicyObj policy_obj;
     DB_Connect& dbConnect = DB_Connect::getInstance();
 
-    void getHostListFromDatabase();
+    void getHostListFromDatabase(int selectedHostId);
 
 private slots:
     void on_applyButton_clicked();

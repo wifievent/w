@@ -1,7 +1,7 @@
 #include "policyconfig.h"
 #include "ui_policyconfig.h"
 
-PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *parent) :
+PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, int hostId, QDialog *parent) :
     QDialog(parent),
     ui(new Ui::PolicyConfig)
 {
@@ -14,7 +14,7 @@ PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *par
     ui->deleteButton->setDisabled(true);
     ui->hostList->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    getHostListFromDatabase();
+    getHostListFromDatabase(hostId);
 
     QTime now = QTime::currentTime();
     int day_of_the_week = QDate::currentDate().dayOfWeek() % 7;;
@@ -24,9 +24,10 @@ PolicyConfig::PolicyConfig(QModelIndexList indexList, int policyId, QDialog *par
         day_of_the_week = indexList.constFirst().column();
         start_time = QTime(indexList.constFirst().row(), 0);
         end_time = QTime(indexList.constLast().row() + 1, 0);
+        if (indexList.constLast().row() + 1 == 24) {
+            end_time = QTime(23, 50);
+        }
     } else {
-        ui->hostList->setDisabled(true);
-        ui->dayOfTheWeekLayout->setDisabled(true);
         ui->deleteButton->setDisabled(false);
 
         std::list<Data_List> dl;
@@ -73,7 +74,7 @@ PolicyConfig::~PolicyConfig()
     delete ui;
 }
 
-void PolicyConfig::getHostListFromDatabase()
+void PolicyConfig::getHostListFromDatabase(int selectedHostId)
 {
     std::list<Data_List> dl;
     dl = dbConnect.select_query("SELECT host_id, name FROM host");
@@ -85,6 +86,8 @@ void PolicyConfig::getHostListFromDatabase()
         QListWidgetItem *hostListItem = new QListWidgetItem(name);
         hostListItem->setData(Qt::UserRole, hostId);
         ui->hostList->addItem(hostListItem);
+        if (hostId == selectedHostId)
+            hostListItem->setSelected(true);
     }
 }
 

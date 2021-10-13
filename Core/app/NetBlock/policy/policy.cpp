@@ -120,7 +120,7 @@ void Policy::openPolicyConfig()
 {
     PolicyConfig *policyConfig;
     QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
-    policyConfig = new PolicyConfig(indexList, selectedPolicyId);
+    policyConfig = new PolicyConfig(indexList, selectedPolicyId, selectedHostId);
 
     policyConfig->setModal(true);
 
@@ -167,7 +167,7 @@ void Policy::on_tableWidget_itemSelectionChanged()
 {
     QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
     if (indexList.size() > 1 && indexList.constFirst().column() != indexList.constLast().column()) {
-        ui->tableWidget->clearSelection();
+        ui->editButton->setDisabled(false);
     }
     if (!indexList.isEmpty()) {
         ui->addButton->setDisabled(false);
