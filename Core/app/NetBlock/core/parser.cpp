@@ -3,7 +3,6 @@
 
 bool DHCPParser::parse(WPacket& packet)
 {
-    int tmp = 0;
     if(packet.ethHdr_->type() != WEthHdr::Ip4) { return false; }  // Is ip4 packet?
     if(packet.ipHdr_->p() != WIpHdr::Udp) { return false; }       // Is udp packet?
     if(packet.udpHdr_->sport() != 67 && packet.udpHdr_->dport() != 67) { return false; }  // Is dhcp packet?
@@ -11,40 +10,38 @@ bool DHCPParser::parse(WPacket& packet)
 
     packet.dhcpHdr_ = (WDhcpHdr*)packet.udpData_.data_;
 
-    GTRACE("<Dhcp>");
     g.mac_ = packet.dhcpHdr_->clientMac();//get mac
-    GTRACE("%s",std::string(g.mac_).data());
+	GTRACE("DHCP detected %s",std::string(g.mac_).data());
 
     gettimeofday(&g.last, NULL);//update connection
 
     std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
-    if(iter != fs.getFsMap().end()) { tmp = 1; }//already exist
-    if(!tmp){
-        for(WDhcpHdr::Option* opt = packet.dhcpHdr_->first(); opt != nullptr; opt = opt->next()) {
-            if(opt->type_ == WDhcpHdr::RequestedIpAddress) { //get ip
-                char* buf = (char*)malloc(sizeof(char) * 4);
-                for(int i = 0; i < opt->len_ - 1; ++i) {
-                    sprintf(buf + 4 * i, "%03d.", *(&opt->len_ + 1 + i));
-                }
-                sprintf(buf + 12, "%03d", *(&opt->len_ + 4));
-                g.ip_ = WIp(std::string(buf));
+	if(iter == fs.getFsMap().end()) { // does not exist
+		byte* end = packet.buf_.data_ + packet.buf_.size_;
+		WDhcpHdr::Option* option = packet.dhcpHdr_->first();
+		while (pbyte(option) < pbyte(end)) {
+			if(option->type_ == WDhcpHdr::RequestedIpAddress) { //get ip
+				WIp* ip = PIp(option->value());
+				g.ip_ = ntohl(*ip);
                 GTRACE("%s", std::string(g.ip_).data());
-            } else if(opt->type_ == 12){ //get name
+			} else
+			if(option->type_ == WDhcpHdr::HostName){ //get name
+				char* hostName = pchar(option->value());
                 std::string tmp;
-                for(int i = 0; i < opt->len_; ++i) {
-                    tmp[i] = *(&opt->len_ + 1 + i);
-                }
-                g.name = std::string(tmp);
+				for(int i = 0; i < option->len_; ++i)
+					tmp += hostName[i];
+				g.name = tmp;
             }
-        }
-    }
-    
-    if(tmp) {
-        GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
+			option = option->next();
+			if (option == nullptr) break;
+		}
+		GTRACE("new host detected by DHCP %s %s %s", std::string(g.mac_).data(), std::string(g.ip_).data(), g.name.data());
+		fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
+	} else {
+		GTRACE("already exists mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
         fs.updateHostInfo(g.mac_, g.ip_, g.last);
-    } else {
-        fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
-    }
+	}
+
     return true;
 }
 
@@ -101,9 +98,9 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);
 
-        GTRACE("%s", std::string(g.mac_).data());
-        GTRACE("%s", std::string(g.ip_).data());
-        GTRACE("%d",g.last.tv_sec);
+		// GTRACE("%s", std::string(g.mac_).data());
+		// GTRACE("%s", std::string(g.ip_).data());
+		// GTRACE("%ld",g.last.tv_sec);
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
         if(iter != fs.getFsMap().end()) {
             GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());

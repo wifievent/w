@@ -56,6 +56,7 @@ struct WMac final {
 protected:
 	uint8_t mac_[SIZE];
 };
+typedef WMac *PMac;
 
 namespace std {
 	template<>
