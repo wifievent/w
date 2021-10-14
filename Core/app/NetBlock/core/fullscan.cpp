@@ -52,7 +52,7 @@ void FullScan::scan()
     arp_packet.makeArppacket(WMac("FF:FF:FF:FF:FF:FF"), my_mac, WMac("00:00:00:00:00:00"), WIp::nullIp(), my_ip);
 
 
-    uint32_t beginIp = (my_ip & mask)+1;
+    uint32_t beginIp = (my_ip & mask);
     uint32_t endIp = (my_ip | ~mask)-1;
 
     //find all ip connected to the network

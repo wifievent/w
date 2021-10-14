@@ -38,6 +38,7 @@ bool DHCPParser::parse(WPacket& packet)
             }
         }
     }
+    
     if(tmp) {
         GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
         fs.updateHostInfo(g.mac_, g.ip_, g.last);
@@ -63,14 +64,20 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     ARPPacket arppacket_;
     if(packet.ethHdr_->type() != WEthHdr::Arp) { return false; }
     GTRACE("MAC = %s, IP = %s",std::string(packet.ethHdr_->smac()).data(),std::string(packet.arpHdr_->sip()).data());
-    if(packet.arpHdr_->sip() == arppacket_.gate_ip) {
+    if(packet.arpHdr_->sip() == arppacket_.gate_ip && packet.ethHdr_->smac() != my_mac) {
         nbInstance.setGateMac(packet.ethHdr_->smac());
         GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
         return false;
     }
-
+    GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
     //relay
-    if(packet.ethHdr_->dmac() == my_mac && packet.arpHdr_->tip() == gateway) {
+
+    if(packet.ethHdr_->dmac() == my_mac && packet.arpHdr_->tip() == gateway ) {
+
+        for(std::map<WMac,Host>::iterator iter = nbInstance.getNbMap().begin(); iter != nbInstance.getNbMap().end(); iter++) {
+            if(iter->second.ip_ == packet.arpHdr_->sip())return false;
+        }
+
         #ifdef Q_OS_WIN
         if(packet.ethHdr_->smac() == packet.ethHdr_->dmac()) {
             packet.ethHdr_->dmac() = nbInstance.getGateMac();
@@ -133,7 +140,7 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
             }
             GTRACE("list");
             if(iter != nb_map.end()) {
-                GTRACE("have nb list");
+                GTRACE("\n\n\n\n\n\nhave nb list");
                 WMac my_mac;
 
                 {
