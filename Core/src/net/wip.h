@@ -39,3 +39,4 @@ struct WIp final {
 protected:
 	uint32_t ip_;
 };
+typedef WIp *PIp;

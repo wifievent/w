@@ -43,10 +43,12 @@ struct WDhcpHdr final {
 		uint8_t len_;
 
 		Option* next() {
-			Option* res = POption((char*)this + len_ + 2);
+			Option* res = POption((char*)this + sizeof(type_) + sizeof(len_) + len_);
 			if (res->type_ == End) return nullptr;
 			return res;
 		}
+
+		void* value() { return (char*)this + sizeof(type_) + sizeof(len_); }
 
 	};
 	typedef Option *POption;
@@ -55,13 +57,9 @@ struct WDhcpHdr final {
 		return POption((char*)this + sizeof(WDhcpHdr));
 	}
 
-	struct OptionRequestIpAddress : Option {
-		WIp ip_;
-	};
-	typedef OptionRequestIpAddress *POptionRequestIpAddress;
-
 	// OptionType(Option::type_)
 	enum: uint8_t {
+		HostName = 12,
 		RequestedIpAddress = 50,
 		End = 255
 	};
