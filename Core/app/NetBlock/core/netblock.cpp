@@ -18,13 +18,18 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 timer = time(NULL);
                 t = localtime(&timer);
 
-                GTRACE("<sendarp>");
+                GTRACE("\n\n\n\n<sendarp>");
                 GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
                 GTRACE("%s",std::string(iter->first).data());
                 GTRACE("%s",std::string((iter->second).ip_).data());
 
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
+                    GTRACE("===========================================");
+                    GTRACE("Infection mac %s",std::string(iter->first).data());
+                    GTRACE("My mac %s",std::string(packet_instance.intf()->mac()).data());
+                    GTRACE("Infection ip %s",std::string((iter->second).ip_).data());
+                    GTRACE("gateway ip = %s",std::string(packet_instance.intf()->gateway()).data());
                     infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
@@ -32,7 +37,6 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
-                    GTRACE("------------------gate_mac = %s---------------------\n\n",std::string(gate_mac).data());
                     infect_packet.makeArppacket(gate_mac, packet_instance.intf()->mac(), gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
                 }
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
@@ -75,7 +79,7 @@ void NetBlock::updateMap()
         timer = time(NULL);
         t = localtime(&timer);
 
-        if(t->tm_min % dbMin != 0 || t->tm_sec != 0) {
+        if(t->tm_min % dbMin != 0 || t->tm_sec % 5 != 0) {
             std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
             continue;
         }
