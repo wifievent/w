@@ -52,7 +52,7 @@ void FullScan::scan()
     arp_packet.makeArppacket(WMac("FF:FF:FF:FF:FF:FF"), my_mac, WMac("00:00:00:00:00:00"), WIp::nullIp(), my_ip);
 
 
-    uint32_t beginIp = (my_ip & mask);
+    uint32_t beginIp = (my_ip & mask)+1;
     uint32_t endIp = (my_ip | ~mask)-1;
 
     //find all ip connected to the network
@@ -61,6 +61,9 @@ void FullScan::scan()
         arp_packet.send(sendCountPerIp);//send packet -> json화 sendCountPerIp
         std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp)); //짧은 시간으로 sendCountForNextIp
     }
+    arp_packet.makeArppacket(WMac("FF:FF:FF:FF:FF:FF"), my_mac, WMac("00:00:00:00:00:00"), gateway, my_ip);
+    arp_packet.send(sendCountPerIp);//send packet
+    std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp));
 }
 
 void FullScan::updateDB()//update last_ip
