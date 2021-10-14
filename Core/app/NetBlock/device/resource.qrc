@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>edit-16.ico</file>
+        <file>edit.png</file>
+    </qresource>
+</RCC>
