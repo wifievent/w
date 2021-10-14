@@ -67,9 +67,6 @@ public:
         dhcpHdr_ = nullptr;
         tcpData_.clear();
         udpData_.clear();
-#ifdef _DEBUG
-        parsed_ = false;
-#endif // _DEBUG
     }
 
     void parse();
