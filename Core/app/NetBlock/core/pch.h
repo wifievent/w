@@ -32,9 +32,9 @@ struct Host {
   bool isConnected() {
       struct timeval now;
       gettimeofday(&now, NULL);
-      GTRACE("isConnected = %s",std::string(ip_).data());
-      GTRACE("now = %d",now.tv_sec);
-      GTRACE("Last = %d\n",last.tv_sec);
+	  //GTRACE("isConnected = %s",std::string(ip_).data());
+	  //GTRACE("now = %d",now.tv_sec);
+	  //GTRACE("Last = %d\n",last.tv_sec);
       return now.tv_sec - last.tv_sec < connect_time;
   }
 };
