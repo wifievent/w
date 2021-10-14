@@ -1,0 +1,18 @@
+NetBlock v0.8.0.0 Release Notes
+========================
+
+This release NetBlock program v.0.8.0.0
+
+first release
+
+Introduction:
+  Internet Netwrok Control Service (NetBlock)
+
+Configuration:
+  Standard C++
+  Qt Framework
+  npcap
+
+Feature:
+  Set network policy
+  Block using network
