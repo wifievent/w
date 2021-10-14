@@ -16,7 +16,7 @@ private:
     Packet& packetInstance = Packet::getInstance();
     int fsTime = 30;
     int sendCountPerIp = 1;
-    int sendCountForNextIp = 30;
+    int sendCountForNextIp = 50;
 
     FullScan(){};
     ~FullScan(){};

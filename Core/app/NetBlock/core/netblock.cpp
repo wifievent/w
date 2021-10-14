@@ -14,7 +14,7 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
 
         if(nbMap.size() == 0) { continue; }
         for(std::map<WMac,Host>::iterator iter = nbMap.begin(); iter != nbMap.end(); ++iter) {
-            if(fsInstance.isConnect(std::string(iter->first))){//full-scan & policy
+            if(fsInstance.isConnect(std::string(iter->first))) {//full-scan & policy
                 timer = time(NULL);
                 t = localtime(&timer);
 
@@ -74,6 +74,7 @@ void NetBlock::updateMap()
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
+
         if(t->tm_min % dbMin != 0 || t->tm_sec != 0) {
             std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
             continue;
