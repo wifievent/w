@@ -1,0 +1,9 @@
+NetBlock v0.8.0.0 Release Notes
+========================
+
+This release NetBlock program v.0.8.0.1
+
+Bugfix:
+     DHCP Buffer overflow bug fix
+     A lot of minor bugs
+     Reduce setup file size

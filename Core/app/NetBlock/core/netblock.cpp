@@ -94,8 +94,8 @@ void NetBlock::updateMap()
         }
         {
             std::lock_guard<std::mutex> lock(m);
+            nbMap.clear();
             if(newNbMap.size() > 0) {
-                nbMap.clear();
                 nbMap.swap(newNbMap);
             }
         }
