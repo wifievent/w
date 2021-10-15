@@ -4,10 +4,11 @@
 void FullScan::start()
 {
     while(end_check) {
-        GTRACE("scan");
+        GTRACE("full-scan");
         scan();
         updateDB();
-        for(int i =0; i<fsTime; i++){
+
+        for(int i =0; i< fsTime; i++) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             if(!end_check)break;
         }
@@ -42,6 +43,7 @@ void FullScan::scan()
     WIp my_ip;
     WIp mask;
     WIp gateway;
+
     {
         std::lock_guard<std::mutex> lock(packetInstance.m);
         my_mac = packetInstance.intf()->mac();
@@ -59,8 +61,10 @@ void FullScan::scan()
     for(uint32_t ip = beginIp; ip != endIp; ++ip) {
         arp_packet.packet.arp.tip_ = htonl(WIp(ip));
         arp_packet.send(sendCountPerIp);//send packet -> json화 sendCountPerIp
-        std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp)); //짧은 시간으로 sendCountForNextIp
+        std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp));
     }
+
+    //packet for gateway
     arp_packet.makeArppacket(WMac("FF:FF:FF:FF:FF:FF"), my_mac, WMac("00:00:00:00:00:00"), gateway, my_ip);
     arp_packet.send(sendCountPerIp);//send packet
     std::this_thread::sleep_for(std::chrono::milliseconds(sendCountForNextIp));
@@ -75,21 +79,20 @@ void FullScan::updateDB()//update last_ip
     d1 = db_connect.select_query("SELECT * FROM host");
     {
         std::lock_guard<std::mutex> lock(fsMap.m);
+        std::list<Data_List>::iterator dataIter;
         for(std::map<WMac,Host>::iterator fsIter = fsMap.begin(); fsIter != fsMap.end(); ++fsIter) { //fullscan
-            int tmp = 0;
-            for(std::list<Data_List>::iterator dataIter = d1.begin(); dataIter != d1.end(); ++dataIter) {
+            for(dataIter = d1.begin(); dataIter != d1.end(); ++dataIter) {
                 if(WMac(dataIter->argv[1]) == fsIter->first) {//same mac
                     if(WIp(dataIter->argv[2]) != fsIter->second.ip_) {//need update
                         query = "UPDATE host SET last_ip = '"+std::string((fsIter->second).ip_)+"' WHERE mac = '"+std::string(fsIter->first)+"'";
                         db_connect.send_query(query.data());
                     }
-                    tmp = 1;
                     break;
                 }
             }
-            if(tmp == 0) {
+            if(dataIter != d1.end()) {
                 //different mac -> insert
-                GTRACE("\n\n\nINSERT!!!!!!!!!");
+                GTRACE("INSERT!!!!!!!!!");
                 query = "INSERT INTO host(mac, last_ip, name) VALUES('"+std::string(fsIter->first)+"', '"+ std::string((fsIter->second).ip_).data() +"', '"+ fsIter->second.name.data() + "')";
                 db_connect.send_query(query.data());
             }
@@ -102,8 +105,6 @@ void FullScan::updateHostInfo(WMac mac_, WIp ip_, struct timeval last_)
     std::lock_guard<std::mutex> lock(fsMap.m);
     fsMap[mac_].ip_ = ip_;
     fsMap[mac_].last = last_;
-    GTRACE("ip = %s",std::string(ip_).data());
-    GTRACE("time = %d",last_.tv_sec);
 }
 
 void FullScan::addHost(std::pair<WMac,Host> host)

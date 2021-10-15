@@ -13,28 +13,27 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
         std::lock_guard<std::mutex> lock(m);
 
         if(nbMap.size() == 0) { continue; }
+
         for(std::map<WMac,Host>::iterator iter = nbMap.begin(); iter != nbMap.end(); ++iter) {
             if(fsInstance.isConnect(std::string(iter->first))) {//full-scan & policy
                 timer = time(NULL);
                 t = localtime(&timer);
 
-                GTRACE("\n\n\n\n<sendarp>");
+                GTRACE("<sendarp>");
                 GTRACE("time = %d:%d:%d",(Week)t->tm_wday,t->tm_hour,t->tm_min);
                 GTRACE("%s",std::string(iter->first).data());
                 GTRACE("%s",std::string((iter->second).ip_).data());
 
+                //infection to device
                 {
-                    std::lock_guard<std::mutex> lock(packet_instance.m);
-                    GTRACE("===========================================");
-                    GTRACE("Infection mac %s",std::string(iter->first).data());
-                    GTRACE("My mac %s",std::string(packet_instance.intf()->mac()).data());
-                    GTRACE("Infection ip %s",std::string((iter->second).ip_).data());
-                    GTRACE("gateway ip = %s",std::string(packet_instance.intf()->gateway()).data());
+                    std::lock_guard<std::mutex> lock(packet_instance.m);;
                     infect_packet.makeArppacket(iter->first, packet_instance.intf()->mac(), iter->first, (iter->second).ip_, packet_instance.intf()->gateway());
                 }
+
                 infect_packet.packet.arp.op_ = htons(WArpHdr::Reply);
                 infect_packet.send(sendInfectNum);
 
+                //infection to gateway
                 {
                     std::lock_guard<std::mutex> lock(packet_instance.m);
                     infect_packet.makeArppacket(gate_mac, packet_instance.intf()->mac(), gate_mac, packet_instance.intf()->gateway(), (iter->second).ip_);
@@ -43,7 +42,10 @@ void NetBlock::sendInfect()//full-scan : is_connect & policy
                 infect_packet.send(sendInfectNum);
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(nbTime));//sleep 10s
+        for(int i = 0 ; i < nbTime; i++){
+            std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
+            if(!end_check) break;
+        }
     }
 }
 
@@ -64,7 +66,6 @@ void NetBlock::getBlockHostMap()
     d1 = db_connect.select_query("SELECT * FROM block_host");
     for(std::list<Data_List>::iterator iter2 = d1.begin(); iter2 != d1.end(); ++iter2) {
         g.mac_ = WMac(iter2->argv[0]);
-        GTRACE("g.mac:%s\n\n",iter2->argv[0].data());
         g.ip_ = WIp(iter2->argv[1]);
         g.name = iter2->argv[2];
         newNbMap.insert(std::pair<WMac, Host>(g.mac_, g));
@@ -75,6 +76,7 @@ void NetBlock::updateMap()
 {
     time_t timer;
     struct tm* t;
+
     while(end_check) {
         timer = time(NULL);
         t = localtime(&timer);
@@ -99,11 +101,11 @@ void NetBlock::updateMap()
                 nbMap.swap(newNbMap);
             }
         }
-        for(int i = 0;i <50; i++){
+
+        for(int i = 0 ; i<50; i++){
             std::this_thread::sleep_for(std::chrono::seconds(1));//sleep
             if(!end_check) break;
         }
-
     }
 }
 

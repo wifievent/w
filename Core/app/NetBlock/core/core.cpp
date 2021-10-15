@@ -47,9 +47,11 @@ void Core::stop()
     end_check = false;
     fsInstance.end_check = false;
     nbInstance.end_check = false;
+
     for(std::map<WMac,Host>::iterator iter = fsInstance.getFsMap().begin(); iter != fsInstance.getFsMap().end(); ++iter) {
         nbInstance.sendRecover(iter->second);
     }
+
     GTRACE("Before recv_.join");
     recv_.join();
     GTRACE("Before fsScan.join");

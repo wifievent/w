@@ -8,7 +8,7 @@ private:
     Packet& packet_instance = Packet::getInstance();
     std::mutex m;
     WMac gate_mac;
-    int nbTime = 10000;
+    int nbTime = 10;
     int dbMin = 1;
     int sendRecoverNum = 3;
     NetBlock(){};
@@ -39,7 +39,6 @@ public:
 
     void getBlockHostMap();
     void updateMap();//db list update -> 1. db read 2. compare : new-> input list, have to remove -> recover -> per 5minute
-    std::map<WMac, Host> getNbMap() { return nbMap; }
     void load(Json::Value& json) override;
     void save(Json::Value& json) override;
 };

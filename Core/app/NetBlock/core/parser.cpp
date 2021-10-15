@@ -16,7 +16,8 @@ bool DHCPParser::parse(WPacket& packet)
     gettimeofday(&g.last, NULL);//update connection
 
     std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
-	if(iter == fs.getFsMap().end()) { // does not exist
+
+    if(iter == fs.getFsMap().end()) { // does not exist
 		byte* end = packet.buf_.data_ + packet.buf_.size_;
 		WDhcpHdr::Option* option = packet.dhcpHdr_->first();
 		while (pbyte(option) < pbyte(end)) {
@@ -24,13 +25,15 @@ bool DHCPParser::parse(WPacket& packet)
 				WIp* ip = PIp(option->value());
 				g.ip_ = ntohl(*ip);
                 GTRACE("%s", std::string(g.ip_).data());
-			} else
-			if(option->type_ == WDhcpHdr::HostName){ //get name
-				char* hostName = pchar(option->value());
-                std::string tmp;
-				for(int i = 0; i < option->len_; ++i)
-					tmp += hostName[i];
-				g.name = tmp;
+            }
+            else{
+                if(option->type_ == WDhcpHdr::HostName){ //get name
+                    char* hostName = pchar(option->value());
+                    std::string tmp;
+                    for(int i = 0; i < option->len_; ++i)
+                        tmp += hostName[i];
+                    g.name = tmp;
+                }
             }
 			option = option->next();
 			if (option == nullptr) break;
@@ -59,20 +62,23 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
     }
 
     ARPPacket arppacket_;
+
     if(packet.ethHdr_->type() != WEthHdr::Arp) { return false; }
     GTRACE("MAC = %s, IP = %s",std::string(packet.ethHdr_->smac()).data(),std::string(packet.arpHdr_->sip()).data());
+
     if(packet.arpHdr_->sip() == arppacket_.gate_ip && packet.ethHdr_->smac() != my_mac) {
         nbInstance.setGateMac(packet.ethHdr_->smac());
         GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
         return false;
     }
-    GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
-    //relay
 
+    GTRACE("GATEWAY MAC = %s",std::string(nbInstance.getGateMac()).data());
+
+    //relay
     if(packet.ethHdr_->dmac() == my_mac && packet.arpHdr_->tip() == gateway ) {
 
-        for(std::map<WMac,Host>::iterator iter = nbInstance.getNbMap().begin(); iter != nbInstance.getNbMap().end(); iter++) {
-            if(iter->second.ip_ == packet.arpHdr_->sip())return false;
+        for(std::map<WMac,Host>::iterator iter = nbInstance.nbMap.begin(); iter != nbInstance.nbMap.end(); iter++) {
+            if(iter->second.ip_ == packet.arpHdr_->sip())return false; //if sip가 infected device일 때
         }
 
         #ifdef Q_OS_WIN
@@ -91,23 +97,20 @@ bool ARPParser::parse(WPacket& packet) //arp packet parsing
         #endif
         return false;
     }
-
-    GTRACE("-----------<full scan>");
+;
+    GTRACE("-----------<full scan>------------");
     if((packet.arpHdr_->sip() & mask) == (gateway & mask)) {
         g.mac_ = packet.arpHdr_->smac();//get mac
         g.ip_ = packet.arpHdr_->sip(); //get ip
         gettimeofday(&g.last, NULL);
 
-		// GTRACE("%s", std::string(g.mac_).data());
-		// GTRACE("%s", std::string(g.ip_).data());
-		// GTRACE("%ld",g.last.tv_sec);
         std::map<WMac, Host>::iterator iter = fs.getFsMap().find(g.mac_);
-        if(iter != fs.getFsMap().end()) {
+
+        if(iter != fs.getFsMap().end()) {//if exists
             GTRACE("already info mac: %s, ip: %s", std::string(g.mac_).data(), std::string(g.ip_).data());
             fs.updateHostInfo(g.mac_, g.ip_, g.last);
-        } else {
+        } else { // if not exists
             g.name = std::string(g.ip_);
-            // findName();
             fs.addHost(std::pair<WMac,Host>(g.mac_, g)); //insert into fs_map
         }
     }
@@ -124,7 +127,8 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
         ARPPacket arp_packet;
 
         GTRACE("next-parse: %d", packet.arpHdr_->op() == packet.arpHdr_->Request);
-        if(packet.arpHdr_->op()==packet.arpHdr_->Request) {//request
+
+        if(packet.arpHdr_->op() == packet.arpHdr_->Request) {//request
             //infection
             std::map<WMac,Host>::iterator iter;
             for(iter = nb_map.begin(); iter != nb_map.end(); ++iter) {
@@ -135,9 +139,9 @@ void ARPParser::parse(WPacket& packet, std::map<WMac, Host> nb_map) {
                     break;
                 }
             }
-            GTRACE("list");
+
             if(iter != nb_map.end()) {
-                GTRACE("\n\n\n\n\n\nhave nb list");
+                GTRACE("have nb list");
                 WMac my_mac;
 
                 {
