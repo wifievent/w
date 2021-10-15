@@ -1,6 +1,14 @@
-/Core/bin/*
-!/Core/bin/*.txt
+Core/bin/*
+!Core/bin/*.txt
+!Core/bin/*db
+Core/lib/libw
+Core/setup/win/
 build*/
 *.a
 *.user
+*.exe
 .vscode/
+Makefile
+Makefile.*
+*.stash
+*.o
