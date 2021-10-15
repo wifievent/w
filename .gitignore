@@ -1,8 +1,9 @@
 Core/bin/*
 !Core/bin/*.txt
 !Core/bin/*db
-Core/lib/libw
+Core/lib/libw/
 Core/setup/win/
+Core/setup/linux/
 build*/
 *.a
 *.user
@@ -12,3 +13,4 @@ Makefile
 Makefile.*
 *.stash
 *.o
+
