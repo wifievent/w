@@ -45,3 +45,4 @@ set /p VERSION=<..\..\version.txt
 "C:\Program Files\Bandizip\Bandizip.exe" a ..\netblock-windows-%VERSION%.7z *
 cd ..
 cd ..
+
